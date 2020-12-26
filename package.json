@@ -1,0 +1,24 @@
+{
+  "name": "ars-backend",
+  "version": "1.0.0",
+  "description": "Airline Reservation System",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/what-5up/ars-backend.git"
+  },
+  "author": "5up",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/what-5up/ars-backend/issues"
+  },
+  "homepage": "https://github.com/what-5up/ars-backend#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3"
+  }
+}
