@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index"
+    "start": "node index",
+    "dev": "npx nodemon index.js -w index"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,12 @@
   "homepage": "https://github.com/what-5up/ars-backend#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
-    "express": "^4.16.3"
+    "dotenv": "^8.2.0",
+    "express": "^4.16.3",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "jasmine": "^3.6.3",
+    "nodemon": "^2.0.6"
   }
 }
