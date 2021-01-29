@@ -1,7 +1,7 @@
 var mysql = require('mysql');
 const config = require('config');
 
-module.exports.pool = mysql.createPool({
+const pool = mysql.createPool({
     connectionLimit: 1,
     user: config.get("db.user"),
     host: config.get("db.host"),
@@ -9,3 +9,11 @@ module.exports.pool = mysql.createPool({
     port: config.get("db.port"),
     database: config.get("db.database")
 });
+
+module.exports.pool = pool;
+
+module.exports.terminate = () => {
+    pool.end(function (err) {
+        console.log(err);
+    });
+} 

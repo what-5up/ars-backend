@@ -3,7 +3,7 @@ const router = express.Router();
 
 const {
 
-} = require('../../controllers/users');
+} = require('../controllers/user-controller');
 
 /**
  * @todo assign controller method

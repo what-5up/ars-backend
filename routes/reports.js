@@ -3,31 +3,7 @@ const router = express.Router();
 
 const {
 
-} = require('../../controllers/routes');
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.get('/', );
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.post('/', );
-
-/**
-* @todo assign controller method
- * @todo include middleware
- */
-router.put('/', );
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.delete('/', );
+} = require('../controllers/report-controller');
 
 /**
  * @todo assign controller method

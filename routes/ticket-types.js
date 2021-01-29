@@ -3,7 +3,7 @@ const router = express.Router();
 
 const {
 
-} = require('../../controllers/ticket-types');
+} = require('../controllers/ticket-type-controller');
 
 /**
  * @todo assign controller method
