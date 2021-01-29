@@ -1,7 +1,7 @@
 const model = require("../models/report-model");
 
 /**
- * View all the booking categorized by the passenger type
+ * View all the bookings categorized by the passenger type
  * 
  * @param {object} req http request object
  * @param {object} res http response object

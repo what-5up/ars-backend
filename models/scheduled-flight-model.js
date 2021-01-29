@@ -6,9 +6,9 @@ const { pool }  = require(`../database/connection`);
  * @returns {object} Promise of a query output
  * @throws Error
  */
-async function getBookingsByPassengerType() {
+async function getScheduledFlights() {
     return new Promise((resolve, reject) => {
-        const result = pool.query('SELECT ac.account_type_name as account_type, COUNT(*) as number_of_bookings FROM booking b INNER JOIN user u ON b.user_id = u.id INNER JOIN account_type ac ON u.account_type_id = ac.id GROUP BY ac.id',
+        const result = pool.query('SELECT * FROM scheduled_flight_fullinfo',
             [],
             function (error, results) {
                 if (error) {
@@ -21,5 +21,5 @@ async function getBookingsByPassengerType() {
 }
 
 module.exports = {
-    getBookingsByPassengerType
+    getScheduledFlights
 }
