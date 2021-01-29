@@ -15,6 +15,8 @@ app.use((req, res, next) => {
     res.end('<html><body><h1>Hello world!</h1></body></html>');
 });
 
+require('./startup/routes')(app);
+
 const server = http.createServer(app);
 
 server.listen(port, hostname, () => {
