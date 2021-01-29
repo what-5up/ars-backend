@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 
 const {
-
+    viewScheduledFlights
 } = require('../controllers/scheduled-flight-controller');
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/', );
+router.get('/', viewScheduledFlights);
 
 /**
  * @todo assign controller method

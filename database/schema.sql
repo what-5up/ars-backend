@@ -225,3 +225,29 @@ CREATE TABLE `reserved_seat` (
   CONSTRAINT FK_SeatPassenger FOREIGN KEY (`passenger_id`) 
   REFERENCES `passenger`(`id`) ON UPDATE CASCADE
 );
+
+--
+-- View structure for `route_with_airports`
+-- detailed view routes with its respective airport names
+--
+CREATE VIEW `route_with_airports` AS 
+SELECT `r`.`id`, `a1`.`code` AS `origin`, `a2`.`code` AS `destination` 
+FROM route `r` 
+  INNER JOIN `airport` `a1` 
+    ON `r`.`origin` = `a1`.`id` 
+  INNER JOIN `airport` `a2` 
+    ON `r`.`destination` = `a2`.`id`;
+
+--
+-- View structure for `scheduled_flights_list`
+-- detailed view of scheduled flights
+--
+CREATE VIEW `scheduled_flights_list` AS 
+SELECT `sf`.`departure`, `r`.`origin`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model` 
+FROM `scheduled_flight` `sf` 
+  INNER JOIN `route_with_airports` `r` 
+    ON `sf`.`route` = `r`.`id` 
+  INNER JOIN `aircraft` `a` 
+    ON `sf`.`assigned_airplane_id` = `a`.`id` 
+  INNER JOIN `aircraft_model` `am` 
+    ON `a`.`model_id` = `am`.`id`;
