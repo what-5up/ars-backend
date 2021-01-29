@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 
 const {
-
-} = require('../../controllers/scheduled-flights');
+    viewAllAircrafts
+} = require('../controllers/aircraft-controller');
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/', );
+router.get('/', viewAllAircrafts);
 
 /**
  * @todo assign controller method
