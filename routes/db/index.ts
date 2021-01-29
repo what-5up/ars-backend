@@ -7,3 +7,5 @@ var pool = createPool({
     password: process.env.DB_PASS,
     database: process.env.DB_DB,
 });
+
+module.exports = pool;
