@@ -1,6 +1,6 @@
-require('dotenv').config()
-const express = require('express'),
-    http = require('http');
+const express = require('express');
+const app = express();
+const http = require('http');
 const bodyParser = require('body-parser');
 const logger = require('./utils/logger')
 const middleware = require('./middlwares/middlewares');
@@ -8,10 +8,10 @@ const middleware = require('./middlwares/middlewares');
 const hostname = 'localhost';
 const port = 5000;
 
-const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(middleware.requestLogger);
 
+app.use(middleware.requestLogger);
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 
