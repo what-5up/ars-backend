@@ -20,6 +20,7 @@
   "homepage": "https://github.com/what-5up/ars-backend#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "config": "^3.3.3",
     "dotenv": "^8.2.0",
     "express": "^4.16.3",
     "mysql": "^2.18.1",
