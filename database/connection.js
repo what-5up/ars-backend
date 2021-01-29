@@ -3,9 +3,9 @@ const config = require('config');
 
 module.exports.pool = mysql.createPool({
     connectionLimit: 1,
-    user: config.get("user"),
-    host: config.get("host"),
-    password: config.get("password"),
-    port: config.get("port"),
-    database: config.get("database")
+    user: config.get("db.user"),
+    host: config.get("db.host"),
+    password: config.get("db.password"),
+    port: config.get("db.port"),
+    database: config.get("db.database")
 });
