@@ -290,3 +290,19 @@ FROM `booking` `b`
   INNER JOIN `scheduled_flight` `sf` 
     ON `b`.`scheduled_flight_id` = `sf`.`id`
 ORDER BY `sf`.`departure`;
+
+--
+-- View structure for `passenger_destination`
+-- departure dates, destination of passengers
+--
+CREATE VIEW `passenger_destination` AS
+SELECT `rs`.`booking_id`,`rs`.`passenger_id`,`sf`.`departure`,`sf`.`delayed_departure`,`b`.`state`,`sf`.`route`,`a`.`code` AS `dest_code`,`a`.`name` AS `dest_name`
+FROM `reserved_seat` `rs`
+  INNER JOIN `booking` `b`
+    ON `rs`.`booking_id` = `b`.`id`
+  INNER JOIN `scheduled_flight` `sf`
+    ON `rs`.`scheduled_flight_id` = `sf`.`id`
+  INNER JOIN `route` `r`
+    ON `sf`.`route` = `r`.`id`
+  INNER JOIN `airport` `a`
+    ON `r`.`destination` = `a`.`id`;
