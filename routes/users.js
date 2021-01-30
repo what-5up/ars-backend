@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const {
-
+    signupUser
 } = require('../controllers/user-controller');
 
 /**
@@ -15,7 +15,7 @@ router.get('/', );
  * @todo assign controller method
  * @todo include middleware
  */
-router.post('/', );
+router.post('/', signupUser);
 
 /**
 * @todo assign controller method

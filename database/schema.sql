@@ -19,10 +19,10 @@ CREATE TABLE `account_type` (
 --
 CREATE TABLE `user` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `title` varchar(15) NOT NULL,
+  `title` enum('Rev','PROF','Dr','Hon','Mr','Mrs','Ms','Exc','Ven','Miss','Master','Admiral','Major','Capt','PhraKhru','Phramaha','Phra','Rt Revd','Most Revd') NOT NULL,
   `first_name` varchar(150) NOT NULL,
   `last_name` varchar(150) NOT NULL,
-  `email` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL UNIQUE,
   `gender` enum('m','f','o') NOT NULL,
   `password` char(32),
   `account_type_id` int NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE `designation` (
 --
 CREATE TABLE `employee` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `title` varchar(15) NOT NULL,
+  `title` enum('Mr','Mrs','Ms','Miss','Master') NOT NULL,
   `first_name` varchar(150) NOT NULL,
   `last_name` varchar(150) NOT NULL,
   `email` varchar(100) NOT NULL UNIQUE,
@@ -173,7 +173,7 @@ CREATE TABLE `booking` (
 CREATE TABLE `passenger` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `title` varchar(15) NOT NULL,
+  `title` enum('Rev','PROF','Dr','Hon','Mr','Mrs','Ms','Exc','Ven','Miss','Master','Admiral','Major','Capt','PhraKhru','Phramaha','Phra','Rt Revd','Most Revd') NOT NULL,
   `first_name` varchar(150) NOT NULL,
   `last_name` varchar(150) NOT NULL,
   `birthday` date NOT NULL,
