@@ -9,7 +9,7 @@ const model = require("../models/report-model");
  * @throws Error
  */
 const viewBookingsByPassengerType = async (req, res) => {
-    const records = await model.getBookingsByPassengerType()
+    const records = await model.getBookingsByPassengerType(req.query.startDate, req.query.endDate)
         .then(result => {
             return result.map((row, index) => {
                 return { id: index, object: row };
