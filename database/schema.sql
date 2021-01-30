@@ -293,7 +293,7 @@ ORDER BY `sf`.`departure`;
 
 --
 -- View structure for `passenger_destination`
--- departure dates, destination of passengers
+-- departure dates with delay added, destination of passengers
 --
 CREATE VIEW `passenger_destination` AS
 SELECT `rs`.`booking_id`,`rs`.`passenger_id`,DATE(IFNULL(`sf`.`delayed_departure`,`sf`.`departure`)) AS `departure_date`,`b`.`state`,`sf`.`route`,`a`.`code` AS `dest_code`,`a`.`name` AS `dest_name`
