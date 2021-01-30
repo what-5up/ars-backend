@@ -1,0 +1,11 @@
+###
+GET http://localhost:5000/reports/4
+
+###
+GET http://localhost:5000/reports/4?model=Boeing 757
+
+###
+GET http://localhost:5000/reports/4?month=2021-02
+
+###
+GET http://localhost:5000/reports/4?model=Boeing 737&month=2021-02
