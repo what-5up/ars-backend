@@ -171,8 +171,7 @@ CREATE TABLE `booking` (
   `scheduled_flight_id` int NOT NULL,
   `date_of_booking` timestamp NOT NULL,
   `final_amount` numeric(12,2) unsigned NOT NULL,
-  `state` enum('booked','completed') DEFAULT 'booked',
-  `is_deleted` tinyint(1) DEFAULT 0,
+  `state` enum('booked','completed','cancelled') DEFAULT 'booked',
   PRIMARY KEY (`id`),
   CONSTRAINT FK_BookingUser FOREIGN KEY (`user_id`) 
   REFERENCES `user`(`id`) ON UPDATE CASCADE,
@@ -267,7 +266,7 @@ FROM route `r`
 -- detailed view of scheduled flights
 --
 CREATE VIEW `scheduled_flights_list` AS 
-SELECT `sf`.`departure`, `r`.`origin_code`, `r`.`origin`, `r`.`destination_code`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model` 
+SELECT `sf`.`departure`, `r`.`origin_code`, `r`.`origin`, `r`.`destination_code`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model`, `sf`.`is_deleted`
 FROM `scheduled_flight` `sf` 
   INNER JOIN `route_with_airports` `r` 
     ON `sf`.`route` = `r`.`id` 
