@@ -39,22 +39,3 @@ module.exports = {
     viewBookingsByPassengerType,
     viewRevenueByAircraftModel
 };
-
-// [
-//     {
-//       "id": 0,
-//       "object": {
-//         "model_name": "Boeing 737",
-//         "revenue": 308000,
-//         "month": "2021-02"
-//       }
-//     },
-//     {
-//       "id": 1,
-//       "object": {
-//         "model_name": "Boeing 757",
-//         "revenue": 182000,
-//         "month": "2021-02"
-//       }
-//     }
-//   ]
