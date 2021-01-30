@@ -19,11 +19,11 @@ async function getScheduledFlights(origin = undefined, destination = undefined, 
         if (origin !== undefined || destination !== undefined || aircraftID !== undefined || aircraftModel !== undefined) {
             whereClause = ' WHERE '
             if (origin !== undefined) {
-                variableNames.push('origin = ?');
+                variableNames.push('origin_code = ?');
                 variableValues.push(origin);
             }
             if (destination !== undefined) {
-                variableNames.push('destination = ?');
+                variableNames.push('destination_code = ?');
                 variableValues.push(destination);
             }
             if (aircraftID !== undefined) {
