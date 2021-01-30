@@ -8,12 +8,12 @@ const port = 5000;
 
 const app = express();
 app.use(bodyParser.json());
-app.use((req, res, next) => {
-    console.log(req.headers);
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/html');
-    res.end('<html><body><h1>Hello world!</h1></body></html>');
-});
+// app.use((req, res, next) => {
+//     //console.log(req.headers);
+//     res.statusCode = 200;
+//     res.setHeader('Content-Type', 'text/html');
+//     res.end('<html><body><h1>Hello world!</h1></body></html>');
+// });
 
 require('./startup/routes')(app);
 

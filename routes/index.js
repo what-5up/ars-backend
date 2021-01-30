@@ -1,7 +1,7 @@
 const routes = require('express').Router();
 const express = require('express');
 
-routes.use('/aircraft', require('./aircraft'));
+routes.use('/aircrafts', require('./aircrafts'));
 routes.use('/employees', require('./employees'));
 routes.use('/reports', require('./reports'));
 routes.use('/scheduled-flights', require('./scheduled-flights'));
