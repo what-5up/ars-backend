@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    viewAllAircrafts
+    
 } = require('../controllers/aircraft-controller');
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/', viewAllAircrafts);
+router.get('/', );
 
 /**
  * @todo assign controller method

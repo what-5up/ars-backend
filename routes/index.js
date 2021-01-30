@@ -9,7 +9,7 @@ routes.use('/ticket-types', require('./ticket-types'));
 routes.use('/users', require('./users'));
 
 routes.use('/', (req, res) => {
-    res.status(200).send('');
+    res.status(200).send('home page');
 });
 
 module.exports = routes;
