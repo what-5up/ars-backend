@@ -19,6 +19,23 @@ const viewBookingsByPassengerType = async (req, res) => {
     return res.status(200).send(records);
 }
 
+const viewRevenueByAircraftModel = async (req, res, next) => {
+    const records = await model.getRevenueByAircraftModel(req.query.model, req.query.month)
+        .then(result => {
+            return result.reduce((revenueDetails, row) => {
+                revenueDetails[row.model_name] = revenueDetails[row.model_name] || [];
+                revenueDetails[row.model_name].push({
+                    revenue: row.revenue,
+                    month: row.month
+                });
+                return revenueDetails;
+            }, {});
+        })
+        .catch(err => next(err));
+    return res.status(200).send(records);
+}
+
 module.exports = {
-    viewBookingsByPassengerType
+    viewBookingsByPassengerType,
+    viewRevenueByAircraftModel
 };

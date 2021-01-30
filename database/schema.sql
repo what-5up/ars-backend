@@ -290,3 +290,19 @@ FROM `booking` `b`
   INNER JOIN `scheduled_flight` `sf` 
     ON `b`.`scheduled_flight_id` = `sf`.`id`
 ORDER BY `sf`.`departure`;
+
+--
+-- View structure for `revenue_by_aircraft_model_and_month`
+-- revenue for model by each month
+--
+CREATE VIEW `revenue_by_aircraft_model_and_month`
+AS
+SELECT `model_name`
+	,SUM(`final_amount`) AS `revenue`
+	,DATE_FORMAT(`date_of_booking`, "%Y-%m") AS `month`
+FROM `booking`
+INNER JOIN `scheduled_flight` ON `booking`.`scheduled_flight_id` = `scheduled_flight`.`id`
+INNER JOIN `aircraft` ON `aircraft`.`id` = `scheduled_flight`.`assigned_airplane_id`
+INNER JOIN `aircraft_model` ON `aircraft_model`.`id` = `aircraft`.`model_id`
+GROUP BY `aircraft`.`model_id`
+	,month;
