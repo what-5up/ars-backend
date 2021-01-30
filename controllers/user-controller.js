@@ -1,7 +1,9 @@
 const Joi = require('joi');
 const bcrypt = require('bcryptjs');
+const logger = require('../utils/logger');
 
 const User = require('../models/User');
+const bookingModel = require("../models/booking-model");
 
 function validateSignupDetails(title,email,first_name,last_name,gender,password) {
 
@@ -43,4 +45,26 @@ const signupUser = async (req,res,next) => {
     }
 };
 
+/**
+ * View all bookings
+ * 
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * @return {object} promise of a record object
+ */
+const viewBookings = async (req, res) => {
+    const records = await bookingModel.getBookings(req.params.userid)
+        .then(result => {
+            return result.map((row, index) => {
+                return { id: index, object: row };
+            })
+        })
+        .catch(err => { return res.status(400).send({ error: err.message }); });
+    return res.status(200).send(records);
+}
+
 exports.signupUser = signupUser;
+module.exports = {
+    viewBookings
+};
+
