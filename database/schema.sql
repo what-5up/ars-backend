@@ -296,7 +296,7 @@ ORDER BY `sf`.`departure`;
 -- departure dates, destination of passengers
 --
 CREATE VIEW `passenger_destination` AS
-SELECT `rs`.`booking_id`,`rs`.`passenger_id`,`sf`.`departure`,`sf`.`delayed_departure`,`b`.`state`,`sf`.`route`,`a`.`code` AS `dest_code`,`a`.`name` AS `dest_name`
+SELECT `rs`.`booking_id`,`rs`.`passenger_id`,DATE(IFNULL(`sf`.`delayed_departure`,`sf`.`departure`)) AS `departure_date`,`b`.`state`,`sf`.`route`,`a`.`code` AS `dest_code`,`a`.`name` AS `dest_name`
 FROM `reserved_seat` `rs`
   INNER JOIN `booking` `b`
     ON `rs`.`booking_id` = `b`.`id`
