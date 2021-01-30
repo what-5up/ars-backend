@@ -5,7 +5,7 @@ const pool = mysql.createPool({
     connectionLimit: 1,
     user: "root",
     host: "localhost",
-    password: 'backupint',
+    password: 'ask234',
     port: "3306",
     database: "b_airways"
 });
