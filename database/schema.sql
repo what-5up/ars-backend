@@ -22,7 +22,7 @@ CREATE TABLE `user` (
   `title` varchar(15) NOT NULL,
   `first_name` varchar(150) NOT NULL,
   `last_name` varchar(150) NOT NULL,
-  `email` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL UNIQUE,
   `gender` enum('m','f','o') NOT NULL,
   `password` char(32),
   `account_type_id` int NOT NULL,
