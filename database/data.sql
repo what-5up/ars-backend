@@ -92,16 +92,16 @@ INSERT INTO `region`
 --
 INSERT INTO `airport`
 (`code`, `name`, `parent_region_id`) VALUES
-('CGK', `Soekarno-Hatta International Airport`, 1),
-('DPS', 1),
-('BIA', 6),
-('HRI', 10),
-('DEL', 7),
-('MMA', 9),
-('MOA', 8),
-('BKK', 4),
-('DMK', 4),
-('SIN', 5);
+('CGK', 'Soekarno-Hatta International Airport', 1),
+('DPS', 'Ngurah Rai International Airport', 1),
+('BIA', 'Bandaranaike International Airport', 6),
+('HRI', 'Mattala Rajapaksa Hambantota Airport', 10),
+('DEL', 'Indira Gandhi International Airport', 7),
+('BOM', 'Chhatrapati Shivaji Maharaj International Airport', 8),
+('MAA', 'Chennai International Airport', 9),
+('BKK', 'Suvarnabhumi Airport', 4),
+('DMK', 'Don Mueang International Airport', 4),
+('SIN', 'Singapore Changi Airport', 5);
 
 --
 -- Inserting values to 'route' table
