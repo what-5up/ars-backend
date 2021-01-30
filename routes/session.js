@@ -3,7 +3,7 @@ const router = express.Router();
 
 const {
 
-} = require('../../controllers/session');
+} = require('../controllers/session');
 
 /**
  * @todo assign controller method

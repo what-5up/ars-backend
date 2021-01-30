@@ -3,7 +3,7 @@ const router = express.Router();
 
 const {
 
-} = require('../../controllers/scheduled-flights');
+} = require('../controllers/employees');
 
 /**
  * @todo assign controller method

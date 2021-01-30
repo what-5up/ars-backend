@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 const {
-
-} = require('../../controllers/users');
+    viewBookings
+} = require('../controllers/users');
 
 /**
  * @todo assign controller method
@@ -57,7 +57,7 @@ router.delete('/:id', );
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/:id/bookings', );
+router.get('/:id/bookings', viewBookings);
 
 /**
  * @todo assign controller method
