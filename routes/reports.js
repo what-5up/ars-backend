@@ -2,31 +2,12 @@ const express = require('express');
 const router = express.Router();
 
 const {
-
+    viewBookingsByPassengerType
 } = require('../controllers/report-controller');
 
 /**
- * @todo assign controller method
  * @todo include middleware
  */
-router.get('/:id', );
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.post('/:id', );
-
-/**
-* @todo assign controller method
- * @todo include middleware
- */
-router.put('/:id', );
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.delete('/:id', );
+router.get('/2', viewBookingsByPassengerType);
 
 module.exports = router;

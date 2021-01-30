@@ -8,10 +8,19 @@ USE b_airways;
 --
 CREATE TABLE `account_type` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `account_type_name` varchar(15) NOT NULL,
+  `account_type_name` varchar(15) NOT NULL UNIQUE,
   `discount` numeric(5,2),
   PRIMARY KEY (`id`),
   CONSTRAINT CHK_AccountDiscount CHECK(`discount` BETWEEN 0 AND 100)
+);
+
+--
+-- Table structure for 'account_type'
+--
+CREATE TABLE `title` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title_name` varchar(15) NOT NULL UNIQUE,
+  PRIMARY KEY (`id`)
 );
 
 --
@@ -19,16 +28,19 @@ CREATE TABLE `account_type` (
 --
 CREATE TABLE `user` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `title` varchar(15) NOT NULL,
+  `title` int NOT NULL,
   `first_name` varchar(150) NOT NULL,
   `last_name` varchar(150) NOT NULL,
-  `email` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL UNIQUE,
   `gender` enum('m','f','o') NOT NULL,
   `password` char(32),
   `account_type_id` int NOT NULL,
+  `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_UserAccountType FOREIGN KEY (`account_type_id`) 
-  REFERENCES `account_type`(`id`) ON UPDATE CASCADE  
+  REFERENCES `account_type`(`id`) ON UPDATE CASCADE,
+  CONSTRAINT FK_UserTitle FOREIGN KEY (`title`) 
+  REFERENCES `title`(`id`) ON UPDATE CASCADE  
 );
 
 --
@@ -46,15 +58,18 @@ CREATE TABLE `designation` (
 --
 CREATE TABLE `employee` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `title` varchar(15) NOT NULL,
+  `title` int NOT NULL,
   `first_name` varchar(150) NOT NULL,
   `last_name` varchar(150) NOT NULL,
   `email` varchar(100) NOT NULL UNIQUE,
   `password` char(32) NOT NULL,
   `designation_id` int NOT NULL,
+  `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_EmployeeDesignation FOREIGN KEY (`designation_id`) 
-  REFERENCES `designation`(`id`) ON UPDATE CASCADE  
+  REFERENCES `designation`(`id`) ON UPDATE CASCADE, 
+  CONSTRAINT FK_EmployeeTitle FOREIGN KEY (`title`) 
+  REFERENCES `title`(`id`) ON UPDATE CASCADE  
 );
 
 --
@@ -73,6 +88,7 @@ CREATE TABLE `aircraft_model` (
 CREATE TABLE `aircraft` (
   `id` int NOT NULL AUTO_INCREMENT,
   `model_id` int NOT NULL,
+  `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_AircraftModel FOREIGN KEY (`model_id`) 
   REFERENCES `aircraft_model`(`id`) ON UPDATE CASCADE  
@@ -95,6 +111,7 @@ CREATE TABLE `region` (
   `name` varchar(100) NOT NULL,
   `region_type` enum('country', 'state', 'city') NOT NULL,
   `parent_id` int DEFAULT NULL,
+  `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_RegionParent FOREIGN KEY (`parent_id`) 
   REFERENCES `region`(`id`) ON UPDATE CASCADE
@@ -105,8 +122,10 @@ CREATE TABLE `region` (
 --
 CREATE TABLE `airport` (
   `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
   `code` varchar(10) NOT NULL,
   `parent_region_id` int NOT NULL,
+  `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_ParentRegion FOREIGN KEY (`parent_region_id`) 
   REFERENCES `region`(`id`) ON UPDATE CASCADE
@@ -119,6 +138,7 @@ CREATE TABLE `route` (
   `id` int NOT NULL AUTO_INCREMENT,
   `origin` int NOT NULL,
   `destination` int NOT NULL,
+  `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_RouteOrigin FOREIGN KEY (`origin`) 
   REFERENCES `airport`(`id`) ON UPDATE CASCADE,
@@ -135,6 +155,7 @@ CREATE TABLE `scheduled_flight` (
   `departure` timestamp NOT NULL,
   `assigned_airplane_id` int NOT NULL,
   `delayed_departure` timestamp NULL DEFAULT NULL,
+  `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_ScheduledFlightRoute FOREIGN KEY (`route`) 
   REFERENCES `route`(`id`) ON UPDATE CASCADE,
@@ -150,7 +171,7 @@ CREATE TABLE `booking` (
   `scheduled_flight_id` int NOT NULL,
   `date_of_booking` timestamp NOT NULL,
   `final_amount` numeric(12,2) unsigned NOT NULL,
-  `state` enum('booked','completed') DEFAULT 'booked',
+  `state` enum('booked','completed','cancelled') DEFAULT 'booked',
   PRIMARY KEY (`id`),
   CONSTRAINT FK_BookingUser FOREIGN KEY (`user_id`) 
   REFERENCES `user`(`id`) ON UPDATE CASCADE,
@@ -164,7 +185,7 @@ CREATE TABLE `booking` (
 CREATE TABLE `passenger` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `title` varchar(15) NOT NULL,
+  `title` int NOT NULL,
   `first_name` varchar(150) NOT NULL,
   `last_name` varchar(150) NOT NULL,
   `birthday` date NOT NULL,
@@ -174,7 +195,9 @@ CREATE TABLE `passenger` (
   `passport_expiry` date,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_PassengerUser FOREIGN KEY (`user_id`) 
-  REFERENCES `user`(`id`) ON UPDATE CASCADE
+  REFERENCES `user`(`id`) ON UPDATE CASCADE,
+  CONSTRAINT FK_PassengerTitle FOREIGN KEY (`title`) 
+  REFERENCES `title`(`id`) ON UPDATE CASCADE  
 );
 
 --
@@ -225,3 +248,45 @@ CREATE TABLE `reserved_seat` (
   CONSTRAINT FK_SeatPassenger FOREIGN KEY (`passenger_id`) 
   REFERENCES `passenger`(`id`) ON UPDATE CASCADE
 );
+
+--
+-- View structure for `route_with_airports`
+-- detailed view routes with its respective airport names
+--
+CREATE VIEW `route_with_airports` AS 
+SELECT `r`.`id`, `a1`.`code` AS `origin_code`,`a1`.`name` AS `origin`, `a2`.`code` AS `destination_code`,  `a2`.`name` AS `destination` 
+FROM route `r` 
+  INNER JOIN `airport` `a1` 
+    ON `r`.`origin` = `a1`.`id` 
+  INNER JOIN `airport` `a2` 
+    ON `r`.`destination` = `a2`.`id`;
+
+--
+-- View structure for `scheduled_flights_list`
+-- detailed view of scheduled flights
+--
+CREATE VIEW `scheduled_flights_list` AS 
+SELECT `sf`.`departure`, `r`.`origin_code`, `r`.`origin`, `r`.`destination_code`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model`, `sf`.`is_deleted`
+FROM `scheduled_flight` `sf` 
+  INNER JOIN `route_with_airports` `r` 
+    ON `sf`.`route` = `r`.`id` 
+  INNER JOIN `aircraft` `a` 
+    ON `sf`.`assigned_airplane_id` = `a`.`id` 
+  INNER JOIN `aircraft_model` `am` 
+    ON `a`.`model_id` = `am`.`id`
+ORDER BY `sf`.`departure`;
+
+--
+-- View structure for `bookings_by_passenger_type`
+-- departure date of the booking with the type of the passenger who booked it
+--
+CREATE VIEW `bookings_by_passenger_type` AS
+SELECT DATE(`sf`.`departure`) AS `departure_date` , `ac`.`account_type_name` AS `account_type`
+FROM `booking` `b` 
+  INNER JOIN `user` `u` 
+    ON `b`.`user_id` = `u`.`id` 
+  INNER JOIN `account_type` `ac` 
+    ON `u`.`account_type_id` = `ac`.`id` 
+  INNER JOIN `scheduled_flight` `sf` 
+    ON `b`.`scheduled_flight_id` = `sf`.`id`
+ORDER BY `sf`.`departure`;
