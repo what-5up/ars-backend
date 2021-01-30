@@ -64,7 +64,5 @@ const viewBookings = async (req, res) => {
 }
 
 exports.signupUser = signupUser;
-module.exports = {
-    viewBookings
-};
+exports.viewBookings = viewBookings;
 

@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    viewBookings,
-    signupUser
+    signupUser,viewBookings
 } = require('../controllers/user-controller');
 
 /**
