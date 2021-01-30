@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const {
-
+    viewBookings
 } = require('../controllers/user-controller');
 
 /**
@@ -33,72 +33,72 @@ router.delete('/', );
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/:id', );
+router.get('/:userid', );
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.post('/:id', );
+router.post('/:userid', );
 
 /**
 * @todo assign controller method
  * @todo include middleware
  */
-router.put('/:id', );
+router.put('/:userid', );
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.delete('/:id', );
+router.delete('/:userid', );
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/:id/bookings', );
+router.get('/:userid/bookings', viewBookings);
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.post('/:id/bookings', );
+router.post('/:userid/bookings', );
 
 /**
 * @todo assign controller method
  * @todo include middleware
  */
-router.put('/:id/bookings', );
+router.put('/:userid/bookings', );
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.delete('/:id/bookings', );
+router.delete('/:userid/bookings', );
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/:id/bookings/:id', );
+router.get('/:userid/bookings/:bookingid', );
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.post('/:id/bookings/:id', );
+router.post('/:userid/bookings/:bookingid', );
 
 /**
 * @todo assign controller method
  * @todo include middleware
  */
-router.put('/:id/bookings/:id', );
+router.put('/:userid/bookings/:bookingid', );
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.delete('/:id/bookings/:id', );
+router.delete('/:userid/bookings/:bookingid', );
 
 module.exports = router;
