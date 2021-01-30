@@ -8,10 +8,19 @@ USE b_airways;
 --
 CREATE TABLE `account_type` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `account_type_name` varchar(15) NOT NULL,
+  `account_type_name` varchar(15) NOT NULL UNIQUE,
   `discount` numeric(5,2),
   PRIMARY KEY (`id`),
   CONSTRAINT CHK_AccountDiscount CHECK(`discount` BETWEEN 0 AND 100)
+);
+
+--
+-- Table structure for 'account_type'
+--
+CREATE TABLE `title` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title_name` varchar(15) NOT NULL UNIQUE,
+  PRIMARY KEY (`id`)
 );
 
 --
@@ -19,7 +28,7 @@ CREATE TABLE `account_type` (
 --
 CREATE TABLE `user` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `title` enum('Rev','PROF','Dr','Hon','Mr','Mrs','Ms','Exc','Ven','Miss','Master','Admiral','Major','Capt','PhraKhru','Phramaha','Phra','Rt Revd','Most Revd') NOT NULL,
+  `title` int NOT NULL,
   `first_name` varchar(150) NOT NULL,
   `last_name` varchar(150) NOT NULL,
   `email` varchar(100) NOT NULL UNIQUE,
@@ -29,7 +38,9 @@ CREATE TABLE `user` (
   `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_UserAccountType FOREIGN KEY (`account_type_id`) 
-  REFERENCES `account_type`(`id`) ON UPDATE CASCADE  
+  REFERENCES `account_type`(`id`) ON UPDATE CASCADE,
+  CONSTRAINT FK_UserTitle FOREIGN KEY (`title`) 
+  REFERENCES `title`(`id`) ON UPDATE CASCADE  
 );
 
 --
@@ -47,7 +58,7 @@ CREATE TABLE `designation` (
 --
 CREATE TABLE `employee` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `title` enum('Mr','Mrs','Ms','Miss','Master') NOT NULL,
+  `title` int NOT NULL,
   `first_name` varchar(150) NOT NULL,
   `last_name` varchar(150) NOT NULL,
   `email` varchar(100) NOT NULL UNIQUE,
@@ -56,7 +67,9 @@ CREATE TABLE `employee` (
   `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_EmployeeDesignation FOREIGN KEY (`designation_id`) 
-  REFERENCES `designation`(`id`) ON UPDATE CASCADE  
+  REFERENCES `designation`(`id`) ON UPDATE CASCADE, 
+  CONSTRAINT FK_EmployeeTitle FOREIGN KEY (`title`) 
+  REFERENCES `title`(`id`) ON UPDATE CASCADE  
 );
 
 --
@@ -173,7 +186,7 @@ CREATE TABLE `booking` (
 CREATE TABLE `passenger` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `title` enum('Rev','PROF','Dr','Hon','Mr','Mrs','Ms','Exc','Ven','Miss','Master','Admiral','Major','Capt','PhraKhru','Phramaha','Phra','Rt Revd','Most Revd') NOT NULL,
+  `title` int NOT NULL,
   `first_name` varchar(150) NOT NULL,
   `last_name` varchar(150) NOT NULL,
   `birthday` date NOT NULL,
@@ -183,7 +196,9 @@ CREATE TABLE `passenger` (
   `passport_expiry` date,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_PassengerUser FOREIGN KEY (`user_id`) 
-  REFERENCES `user`(`id`) ON UPDATE CASCADE
+  REFERENCES `user`(`id`) ON UPDATE CASCADE,
+  CONSTRAINT FK_PassengerTitle FOREIGN KEY (`title`) 
+  REFERENCES `title`(`id`) ON UPDATE CASCADE  
 );
 
 --
