@@ -50,7 +50,6 @@ async function getScheduledFlights(origin = undefined, destination = undefined, 
                     reject(new Error(error.message));
                 }
                 resolve(results);
-                
             }
         );
     })

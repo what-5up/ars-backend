@@ -275,3 +275,18 @@ FROM `scheduled_flight` `sf`
   INNER JOIN `aircraft_model` `am` 
     ON `a`.`model_id` = `am`.`id`
 ORDER BY `sf`.`departure`;
+
+--
+-- View structure for `bookings_by_passenger_type`
+-- departure date of the booking with the type of the passenger who booked it
+--
+CREATE VIEW `bookings_by_passenger_type` AS
+SELECT DATE(`sf`.`departure`) AS `departure_date` , `ac`.`account_type_name` AS `account_type`
+FROM `booking` `b` 
+  INNER JOIN `user` `u` 
+    ON `b`.`user_id` = `u`.`id` 
+  INNER JOIN `account_type` `ac` 
+    ON `u`.`account_type_id` = `ac`.`id` 
+  INNER JOIN `scheduled_flight` `sf` 
+    ON `b`.`scheduled_flight_id` = `sf`.`id`
+ORDER BY `sf`.`departure`;
