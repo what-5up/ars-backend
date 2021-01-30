@@ -91,8 +91,8 @@ INSERT INTO `region`
 -- Inserting values to 'airport' table
 --
 INSERT INTO `airport`
-(`code`, `parent_region_id`) VALUES
-('CGK', 1),
+(`code`, `name`, `parent_region_id`) VALUES
+('CGK', `Soekarno-Hatta International Airport`, 1),
 ('DPS', 1),
 ('BIA', 6),
 ('HRI', 10),

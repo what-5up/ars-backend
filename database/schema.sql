@@ -105,6 +105,7 @@ CREATE TABLE `region` (
 --
 CREATE TABLE `airport` (
   `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
   `code` varchar(10) NOT NULL,
   `parent_region_id` int NOT NULL,
   PRIMARY KEY (`id`),
