@@ -6,10 +6,22 @@ const { pool }  = require(`../database/connection`);
  * @returns {object} Promise of a query output
  * @throws Error
  */
-async function getBookingsByPassengerType() {
+async function getBookingsByPassengerType(startDate = undefined, endDate = undefined) {
+    let whereClause = '';
+    let variableValues = [];
+    if (startDate !== undefined && endDate !== undefined) {
+        whereClause = "WHERE departure_date BETWEEN ? AND ?";
+        variableValues = [startDate , endDate];
+    } else if (startDate === undefined && endDate !== undefined) {
+        whereClause = "WHERE departure_date <= ?";
+        variableValues = [endDate];
+    } else if (startDate !== undefined && endDate === undefined) {
+        whereClause = "WHERE departure_date >= ?";
+        variableValues = [startDate];
+    }
     return new Promise((resolve, reject) => {
-        const result = pool.query('SELECT ac.account_type_name as account_type, COUNT(*) as number_of_bookings FROM booking b INNER JOIN user u ON b.user_id = u.id INNER JOIN account_type ac ON u.account_type_id = ac.id GROUP BY ac.id',
-            [],
+        pool.query("SELECT account_type, COUNT(*) AS number_of_bookings FROM bookings_by_passenger_type " + whereClause + " GROUP BY account_type",
+            variableValues,
             function (error, results) {
                 if (error) {
                     reject(new Error(error.message));

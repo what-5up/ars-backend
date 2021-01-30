@@ -6,9 +6,8 @@ const {
 } = require('../controllers/report-controller');
 
 /**
- * @todo assign controller method
  * @todo include middleware
  */
-router.get('/:id', viewBookingsByPassengerType);
+router.get('/2', viewBookingsByPassengerType);
 
 module.exports = router;
