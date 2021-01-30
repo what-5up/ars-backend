@@ -63,8 +63,8 @@ const viewBookings = async (req, res) => {
     return res.status(200).send(records);
 }
 
-exports.signupUser = signupUser;
 module.exports = {
-    viewBookings
+    viewBookings,
+    signupUser
 };
 
