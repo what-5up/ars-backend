@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    viewAllAircrafts
+    viewAllAircrafts,
+    viewDetailsForAircraft
 } = require('../controllers/aircraft-controller');
 
 /**
@@ -33,7 +34,7 @@ router.delete('/', );
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/:id', );
+router.get('/:id', viewDetailsForAircraft);
 
 /**
  * @todo assign controller method

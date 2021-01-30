@@ -12,10 +12,12 @@ const app = express();
 app.use(bodyParser.json());
 app.use(middleware.requestLogger);
 
+require('./startup/routes')(app);
+
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 
-require('./startup/routes')(app);
+
 
 const server = http.createServer(app);
 
