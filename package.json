@@ -24,6 +24,7 @@
     "config": "^3.3.3",
     "dotenv": "^8.2.0",
     "express": "^4.16.3",
+    "logger": "^0.0.1",
     "joi": "^17.3.0",
     "jsonwebtoken": "^8.5.1",
     "mysql": "^2.18.1",

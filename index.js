@@ -11,7 +11,6 @@ const port = 5000;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-
 app.use(middleware.requestLogger);
 require('./startup/routes')(app);
 app.use(middleware.unknownEndpoint);
