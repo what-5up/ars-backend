@@ -309,7 +309,6 @@ FROM `booking` `b`
 ORDER BY `sf`.`departure`;
 
 --
-<<<<<<< HEAD
 -- View structure for `passengers_with_routes`
 -- departure date of the booking with the type of the passenger who booked it
 --
@@ -321,7 +320,8 @@ FROM `reserved_seat` `rs`
   INNER JOIN `scheduled_flight` `sf`
     ON `sf`.`id` = `rs`.`scheduled_flight_id`
 ORDER BY `sf`.`departure`;
-=======
+
+--
 -- View structure for `revenue_by_aircraft_model_and_month`
 -- revenue for model by each month
 --
@@ -356,4 +356,3 @@ INNER JOIN `traveler_class` `tc` ON `tc`.`id` = `se`.`traveler_class`
 WHERE `sf`.`departure` < CURDATE()
 GROUP BY `sf`.`id`
 	,`tc`.`id`;
->>>>>>> origin/main
