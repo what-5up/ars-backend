@@ -73,6 +73,7 @@ async function getBookingsByPassengerType(startDate = undefined, endDate = undef
     });
 }
 
+
 /**
  * Fetches revenue for aircraft models by each month from the database
  * 
@@ -94,6 +95,7 @@ async function getRevenueByAircraftModel(model = undefined, month = undefined) {
     whereClause += whereArray.join(" AND ");
     return new Promise((resolve, reject) => {
         pool.query('SELECT model_name,revenue,month from revenue_by_aircraft_model_and_month' + whereClause,
+
             variableValues,
             function (error, results) {
                 if (error) {
@@ -102,7 +104,38 @@ async function getRevenueByAircraftModel(model = undefined, month = undefined) {
                 resolve(results);
             }
         );
-    })
+    });
+}
+
+async function getNoOfPassengersToDest(destination,startDate = undefined, endDate = undefined){
+    let whereClause = '';
+    let variableValues = [destination,'booked'];
+    let sql = 'SELECT dest_code,dest_name,COUNT(*) AS no_of_passengers FROM passenger_destination WHERE dest_code = ? AND state= ?';
+    if (startDate !== undefined && endDate !== undefined) {
+        whereClause = ' AND departure_date BETWEEN ? AND ?';
+        variableValues.push(startDate,endDate);
+    }
+    else if (startDate === undefined && endDate !== undefined) {
+        whereClause = ' AND departure_date <= ?';
+        variableValues.push(endDate);
+    }
+    else if (startDate !== undefined && endDate === undefined) {
+        whereClause = ' AND departure_date >= ?';
+        variableValues.push(startDate);
+    }
+    sql+=whereClause;
+    console.log(sql,variableValues);
+    return new Promise((resolve, reject) => {
+        pool.query(sql,
+                   variableValues,
+            function (error, results) {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+            }
+        );
+    });
 }
 
 /**
@@ -128,5 +161,7 @@ module.exports = {
     getPassengersByFlightNo,
     getBookingsByPassengerType,
     getRevenueByAircraftModel,
-    getPastFlightsDetails
+    getPastFlightsDetails,
+    getNoOfPassengersToDest
 }
+

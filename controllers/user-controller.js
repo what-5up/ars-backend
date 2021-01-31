@@ -5,7 +5,6 @@ const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const logger = require('../utils/logger');
 const _ = require('lodash');
-
 const User = require('../models/User');
 
 function validateSignupDetails(title,email,first_name,last_name,gender,password) {
@@ -44,7 +43,7 @@ const signupUser = async (req,res,next) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({error:err,message:"Internal Server Error"});
+        res.status(500).json({message:"Internal Server Error"});
     }
 };
 
@@ -66,6 +65,7 @@ const viewBookings = async (req, res) => {
         .catch(err => { return res.status(400).send({ error: err.message }); });
     return res.status(200).send(records);
 }
+
 
 /**
  * Add booking
