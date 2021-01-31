@@ -250,6 +250,23 @@ CREATE TABLE `reserved_seat` (
 );
 
 --
+-- Function for calculating age 
+-- @param birthday DATE
+-- @return age INT
+--
+DELIMITER $$ 
+CREATE FUNCTION calculate_age(`birthday` DATE) RETURNS INT
+BEGIN
+	DECLARE `age` INT;
+	SELECT DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(`birthday`, '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(`birthday`, '00-%m-%d')) 
+    INTO `age` 
+    FROM `passenger`
+    WHERE `passenger`.`birthday` = `birthday`;
+	RETURN `age`;
+END $$
+DELIMITER ;
+
+--
 -- View structure for `route_with_airports`
 -- detailed view routes with its respective airport names
 --
@@ -266,7 +283,7 @@ FROM route `r`
 -- detailed view of scheduled flights
 --
 CREATE VIEW `scheduled_flights_list` AS 
-SELECT `sf`.`departure`, `r`.`origin_code`, `r`.`origin`, `r`.`destination_code`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model`, `sf`.`is_deleted`
+SELECT `sf`.`id`, `sf`.`departure`, `r`.`origin_code`, `r`.`origin`, `r`.`destination_code`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model`, `sf`.`is_deleted`
 FROM `scheduled_flight` `sf` 
   INNER JOIN `route_with_airports` `r` 
     ON `sf`.`route` = `r`.`id` 
@@ -274,7 +291,7 @@ FROM `scheduled_flight` `sf`
     ON `sf`.`assigned_airplane_id` = `a`.`id` 
   INNER JOIN `aircraft_model` `am` 
     ON `a`.`model_id` = `am`.`id`
-ORDER BY `sf`.`departure`;
+ORDER BY `sf`.`id`;
 
 --
 -- View structure for `bookings_by_passenger_type`
@@ -289,4 +306,17 @@ FROM `booking` `b`
     ON `u`.`account_type_id` = `ac`.`id` 
   INNER JOIN `scheduled_flight` `sf` 
     ON `b`.`scheduled_flight_id` = `sf`.`id`
+ORDER BY `sf`.`departure`;
+
+--
+-- View structure for `passengers_with_routes`
+-- departure date of the booking with the type of the passenger who booked it
+--
+CREATE VIEW `passengers_with_routes` AS
+SELECT `sf`.`route`, `sf`.`departure`, `p`.`first_name`, `p`.`last_name`, calculate_age(`p`.`birthday`) AS `passenger_age` 
+FROM `reserved_seat` `rs` 
+  INNER JOIN `passenger` `p`
+    ON `p`.`id` = `rs`.`passenger_id`
+  INNER JOIN `scheduled_flight` `sf`
+    ON `sf`.`id` = `rs`.`scheduled_flight_id`
 ORDER BY `sf`.`departure`;
