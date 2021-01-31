@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const {
-
+    updateDiscount
 } = require('../controllers/ticket-type-controller');
 
 /**
@@ -45,7 +45,7 @@ router.post('/:id', );
 * @todo assign controller method
  * @todo include middleware
  */
-router.put('/:id', );
+router.put('/:id', updateDiscount);
 
 /**
  * @todo assign controller method
