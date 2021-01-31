@@ -3,11 +3,11 @@ const config = require('config');
 
 const pool = mysql.createPool({
     connectionLimit: 1,
-    user: "root",
-    host: "localhost",
-    password: 'ask234',
-    port: "3306",
-    database: "b_airways"
+    user: config.get("db.user"),
+    host: config.get("db.host"),
+    password: config.get("db.password"),
+    port: config.get("db.port"),
+    database: config.get("db.database")
 });
 
 module.exports.pool = pool;
