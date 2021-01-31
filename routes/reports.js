@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    viewBookingsByPassengerType,viewPassengerCountByDest
+    viewPassengerCountByDest,
+    viewBookingsByPassengerType,
+    viewRevenueByAircraftModel
 } = require('../controllers/report-controller');
 
 /**
@@ -10,9 +12,8 @@ const {
  */
 router.get('/2', viewBookingsByPassengerType);
 
-/**
- * @todo include middleware
- */
 router.get('/3', viewPassengerCountByDest);
+
+router.get('/4', viewRevenueByAircraftModel);
 
 module.exports = router;

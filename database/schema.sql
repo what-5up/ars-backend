@@ -292,6 +292,7 @@ FROM `booking` `b`
 ORDER BY `sf`.`departure`;
 
 --
+
 -- View structure for `passenger_destination`
 -- departure dates with delay added, destination of passengers
 --
@@ -306,3 +307,39 @@ FROM `reserved_seat` `rs`
     ON `sf`.`route` = `r`.`id`
   INNER JOIN `airport` `a`
     ON `r`.`destination` = `a`.`id`;
+                                                         
+-- View structure for `revenue_by_aircraft_model_and_month`
+-- revenue for model by each month
+--
+CREATE VIEW `revenue_by_aircraft_model_and_month`
+AS
+SELECT `model_name`
+	,SUM(`final_amount`) AS `revenue`
+	,DATE_FORMAT(`date_of_booking`, "%Y-%m") AS `month`
+FROM `booking`
+INNER JOIN `scheduled_flight` ON `booking`.`scheduled_flight_id` = `scheduled_flight`.`id`
+INNER JOIN `aircraft` ON `aircraft`.`id` = `scheduled_flight`.`assigned_airplane_id`
+INNER JOIN `aircraft_model` ON `aircraft_model`.`id` = `aircraft`.`model_id`
+GROUP BY `aircraft`.`model_id`
+	,month;
+
+--
+-- View structure for to get past flight passenger count, state
+--
+
+CREATE VIEW `scheduled_flight_details`
+AS
+SELECT `sf`.`id`
+	,`sf`.`route`
+	,`sf`.`departure`
+  ,`sf`.`delayed_departure`
+	,`tc`.`class`
+	,count(`tc`.`id`) AS `passengers`
+FROM `scheduled_flight` `sf`
+INNER JOIN `reserved_seat` `rs` on`sf`.`id` = `rs`.`scheduled_flight_id`
+INNER JOIN `seat_map` `se` ON `rs`.`seat_id` = `se`.`id`
+INNER JOIN `traveler_class` `tc` ON `tc`.`id` = `se`.`traveler_class`
+WHERE `sf`.`departure` < CURDATE()
+GROUP BY `sf`.`id`
+	,`tc`.`id`;
+

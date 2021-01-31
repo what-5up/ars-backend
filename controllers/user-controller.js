@@ -1,6 +1,10 @@
+const bookingModel = require("../models/booking-model");
+const reservedSeatModel = require("../models/reserved-seat-model");
+const baseModel = require("../models/base-model");
 const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const logger = require('../utils/logger');
+const _ = require('lodash');
 
 const User = require('../models/User');
 const bookingModel = require("../models/booking-model");
@@ -51,6 +55,7 @@ const signupUser = async (req,res,next) => {
  * @param {object} req http request object
  * @param {object} res http response object
  * @return {object} promise of a record object
+ * @todo move function to an appropriate file
  */
 const viewBookings = async (req, res) => {
     const records = await bookingModel.getBookings(req.params.userid)
@@ -63,6 +68,91 @@ const viewBookings = async (req, res) => {
     return res.status(200).send(records);
 }
 
-exports.signupUser = signupUser;
-exports.viewBookings = viewBookings;
 
+/**
+ * Add booking
+ * 
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * @return {object} promise of a record object
+ * @todo move function to an appropriate file
+ */
+const addBooking = async (req, res) => {
+
+    bookingDetails = _.pick(req.body,
+        [
+            "user_id",
+            "scheduled_flight_id",
+            "final_amount"
+        ]
+    );
+
+    reservedSeats = req.body.reservedSeats; //an array of objects with passenger_id and seat_id should be included in this
+
+    const records = await baseModel.getConnection()
+        .then(DBconnection => {
+            baseModel.startTransaction(DBconnection)
+                .then(results => {
+                    bookingModel.addBooking(bookingDetails, results.connection)
+                        .then(results => {                          
+                            bookingModel.getLastBooking(bookingDetails.user_id, results.connection)
+                                .then(results => {
+                                    bookingID = results.results[0].id;
+                                    scheduledFlightID = results.results[0].scheduled_flight_id;
+                                    reservedSeatModel.addReservedSeats(reservedSeats, bookingID, scheduledFlightID, results.connection)
+                                        .then(results => {
+                                            baseModel.endTransaction(results.connection)
+                                                .then(results => {
+                                                    baseModel.releaseConnection(results.connection);
+                                                })
+                                        })
+                                })
+                        })
+                })
+        })
+
+    return res.status(200).send(records); //TODO: what should be returned?
+}
+
+/**
+ * delete booking
+ * 
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * @return {object} promise of a record object
+ * @todo move function to an appropriate file
+ */
+const deleteBooking = async (req, res) => {
+    const records = await bookingModel.deleteBooking(req.params.userid, req.params.bookingid)
+        .catch(err => { return res.status(400).send({ error: err.message }); });
+
+        //TODO: delete reserved_seat data
+    return res.status(200).send(records); //TODO: what should be returned?
+}
+
+ /**
+ * Delete a user
+ *
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * @return {object} promise of a record object
+ * @throws Error
+ */
+const deleteUser = async (req, res) => {
+  model
+    .deleteUser(req.params.userID)
+    .then((result) => {
+      let message = result == true ? "Deleted successfully" : "Couldnt delete";
+      return res.status(200).send(message);
+    })
+    .catch((error) => {
+      return res.status(400).send(error.message);
+    });
+};
+module.exports = {
+    viewBookings,
+    addBooking,
+    deleteBooking,
+    deleteUser,
+    signupUser
+};
