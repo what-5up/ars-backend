@@ -7,8 +7,8 @@ const { pool } = require(`../database/connection`);
  * @param {string} destination default undefined
  * @param {string} aircraftID default undefined
  * @param {string} aircraftModel default undefined
- * @returns {object} Promise of a query output
- * @throws Error
+ * @returns {Promise<object>} query output
+ * @throws Error -database connection error
  */
 async function getScheduledFlights(origin = undefined, destination = undefined, aircraftID = undefined, aircraftModel = undefined, isDeleted = undefined) {
     return new Promise((resolve, reject) => {
@@ -59,7 +59,7 @@ async function getScheduledFlights(origin = undefined, destination = undefined, 
  * Delete a flight schedule given an ID
  *
  * @param {string} id
- * @returns {object} Promise of a query output
+ * @returns {Promise<object>} Promise of a query output
  * @throws Error
  */
 const deleteScheduledFlight = async (id) => {
@@ -86,7 +86,7 @@ const deleteScheduledFlight = async (id) => {
  * Add a new flight schedule
  *
  * @param {object} payload containing attributes
- * @returns {object} Promise of a query output
+ * @returns {Promise<object>} Promise of a query output
  * @throws Error
  */
 const addScheduledFlight = async (
@@ -128,7 +128,7 @@ const addScheduledFlight = async (
  *
  * @param {int} id 
  * @param {object} payload parameters to change
- * @returns {object} Promise of a query output
+ * @returns {Promise<object>} Promise of a query output
  * @throws Error
  */
 const updateScheduledFlight = async (

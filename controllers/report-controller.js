@@ -2,6 +2,15 @@ const Joi = require('joi');
 
 const model = require("../models/report-model");
 
+
+/**
+ * View all the passengers for the next immediate flight. Categorized by the boundary age of 18.
+ *
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * @return {Response} {above18, below18} if success
+ * @throws Error - database connection error
+ */
 const viewPassengersByFlightNo = async (req, res, next) => {
     const records = await model.getPassengersByFlightNo(req.query.route)
         .then(result => {
@@ -16,10 +25,13 @@ const viewPassengersByFlightNo = async (req, res, next) => {
  *
  * @param {object} req http request object
  * @param {object} res http response object
- * @return {object} promise of a record object
- * @throws Error
+ * @return {Response} {id, object} if success
+ * @throws Error - database connection error
  */
 const viewBookingsByPassengerType = async (req, res, next) => {
+    if ((req.query.startDate && req.query.endDate) && (req.query.startDate>req.query.endDate)) {
+        return res.status(422).json({message: "The start date must be before the end date"})
+    }
     const records = await model.getBookingsByPassengerType(req.query.startDate, req.query.endDate)
         .then(result => {
             return result.map((row, index) => {
@@ -71,7 +83,7 @@ const viewPassengerCountByDest = async (req,res) => {
         return res.status(422).json({message: error.details[0].message})
     }
     if ((value.startDate && value.endDate) && (value.startDate>value.endDate)) {
-        return res.status(422).json({message: "Start Date cannot be greater than End Date"})
+        return res.status(422).json({message: "The start date must be before the end date"})
     }
     startDate = (value.startDate===null)?undefined: value.startDate.toISOString().substring(0, 10);
     endDate = (value.endDate===null)?undefined: value.endDate.toISOString().substring(0, 10);
