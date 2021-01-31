@@ -12,15 +12,22 @@ INSERT INTO `account_type`
 ('gold user', 9);
 
 --
+-- Inserting values to 'title' table
+--
+INSERT INTO `title` 
+(`title_name`) VALUES
+('Mr'),('Mrs'),('Rev'),('PROF'),('Dr'),('Hon'),('Exc'),('Ven'),('Miss'),('Master'),('Admiral'),('Major'),('Capt'),('PhraKhru'),('Phramaha'),('Phra'),('Rt Revd'),('Most Revd');
+
+--
 -- Inserting values to 'user' table
 --
 INSERT INTO `user`
 (`title`, `first_name`, `last_name`, `password`, `email`, `gender`, `account_type_id`) VALUES
-('Mr', 'Danushka', 'Gunathilake', '900150983cd24fb0d6963f7d28e17f72', 'danushka@gmail.com', 'm', 1),
-('Mr', 'Joe', 'Roots', '900150983cd24fb0d6963f7d28e17f72', 'roots@gmail.com', 'm', 4),
-('Mr', 'Lasith', 'Embuldeniya', '900150983cd24fb0d6963f7d28e17f72', 'lasith@gmail.com', 'm', 1),
-('Mr', 'Angelo', 'Mathews', '900150983cd24fb0d6963f7d28e17f72', 'mathews@gmail.com', 'm', 2),
-('Gona', 'Moda', 'Nagitha', '900150983cd24fb0d6963f7d28e17f72', 'nagitha@modaya.lk', 'o', 3);
+(1, 'Danushka', 'Gunathilake', '900150983cd24fb0d6963f7d28e17f72', 'danushka@gmail.com', 'm', 1),
+(1, 'Joe', 'Roots', '900150983cd24fb0d6963f7d28e17f72', 'roots@gmail.com', 'm', 4),
+(1, 'Lasith', 'Embuldeniya', '900150983cd24fb0d6963f7d28e17f72', 'lasith@gmail.com', 'm', 1),
+(1, 'Angelo', 'Mathews', '900150983cd24fb0d6963f7d28e17f72', 'mathews@gmail.com', 'm', 2),
+(8, 'Moda', 'Nagitha', '900150983cd24fb0d6963f7d28e17f72', 'nagitha@modaya.lk', 'o', 3);
 COMMIT;
 
 --
@@ -39,10 +46,10 @@ INSERT INTO `designation`
 --
 INSERT INTO `employee`
 (`title`, `first_name`, `last_name`, `email`, `password`, `designation_id`) VALUES
-('Mr', 'Kusal', 'Mendis', 'kmendis@gmail.com', '900150983cd24fb0d6963f7d28e17f72', 1),
-('Mr', 'Niroshan', 'Dickwella', 'dickwella@gmail.com', '900150983cd24fb0d6963f7d28e17f72', 2),
-('Mr', 'Dinesh', 'Chandimal', 'chandi@gmail.com', '900150983cd24fb0d6963f7d28e17f72', 3),
-('Mr', 'Kane', 'Williamson', 'wkane@gmail.com', '900150983cd24fb0d6963f7d28e17f72', 4);
+(1, 'Kusal', 'Mendis', 'kmendis@gmail.com', '900150983cd24fb0d6963f7d28e17f72', 1),
+(1, 'Niroshan', 'Dickwella', 'dickwella@gmail.com', '900150983cd24fb0d6963f7d28e17f72', 2),
+(1, 'Dinesh', 'Chandimal', 'chandi@gmail.com', '900150983cd24fb0d6963f7d28e17f72', 3),
+(1, 'Kane', 'Williamson', 'wkane@gmail.com', '900150983cd24fb0d6963f7d28e17f72', 4);
 COMMIT;
 
 --
@@ -181,14 +188,14 @@ COMMIT;
 SET AUTOCOMMIT=0;
 INSERT INTO `passenger`
 (`title`, `user_id`, `first_name`, `last_name`, `birthday`, `gender`, `country`, `passport_no`, `passport_expiry`) VALUES 
-('Mr.', 3, 'Rumesh', 'Mendis', '1982-02-12', 'm', 'Sri Lanka', '458963146', '2021-08-20'),
-('Mr.', 2, 'Steve', 'Smith', '1992-03-14', 'm', 'Australia', '953147651', '2021-03-12'),
-('Mr.', 4, 'Manesh', 'Pandey', '1981-09-01', 'm', 'India', '321596547', '2021-01-22'),
-('Mr', 1, 'Danushka', 'Gunathilake', ' 1987-12-02', 'm', 'Sri Lanka', '458621458', '2021-05-29'),
-('Mr', 2, 'Joe', 'Roots', ' 1992-05-12', 'm', 'England', '496529864', '2021-12-12'),
-('Mr', 3, 'Lasith', 'Embuldeniya', '1995-12-12', 'm', 'Sri Lanka', '1256986325', '2021-04-28'),
-('Mr', 4, 'Angelo', 'Mathews', ' 1989-11-12','m', 'Sri Lanka', '1259863325', '2021-06-12'),
-('Gona', 5, 'Moda', 'Nagitha', ' 1950-11-12', 'o', 'Sri Lanka', '115522996', '2021-11-30');
+(1, 3, 'Rumesh', 'Mendis', '1982-02-12', 'm', 'Sri Lanka', '458963146', '2021-08-20'),
+(1, 2, 'Steve', 'Smith', '1992-03-14', 'm', 'Australia', '953147651', '2021-03-12'),
+(1, 4, 'Manesh', 'Pandey', '1981-09-01', 'm', 'India', '321596547', '2021-01-22'),
+(1, 1, 'Danushka', 'Gunathilake', ' 1987-12-02', 'm', 'Sri Lanka', '458621458', '2021-05-29'),
+(1, 2, 'Joe', 'Roots', ' 1992-05-12', 'm', 'England', '496529864', '2021-12-12'),
+(1, 3, 'Lasith', 'Embuldeniya', '1995-12-12', 'm', 'Sri Lanka', '1256986325', '2021-04-28'),
+(1, 4, 'Angelo', 'Mathews', ' 1989-11-12','m', 'Sri Lanka', '1259863325', '2021-06-12'),
+(8, 5, 'Moda', 'Nagitha', ' 1950-11-12', 'o', 'Sri Lanka', '115522996', '2021-11-30');
 
 --
 -- Inserting values to 'price' table
