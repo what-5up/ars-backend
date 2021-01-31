@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    viewBookings
+    viewBookings,
+    addBooking,
+    deleteBooking
 } = require('../controllers/user-controller');
 
 /**
@@ -63,7 +65,7 @@ router.get('/:userid/bookings', viewBookings);
  * @todo assign controller method
  * @todo include middleware
  */
-router.post('/:userid/bookings', );
+router.post('/:userid/bookings', addBooking);
 
 /**
 * @todo assign controller method
@@ -99,6 +101,6 @@ router.put('/:userid/bookings/:bookingid', );
  * @todo assign controller method
  * @todo include middleware
  */
-router.delete('/:userid/bookings/:bookingid', );
+router.delete('/:userid/bookings/:bookingid', deleteBooking);
 
 module.exports = router;
