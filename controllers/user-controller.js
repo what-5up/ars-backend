@@ -45,7 +45,7 @@ const signupUser = async (req,res,next) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({error:err,message:"Internal Server Error"});
+        res.status(500).json({message:"Internal Server Error"});
     }
 };
 
@@ -67,6 +67,7 @@ const viewBookings = async (req, res) => {
         .catch(err => { return res.status(400).send({ error: err.message }); });
     return res.status(200).send(records);
 }
+
 
 /**
  * Add booking

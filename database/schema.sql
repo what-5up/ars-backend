@@ -292,6 +292,22 @@ FROM `booking` `b`
 ORDER BY `sf`.`departure`;
 
 --
+
+-- View structure for `passenger_destination`
+-- departure dates with delay added, destination of passengers
+--
+CREATE VIEW `passenger_destination` AS
+SELECT `rs`.`booking_id`,`rs`.`passenger_id`,DATE(IFNULL(`sf`.`delayed_departure`,`sf`.`departure`)) AS `departure_date`,`b`.`state`,`sf`.`route`,`a`.`code` AS `dest_code`,`a`.`name` AS `dest_name`
+FROM `reserved_seat` `rs`
+  INNER JOIN `booking` `b`
+    ON `rs`.`booking_id` = `b`.`id`
+  INNER JOIN `scheduled_flight` `sf`
+    ON `rs`.`scheduled_flight_id` = `sf`.`id`
+  INNER JOIN `route` `r`
+    ON `sf`.`route` = `r`.`id`
+  INNER JOIN `airport` `a`
+    ON `r`.`destination` = `a`.`id`;
+                                                         
 -- View structure for `revenue_by_aircraft_model_and_month`
 -- revenue for model by each month
 --
@@ -326,3 +342,4 @@ INNER JOIN `traveler_class` `tc` ON `tc`.`id` = `se`.`traveler_class`
 WHERE `sf`.`departure` < CURDATE()
 GROUP BY `sf`.`id`
 	,`tc`.`id`;
+
