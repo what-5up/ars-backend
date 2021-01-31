@@ -7,7 +7,6 @@ const logger = require('../utils/logger');
 const _ = require('lodash');
 
 const User = require('../models/User');
-const bookingModel = require("../models/booking-model");
 
 function validateSignupDetails(title,email,first_name,last_name,gender,password) {
 
