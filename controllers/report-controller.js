@@ -2,7 +2,7 @@ const model = require("../models/report-model");
 
 /**
  * View all the bookings categorized by the passenger type
- * 
+ *
  * @param {object} req http request object
  * @param {object} res http response object
  * @return {object} promise of a record object
@@ -19,6 +19,33 @@ const viewBookingsByPassengerType = async (req, res) => {
     return res.status(200).send(records);
 }
 
+const viewRevenueByAircraftModel = async (req, res, next) => {
+    const records = await model.getRevenueByAircraftModel(req.query.model, req.query.month)
+        .then(result => {
+            return result.reduce((revenueDetails, row) => {
+                revenueDetails[row.model_name] = revenueDetails[row.model_name] || [];
+                revenueDetails[row.model_name].push({
+                    revenue: row.revenue,
+                    month: row.month
+                });
+                return revenueDetails;
+            }, {});
+        })
+        .catch(err => next(err));
+    return res.status(200).send(records);
+}
+
+const viewPastFlightDetails = async (req, res, next) => {
+     model
+        .getPastFlightsDetails()
+        .then((result) => res.status(200).send(result))
+        .catch((err) => res.status(400).send(err));
+}
+
+
+
 module.exports = {
-    viewBookingsByPassengerType
+    viewBookingsByPassengerType,
+    viewRevenueByAircraftModel,
+    viewPastFlightDetails
 };

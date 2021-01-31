@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const UserController = require('../controllers/user-controller')
 
 const {
     viewBookings,
     addBooking,
     deleteBooking,
-    signupUser
+    signupUser,
+    deleteUser
 } = require('../controllers/user-controller');
 
 /**
@@ -30,7 +32,7 @@ router.put('/', );
  * @todo assign controller method
  * @todo include middleware
  */
-router.delete('/', );
+router.delete('/:userID', deleteUser);
 
 /**
  * @todo assign controller method

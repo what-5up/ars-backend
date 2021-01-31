@@ -128,9 +128,30 @@ const deleteBooking = async (req, res) => {
         //TODO: delete reserved_seat data
     return res.status(200).send(records); //TODO: what should be returned?
 }
+
+ /**
+ * Delete a user
+ *
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * @return {object} promise of a record object
+ * @throws Error
+ */
+const deleteUser = async (req, res) => {
+  model
+    .deleteUser(req.params.userID)
+    .then((result) => {
+      let message = result == true ? "Deleted successfully" : "Couldnt delete";
+      return res.status(200).send(message);
+    })
+    .catch((error) => {
+      return res.status(400).send(error.message);
+    });
+};
 module.exports = {
     viewBookings,
     addBooking,
     deleteBooking,
+    deleteUser,
     signupUser
 };
