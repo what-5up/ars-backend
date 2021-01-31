@@ -1,5 +1,45 @@
 const { pool } = require(`../database/connection`);
 
+async function getPassengersByFlightNo(route = undefined) {
+
+    let whereClause = '';
+    let variableValues = [];
+    if (route !== undefined) {
+        whereClause = 'AND route = ?';
+        variableValues = [route, route];
+    }
+    let sqlQuery = "SELECT * FROM `passengers_with_routes` WHERE" +
+        " `departure` = (SELECT DISTINCT `departure` FROM `passengers_with_routes` WHERE `departure` > CURRENT_TIMESTAMP " +
+        whereClause + " LIMIT 1) " + whereClause;
+    let result = {};
+
+    const p1 = new Promise((resolve, reject) => {
+        pool.query(sqlQuery + " AND passenger_age >= 18",
+            variableValues,
+            function (error, results) {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+            })
+    });
+
+    const p2 = new Promise((resolve, reject) => {
+        pool.query(sqlQuery + " AND passenger_age < 18",
+            variableValues,
+            function (error, results) {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+            })
+    });
+
+    return new Promise(resolve => {
+        Promise.all([p1, p2]).then(values => resolve(values))
+    });
+}
+
 /**
  * Fetches all the bookings categorized by the passenger type from the database
  *
@@ -30,7 +70,7 @@ async function getBookingsByPassengerType(startDate = undefined, endDate = undef
                 resolve(results);
             }
         );
-    })
+    });
 }
 
 
@@ -105,19 +145,20 @@ async function getNoOfPassengersToDest(destination,startDate = undefined, endDat
  * @throws Error
  */
 async function getPastFlightsDetails() {
-  return new Promise((resolve, reject) => {
-    pool.query(
-      "SELECT * FROM scheduled_flight_details",
-      function (error, results) {
-        if (error) {
-          reject(new Error(error.message));
-        }
-        resolve(results);
-      }
-    );
-  });
+    return new Promise((resolve, reject) => {
+        pool.query(
+            "SELECT * FROM scheduled_flight_details",
+            function (error, results) {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+            }
+        );
+    });
 }
 module.exports = {
+    getPassengersByFlightNo,
     getBookingsByPassengerType,
     getRevenueByAircraftModel,
     getPastFlightsDetails,
