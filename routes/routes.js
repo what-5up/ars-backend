@@ -2,13 +2,15 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    viewRoutes,viewRoute
+    viewRoutes,
+    viewRoute,
+    updateRoutePrice
 } = require('../controllers/route-controller');
 
 /**
  * @todo include middleware
  */
-router.get('/',viewRoutes);
+router.get('/', viewRoutes);
 
 /**
  * @todo assign controller method
@@ -32,7 +34,7 @@ router.delete('/');
 /**
  * @todo include middleware
  */
-router.get('/:id',viewRoute);
+router.get('/:id', viewRoute);
 
 /**
  * @todo assign controller method
@@ -52,6 +54,27 @@ router.put('/:id');
  */
 router.delete('/:id');
 
+/**
+ * @todo include middleware
+ */
+router.get('/:id/price');
 
+/**
+ * @todo assign controller method
+ * @todo include middleware
+ */
+router.post('/:id/price');
+
+/**
+ * @todo assign controller method
+ * @todo include middleware
+ */
+router.put('/:id/price', updateRoutePrice);
+
+/**
+ * @todo assign controller method
+ * @todo include middleware
+ */
+router.delete('/:id/price');
 
 module.exports = router;

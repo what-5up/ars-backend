@@ -26,6 +26,12 @@ const getAllAircrafts = async () => {
     });
 }
 
+/**
+ * Fetches details for aircraft specified by id from the database
+ * 
+ * @returns {object} Promise of a query output
+ * @throws Error
+ */
 const getDetailsForAircraft = async (id) => {
     return new Promise((resolve, reject) => {
         const result = pool.query('SELECT a.id, am.model_name, am.seating_capacity, sf.route, sf.departure FROM aircraft a INNER JOIN aircraft_model am ON a.model_id = am.id INNER JOIN scheduled_flight sf ON a.id = sf.assigned_airplane_id where a.id = ? ',
@@ -40,6 +46,12 @@ const getDetailsForAircraft = async (id) => {
     });
 }
 
+/**
+ * Fetches available aircrafts for given period and seating capacity from the database
+ * 
+ * @returns {object} Promise of a query output
+ * @throws Error
+ */
 const getAvailableAircrafts = async (startTime, endTime, seatingCapacity) => {
     return new Promise((resolve, reject) => {
         const result = pool.query('SELECT a.id, am.model_name, am.seat_capacity FROM aircraft a INNER JOIN aircraft_model am ON a.model_id = am.id INNER JOIN scheduled_flight sf ON a.id = sf.assigned_airplane_id where am.seating_capacity>? sf.departure NOT BETWEEN IN ? AND ?',
@@ -53,34 +65,6 @@ const getAvailableAircrafts = async (startTime, endTime, seatingCapacity) => {
         );
     });
 }
-
-/**
- * TODO: update aircraft model
- * TODO: revenue
- * select 
- * seat_id,seat_number, aircraft_model_id,price.traveler_class,scheduled_flight_id,route,amount 
- * from seat_map inner join reserved_seat 
- * on seat_id=seat_map.id 
- * inner join scheduled_flight 
- * on scheduled_flight_id=scheduled_flight.id 
- * inner join price 
- * on price.traveler_class=seat_map.traveler_class and route=route_id 
- * order by aircraft_model_id;
- * 
- * ??????
- * select 
- *      aircraft_model_id,sum(amount) as revenue 
- * from 
- *      seat_map 
- *      inner join reserved_seat 
- *          on reserved_seat.seat_id=seat_map.id 
- *      inner join scheduled_flight 
- *          on reserved_seat.scheduled_flight_id=scheduled_flight.id 
- *      inner join price 
- *          on price.traveler_class=seat_map.traveler_class and scheduled_flight.route=price.route_id 
- * group by aircraft_model_id;
- * 
- */
 
 const Aircraft = {
     getAllAircrafts,

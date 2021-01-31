@@ -42,15 +42,6 @@ const viewBookingsByPassengerType = async (req, res, next) => {
     return res.status(200).send(records);
 };
 
-function validatePassengerCountByDest(destination,startDate,endDate) {
-    const schema = Joi.object({
-        destination: Joi.string().required().label('Destination'),
-        startDate: Joi.date().iso().default(null).label('Start Date'),
-        endDate: Joi.date().iso().default(null).label('End Date'),
-    });
-    return schema.validate({destination:destination,startDate:startDate,endDate:endDate})
-}
-
 const viewRevenueByAircraftModel = async (req, res, next) => {
     const records = await model.getRevenueByAircraftModel(req.query.model, req.query.month)
         .then(result => {
@@ -72,6 +63,15 @@ const viewPastFlightDetails = async (req, res, next) => {
         .getPastFlightsDetails()
         .then((result) => res.status(200).send(result))
         .catch((err) => res.status(400).send(err));
+}
+
+function validatePassengerCountByDest(destination,startDate,endDate) {
+    const schema = Joi.object({
+        destination: Joi.string().required().label('Destination'),
+        startDate: Joi.date().iso().default(null).label('Start Date'),
+        endDate: Joi.date().iso().default(null).label('End Date'),
+    });
+    return schema.validate({destination:destination,startDate:startDate,endDate:endDate});
 }
 
 const viewPassengerCountByDest = async (req,res) => {
