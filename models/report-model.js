@@ -2,10 +2,11 @@ const { pool } = require(`../database/connection`);
 
 /**
  * Fetches all the bookings categorized by the passenger type from the database
- * 
+ *
  * @returns {object} Promise of a query output
  * @throws Error
  */
+
 async function getBookingsByPassengerType(startDate = undefined, endDate = undefined) {
     let whereClause = '';
     let variableValues = [];
@@ -64,7 +65,27 @@ async function getRevenueByAircraftModel(model = undefined, month = undefined) {
     })
 }
 
+/**
+ * Fetches all the past flights, states and passenger counts
+ *
+ * @returns {object} Promise of a query output
+ * @throws Error
+ */
+async function getPastFlightsDetails() {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      "SELECT * FROM scheduled_flight_details",
+      function (error, results) {
+        if (error) {
+          reject(new Error(error.message));
+        }
+        resolve(results);
+      }
+    );
+  });
+
 module.exports = {
     getBookingsByPassengerType,
-    getRevenueByAircraftModel
+    getRevenueByAircraftModel,
+    getPastFlightsDetails
 }

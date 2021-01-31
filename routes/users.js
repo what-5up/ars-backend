@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const UserController = require('../controllers/user-controller')
 
 const {
     viewBookings,
@@ -28,7 +29,7 @@ router.put('/', );
  * @todo assign controller method
  * @todo include middleware
  */
-router.delete('/', );
+router.delete('/:userID', UserController.deleteUser);
 
 /**
  * @todo assign controller method
