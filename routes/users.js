@@ -4,7 +4,8 @@ const UserController = require('../controllers/user-controller')
 
 const {
     viewBookings,
-    signupUser
+    signupUser,
+    deleteUser
 } = require('../controllers/user-controller');
 
 /**
@@ -29,7 +30,7 @@ router.put('/', );
  * @todo assign controller method
  * @todo include middleware
  */
-router.delete('/:userID', UserController.deleteUser);
+router.delete('/:userID', deleteUser);
 
 /**
  * @todo assign controller method

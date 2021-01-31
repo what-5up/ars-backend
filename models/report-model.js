@@ -83,7 +83,7 @@ async function getPastFlightsDetails() {
       }
     );
   });
-
+}
 module.exports = {
     getBookingsByPassengerType,
     getRevenueByAircraftModel,
