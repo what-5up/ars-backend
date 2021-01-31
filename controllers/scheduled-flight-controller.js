@@ -5,7 +5,7 @@ const model = require("../models/scheduled-flight-model");
  * 
  * @param {object} req http request object
  * @param {object} res http response object
- * @return {object} promise of a record object
+ * @return {Response} {id, object} if success
  * @throws Error
  */
 const viewScheduledFlights = async (req, res) => {

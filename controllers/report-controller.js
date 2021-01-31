@@ -2,6 +2,15 @@ const Joi = require('joi');
 
 const model = require("../models/report-model");
 
+
+/**
+ * View all the passengers for the next immediate flight. Categorized by the boundary age of 18.
+ *
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * @return {Response} {above18, below18} if success
+ * @throws Error - database connection error
+ */
 const viewPassengersByFlightNo = async (req, res, next) => {
     const records = await model.getPassengersByFlightNo(req.query.route)
         .then(result => {
@@ -16,8 +25,8 @@ const viewPassengersByFlightNo = async (req, res, next) => {
  *
  * @param {object} req http request object
  * @param {object} res http response object
- * @return {object} promise of a record object
- * @throws Error
+ * @return {Response} {id, object} if success
+ * @throws Error - database connection error
  */
 const viewBookingsByPassengerType = async (req, res, next) => {
     const records = await model.getBookingsByPassengerType(req.query.startDate, req.query.endDate)
