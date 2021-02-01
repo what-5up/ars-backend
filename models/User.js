@@ -32,8 +32,7 @@ class User {
 
     static createUser(title,firstName,lastName,email,gender,password,accountTypeId) {
         return new Promise((resolve, reject) => {
-            //const result = pool.query("INSERT INTO user(title,first_name,last_name,email,gender,password,account_type_id) VALUES ((SELECT id from title where title_name = ?),?,?,?,?,?,?)"
-            const result = pool.query("INSERT INTO user(title,first_name,last_name,email,gender,password,account_type_id) VALUES (?,?,?,?,?,?,?)",
+            const result = pool.query("INSERT INTO user(title,first_name,last_name,email,gender,password,account_type_id) VALUES ((SELECT id from title where title_name = ?),?,?,?,?,?,?)" ,
                 [
                     title,
                     firstName,
@@ -59,7 +58,12 @@ class User {
         let sql = "UPDATE user SET ";
         for (const[key, value] of Object.entries(params)) {
             if (value!==null){
-                sql += key+" = ?, ";
+                if(key==='title'){
+                    sql += key+" = (SELECT id from title where title_name = ?), ";
+                }
+                else {
+                    sql += key+" = ?, ";
+                }
                 variableValues.push(value);
             }
         }

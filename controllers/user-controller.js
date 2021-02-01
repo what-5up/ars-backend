@@ -9,7 +9,7 @@ const User = require('../models/User');
 
 function validateUserDetails(title,email,first_name,last_name,gender,password) {
     const schema = Joi.object({
-        title: Joi.string().required().label('Title'),
+        title: Joi.string().trim().required().label('Title'),
         email: Joi.string().email().trim().lowercase().max(100).required().label('Email'),
         first_name: Joi.string().trim().max(150).required().label('First Name'),
         last_name: Joi.string().trim().max(150).required().label('Last Name'),
