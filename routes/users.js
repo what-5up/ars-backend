@@ -7,7 +7,8 @@ const {
     addBooking,
     deleteBooking,
     signupUser,
-    deleteUser
+    deleteUser,
+    updateUser
 } = require('../controllers/user-controller');
 
 /**
@@ -50,7 +51,7 @@ router.post('/:userid', );
 * @todo assign controller method
  * @todo include middleware
  */
-router.put('/:userid', );
+router.put('/:userid', updateUser);
 
 /**
  * @todo assign controller method
