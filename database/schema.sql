@@ -256,6 +256,8 @@ CREATE TABLE `reserved_seat` (
 --
 DELIMITER $$ 
 CREATE FUNCTION calculate_age(`birthday` DATE) RETURNS INT
+DETERMINISTIC
+READS SQL DATA
 BEGIN
 	DECLARE `age` INT;
 	SELECT DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(`birthday`, '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(`birthday`, '00-%m-%d')) 

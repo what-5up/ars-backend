@@ -1,8 +1,0 @@
-{
-    "db": {
-        "host": "bairways_host",
-        "user": "bairways_user",
-        "password": "bairways_pass",
-        "port": "bairways_port"
-    }
-}
