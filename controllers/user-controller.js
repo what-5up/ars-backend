@@ -21,7 +21,7 @@ function validateUserDetails(title,email,first_name,last_name,gender,password) {
 
 function validateUpdateUser(title,email,first_name,last_name,gender,password) {
     const schema = Joi.object({
-        title: Joi.string().default(null).label('Title'),
+        title: Joi.string().trim().default(null).label('Title'),
         email: Joi.string().email().trim().lowercase().max(100).default(null).label('Email'),
         first_name: Joi.string().trim().max(150).default(null).label('First Name'),
         last_name: Joi.string().trim().max(150).default(null).label('Last Name'),
