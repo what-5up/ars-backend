@@ -1,0 +1,25 @@
+###
+GET http://localhost:5000/users/1/bookings
+
+###
+POST http://localhost:5000/users/1/bookings
+Content-Type: application/json
+
+{
+    "user_id":"2",
+    "scheduled_flight_id":"11",
+    "final_amount":6969,
+    "reservedSeats": [
+        {
+            "seat_id": "3",
+            "passenger_id": 1
+        },
+        {
+            "seat_id": "4",
+            "passenger_id": 2
+        }
+    ]
+}
+
+###
+DELETE  http://localhost:5000/users/1/bookings/4

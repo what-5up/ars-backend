@@ -1,0 +1,51 @@
+###
+GET http://localhost:5000/reports/1?route=25
+
+###
+GET http://localhost:5000/scheduled-flights
+
+###
+GET http://localhost:5000/reports/2?startDate=2021-02-09&endDate=2021-02-10
+
+###
+GET http://localhost:5000/reports/2?endDate=2021-02-11
+
+###
+GET http://localhost:5000/scheduled-flights/?origin=CGK
+
+###
+GET http://localhost:5000/scheduled-flights?aircraftID=1
+
+###
+GET http://localhost:5000/scheduled-flights?origin=BIA
+
+###
+GET http://localhost:5000/scheduled-flights?origin=CGK&destination=BIA
+
+###
+DELETE http://localhost:5000/users/1
+
+
+###
+DELETE http://localhost:5000/scheduled-flights/1
+
+
+###
+POST http://localhost:5000/scheduled-flights
+
+
+Content-Type: application/json
+
+{
+    "route":1,
+    "departure": "2021-02-10T01:30:00.000Z",
+    "assignedAirplaneId":1
+}
+
+###
+PUT  http://localhost:5000/scheduled-flights/1
+Content-Type: application/json
+
+{
+    "delayedDeparture": "2021-02-10T01:30:00.000Z",
+}
