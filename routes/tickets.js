@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 
 const {
-
-} = require('../controllers/ticket-type-controller');
+    updateDiscount, viewAllTicketPrices, viewTicketPrice
+} = require('../controllers/ticket-controller');
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/', );
+router.get('/', viewAllTicketPrices);
 
 /**
  * @todo assign controller method
@@ -33,7 +33,7 @@ router.delete('/', );
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/:id', );
+router.get('/:id', viewTicketPrice );
 
 /**
  * @todo assign controller method
@@ -45,7 +45,7 @@ router.post('/:id', );
 * @todo assign controller method
  * @todo include middleware
  */
-router.put('/:id', );
+router.put('/:id', updateDiscount);
 
 /**
  * @todo assign controller method

@@ -1,13 +1,65 @@
 const { pool } = require(`../database/connection`);
 
 /**
- * Fetches all the bookings categorized by the passenger type from the database
+ * Fetch all the passengers of the next immediate flight. Thereafter, categorize them based on their age.
+ * 
+ * @param {string} route - route of the next immediate flight. If not provided, it will choose the flight of closest upcoming departure time
+ * @return {Promise<object>} query output
+ * @throws {Error} - database connection error
+ */
+async function getPassengersByFlightNo(route = undefined) {
+
+    //building the query
+    let whereClause = '';
+    let variableValues = [];
+    if (route !== undefined) {
+        whereClause = 'AND route = ?';
+        variableValues = [route, route];
+    }
+    let sqlQuery = "SELECT * FROM `passengers_with_routes` WHERE" +
+        " `departure` = (SELECT DISTINCT `departure` FROM `passengers_with_routes` WHERE `departure` > CURRENT_TIMESTAMP " +
+        whereClause + " LIMIT 1) " + whereClause;
+
+    //fetching the results of passengers older than 18
+    const p1 = new Promise((resolve, reject) => {
+        pool.query(sqlQuery + " AND passenger_age >= 18",
+            variableValues,
+            function (error, results) {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+            })
+    });
+
+    //fetching the results of passengers younger than 18
+    const p2 = new Promise((resolve, reject) => {
+        pool.query(sqlQuery + " AND passenger_age < 18",
+            variableValues,
+            function (error, results) {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+            })
+    });
+
+    return new Promise(resolve => {
+        Promise.all([p1, p2]).then(values => resolve(values))
+    });
+}
+
+/**
+ * Fetch all the bookings categorized by the passenger type from the database.
  *
- * @returns {object} Promise of a query output
- * @throws Error
+ * @param {string} startDate - start date of format yyyy-mm-dd
+ * @param {string} endDate - end date of format yyyy-mm-dd
+ * @returns {Promise<object>} query output
+ * @throws {Error} database connection error
  */
 
 async function getBookingsByPassengerType(startDate = undefined, endDate = undefined) {
+    //building the query
     let whereClause = '';
     let variableValues = [];
     if (startDate !== undefined && endDate !== undefined) {
@@ -20,6 +72,8 @@ async function getBookingsByPassengerType(startDate = undefined, endDate = undef
         whereClause = "WHERE departure_date >= ?";
         variableValues = [startDate];
     }
+
+    //fetching the results
     return new Promise((resolve, reject) => {
         pool.query("SELECT account_type, COUNT(*) AS number_of_bookings FROM bookings_by_passenger_type " + whereClause + " GROUP BY account_type",
             variableValues,
@@ -30,7 +84,7 @@ async function getBookingsByPassengerType(startDate = undefined, endDate = undef
                 resolve(results);
             }
         );
-    })
+    });
 }
 
 
@@ -105,19 +159,20 @@ async function getNoOfPassengersToDest(destination,startDate = undefined, endDat
  * @throws Error
  */
 async function getPastFlightsDetails() {
-  return new Promise((resolve, reject) => {
-    pool.query(
-      "SELECT * FROM scheduled_flight_details",
-      function (error, results) {
-        if (error) {
-          reject(new Error(error.message));
-        }
-        resolve(results);
-      }
-    );
-  });
+    return new Promise((resolve, reject) => {
+        pool.query(
+            "SELECT * FROM scheduled_flight_details",
+            function (error, results) {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+            }
+        );
+    });
 }
 module.exports = {
+    getPassengersByFlightNo,
     getBookingsByPassengerType,
     getRevenueByAircraftModel,
     getPastFlightsDetails,

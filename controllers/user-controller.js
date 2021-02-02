@@ -7,16 +7,26 @@ const logger = require('../utils/logger');
 const _ = require('lodash');
 const User = require('../models/User');
 
-function validateSignupDetails(title,email,first_name,last_name,gender,password) {
-
-
+function validateUserDetails(title,email,first_name,last_name,gender,password) {
     const schema = Joi.object({
-        title: Joi.string().required().label('Title'),
+        title: Joi.string().trim().required().label('Title'),
         email: Joi.string().email().trim().lowercase().max(100).required().label('Email'),
         first_name: Joi.string().trim().max(150).required().label('First Name'),
         last_name: Joi.string().trim().max(150).required().label('Last Name'),
         gender: Joi.string().max(1).required().label('Gender'),
         password: Joi.string().trim().min(5).required().label('Password')
+    });
+    return schema.validate({title: title,email: email, first_name: first_name, last_name: last_name, gender: gender,password: password})
+}
+
+function validateUpdateUser(title,email,first_name,last_name,gender,password) {
+    const schema = Joi.object({
+        title: Joi.string().trim().default(null).label('Title'),
+        email: Joi.string().email().trim().lowercase().max(100).default(null).label('Email'),
+        first_name: Joi.string().trim().max(150).default(null).label('First Name'),
+        last_name: Joi.string().trim().max(150).default(null).label('Last Name'),
+        gender: Joi.string().max(1).default(null).label('Gender'),
+        password: Joi.string().trim().default(null).min(5).label('Password')
     });
     return schema.validate({title: title,email: email, first_name: first_name, last_name: last_name, gender: gender,password: password})
 }
@@ -28,7 +38,7 @@ const signupUser = async (req,res,next) => {
     const lastName = req.body.lastName;
     const gender = req.body.gender;
     const password = req.body.password;
-    const {error,value} = validateSignupDetails(title,email,firstName,lastName,gender,password);
+    const {error,value} = validateUserDetails(title,email,firstName,lastName,gender,password);
     if (error){
         console.log(error);
         return res.status(422).json({error: error.details[0].message,message: "Validation failed", originalValues: value})
@@ -45,6 +55,39 @@ const signupUser = async (req,res,next) => {
         console.log(err);
         res.status(500).json({message:"Internal Server Error"});
     }
+};
+
+const updateUser = async(req,res)=>{
+    const userId = req.params.userid;
+    const user = await User.findUndeletedById(userId);
+    if (user.length===0){
+        return res.status(422).json({error: "User not found",message: "Validation failed"})
+    }
+    const title = req.body.title;
+    const email = req.body.email;
+    const firstName = req.body.firstName;
+    const lastName = req.body.lastName;
+    const gender = req.body.gender;
+    const password = req.body.password;
+    const {error,value} = validateUpdateUser(title,email,firstName,lastName,gender,password);
+    if (error){
+        console.log(error);
+        return res.status(422).json({error: error.details[0].message,message: "Validation failed", postedValues: value})
+    }
+    if (value.email!==user[0].email && await User.isEmailRegistered(value.email)){
+        return res.status(422).json({error: "Email already registered",message: "Validation failed", originalValues: value})
+    }
+    try {
+        const hashedPw = (value.password===null)?null : await bcrypt.hash(value.password,12);
+        const queryResult = await User.updateById({'title':value.title,'email':value.email,'first_name':value.first_name,'last_name':value.last_name,'gender':value.gender,'password':hashedPw},userId);
+        res.status(201).json({message:'User updated successfully'});
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json({message:"Internal Server Error"});
+    }
+
+
 };
 
 /**
@@ -152,5 +195,6 @@ module.exports = {
     addBooking,
     deleteBooking,
     deleteUser,
-    signupUser
+    signupUser,
+    updateUser
 };
