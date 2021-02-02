@@ -21,8 +21,6 @@ async function getBookings(user_id = undefined) {
                 variableNames.push('user_id = ?');
                 variableValues.push(user_id);
             }
-            variableNames.push('is_deleted = ?');
-            variableValues.push(0);
             (variableNames.length == 1) ? whereClause += variableNames[0] :
                 whereClause += variableNames.join(' AND ');
         }
@@ -57,7 +55,12 @@ async function getLastBooking(user_id, connection = pool) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                resolve({ results: results, connection: connection });
+                if(connection == pool){
+                    resolve(results);
+                }
+                else{
+                    resolve({ results: results, connection: connection });
+                }
 
             }
         );
@@ -83,7 +86,12 @@ async function addBooking(bookingDetails, connection = pool) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                resolve({ results: results, connection: connection }); //TODO: clarify
+                if(connection == pool){
+                    resolve(results);
+                }
+                else{
+                    resolve({ results: results, connection: connection });
+                }
 
             }
         );
@@ -91,7 +99,7 @@ async function addBooking(bookingDetails, connection = pool) {
 }
 
 /**
- * delete a booking from database
+ * set booking state to cancelled in database
  * 
  * @param {string} user_id default undefined
  * @returns {object} Promise of a query output
@@ -99,15 +107,18 @@ async function addBooking(bookingDetails, connection = pool) {
  */
 async function deleteBooking(user_id, booking_id, connection = pool) {
     return new Promise((resolve, reject) => {
-        //fetching data from the database
-        const result = connection.query('UPDATE booking SET is_deleted = ? WHERE id = ? and user_id = ?;',
-            [true, booking_id, user_id],
+        const result = connection.query('UPDATE booking SET state = ? WHERE id = ? and user_id = ?;',
+            ["cancelled", booking_id, user_id],
             function (error, results) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                resolve(results);
-
+                if(connection == pool){
+                    resolve(results);
+                }
+                else{
+                    resolve({ results: results, connection: connection });
+                }
             }
         );
     })
