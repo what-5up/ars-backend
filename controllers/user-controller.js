@@ -7,7 +7,7 @@ const logger = require('../utils/logger');
 const _ = require('lodash');
 const User = require('../models/User');
 
-function validateUserDetails(title,email,first_name,last_name,gender,password) {
+function validateUserDetails(title, email, first_name, last_name, gender, password) {
     const schema = Joi.object({
         title: Joi.string().trim().required().label('Title'),
         email: Joi.string().email().trim().lowercase().max(100).required().label('Email'),
@@ -16,10 +16,10 @@ function validateUserDetails(title,email,first_name,last_name,gender,password) {
         gender: Joi.string().max(1).required().label('Gender'),
         password: Joi.string().trim().min(5).required().label('Password')
     });
-    return schema.validate({title: title,email: email, first_name: first_name, last_name: last_name, gender: gender,password: password})
+    return schema.validate({ title: title, email: email, first_name: first_name, last_name: last_name, gender: gender, password: password })
 }
 
-function validateUpdateUser(title,email,first_name,last_name,gender,password) {
+function validateUpdateUser(title, email, first_name, last_name, gender, password) {
     const schema = Joi.object({
         title: Joi.string().trim().default(null).label('Title'),
         email: Joi.string().email().trim().lowercase().max(100).default(null).label('Email'),
@@ -28,40 +28,40 @@ function validateUpdateUser(title,email,first_name,last_name,gender,password) {
         gender: Joi.string().max(1).default(null).label('Gender'),
         password: Joi.string().trim().default(null).min(5).label('Password')
     });
-    return schema.validate({title: title,email: email, first_name: first_name, last_name: last_name, gender: gender,password: password})
+    return schema.validate({ title: title, email: email, first_name: first_name, last_name: last_name, gender: gender, password: password })
 }
 
-const signupUser = async (req,res,next) => {
+const signupUser = async (req, res, next) => {
     const title = req.body.title;
     const email = req.body.email;
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
     const gender = req.body.gender;
     const password = req.body.password;
-    const {error,value} = validateUserDetails(title,email,firstName,lastName,gender,password);
-    if (error){
+    const { error, value } = validateUserDetails(title, email, firstName, lastName, gender, password);
+    if (error) {
         console.log(error);
-        return res.status(422).json({error: error.details[0].message,message: "Validation failed", originalValues: value})
+        return res.status(422).json({ error: error.details[0].message, message: "Validation failed", originalValues: value })
     }
-    if (await User.isEmailRegistered(value.email)){
-        return res.status(422).json({error: "Email already registered",message: "Validation failed", originalValues: value})
+    if (await User.isEmailRegistered(value.email)) {
+        return res.status(422).json({ error: "Email already registered", message: "Validation failed", originalValues: value })
     }
-    try{
-        const hashedPw = await bcrypt.hash(value.password,12);
-        const queryResult = await User.createUser(value.title,value.first_name,value.last_name,value.email,value.gender,hashedPw,2);
-        res.status(201).json({message:'User created successfully',userId: queryResult.insertId});
+    try {
+        const hashedPw = await bcrypt.hash(value.password, 12);
+        const queryResult = await User.createUser(value.title, value.first_name, value.last_name, value.email, value.gender, hashedPw, 2);
+        res.status(201).json({ message: 'User created successfully', userId: queryResult.insertId });
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({message:"Internal Server Error"});
+        res.status(500).json({ message: "Internal Server Error" });
     }
 };
 
-const updateUser = async(req,res)=>{
+const updateUser = async (req, res) => {
     const userId = req.params.userid;
     const user = await User.findUndeletedById(userId);
-    if (user.length===0){
-        return res.status(422).json({error: "User not found",message: "Validation failed"})
+    if (user.length === 0) {
+        return res.status(422).json({ error: "User not found", message: "Validation failed" })
     }
     const title = req.body.title;
     const email = req.body.email;
@@ -69,22 +69,22 @@ const updateUser = async(req,res)=>{
     const lastName = req.body.lastName;
     const gender = req.body.gender;
     const password = req.body.password;
-    const {error,value} = validateUpdateUser(title,email,firstName,lastName,gender,password);
-    if (error){
+    const { error, value } = validateUpdateUser(title, email, firstName, lastName, gender, password);
+    if (error) {
         console.log(error);
-        return res.status(422).json({error: error.details[0].message,message: "Validation failed", postedValues: value})
+        return res.status(422).json({ error: error.details[0].message, message: "Validation failed", postedValues: value })
     }
-    if (value.email!==user[0].email && await User.isEmailRegistered(value.email)){
-        return res.status(422).json({error: "Email already registered",message: "Validation failed", originalValues: value})
+    if (value.email !== user[0].email && await User.isEmailRegistered(value.email)) {
+        return res.status(422).json({ error: "Email already registered", message: "Validation failed", originalValues: value })
     }
     try {
-        const hashedPw = (value.password===null)?null : await bcrypt.hash(value.password,12);
-        const queryResult = await User.updateById({'title':value.title,'email':value.email,'first_name':value.first_name,'last_name':value.last_name,'gender':value.gender,'password':hashedPw},userId);
-        res.status(201).json({message:'User updated successfully'});
+        const hashedPw = (value.password === null) ? null : await bcrypt.hash(value.password, 12);
+        const queryResult = await User.updateById({ 'title': value.title, 'email': value.email, 'first_name': value.first_name, 'last_name': value.last_name, 'gender': value.gender, 'password': hashedPw }, userId);
+        res.status(201).json({ message: 'User updated successfully' });
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({message:"Internal Server Error"});
+        res.status(500).json({ message: "Internal Server Error" });
     }
 
 
@@ -135,7 +135,7 @@ const addBooking = async (req, res) => {
             baseModel.startTransaction(DBconnection)
                 .then(results => {
                     bookingModel.addBooking(bookingDetails, results.connection)
-                        .then(results => {                          
+                        .then(results => {
                             bookingModel.getLastBooking(bookingDetails.user_id, results.connection)
                                 .then(results => {
                                     bookingID = results.results[0].id;
@@ -151,8 +151,9 @@ const addBooking = async (req, res) => {
                         })
                 })
         })
+        .catch(err => { return res.status(400).send({ error: err.message }); });
 
-    return res.status(200).send(records); //TODO: what should be returned?
+    return res.status(200).send("succesfully added booking!"); //TODO: what should be returned?
 }
 
 /**
@@ -164,31 +165,54 @@ const addBooking = async (req, res) => {
  * @todo move function to an appropriate file
  */
 const deleteBooking = async (req, res) => {
-    const records = await bookingModel.deleteBooking(req.params.userid, req.params.bookingid)
+
+    const records = await baseModel.getConnection()
+        .then(DBconnection => {
+            baseModel.startTransaction(DBconnection)
+                .then(results => {
+                    bookingModel.deleteBooking(req.params.userid, req.params.bookingid, results.connection)
+                        .then(results => {
+                            if (results.results.changedRows > 0) {
+                                reservedSeatModel.deleteReservedSeats(req.params.bookingid, results.connection)
+                                    .then(results => {
+                                        baseModel.endTransaction(results.connection)
+                                            .then(results => {
+                                                baseModel.releaseConnection(results.connection);
+                                            })
+                                    })
+                            }
+                            else {
+                                baseModel.rollbackTransaction(results.connection)
+                                    .then(results => {
+                                        baseModel.releaseConnection(results.connection);
+                                    })
+                            }
+                        })
+                })
+        })
         .catch(err => { return res.status(400).send({ error: err.message }); });
 
-        //TODO: delete reserved_seat data
-    return res.status(200).send(records); //TODO: what should be returned?
+    return res.status(200).send("query success");
 }
 
- /**
- * Delete a user
- *
- * @param {object} req http request object
- * @param {object} res http response object
- * @return {object} promise of a record object
- * @throws Error
- */
+/**
+* Delete a user
+*
+* @param {object} req http request object
+* @param {object} res http response object
+* @return {object} promise of a record object
+* @throws Error
+*/
 const deleteUser = async (req, res) => {
-  model
-    .deleteUser(req.params.userID)
-    .then((result) => {
-      let message = result == true ? "Deleted successfully" : "Couldnt delete";
-      return res.status(200).send(message);
-    })
-    .catch((error) => {
-      return res.status(400).send(error.message);
-    });
+    model
+        .deleteUser(req.params.userID)
+        .then((result) => {
+            let message = result == true ? "Deleted successfully" : "Couldnt delete";
+            return res.status(200).send(message);
+        })
+        .catch((error) => {
+            return res.status(400).send(error.message);
+        });
 };
 module.exports = {
     viewBookings,
