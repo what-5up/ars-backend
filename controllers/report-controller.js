@@ -89,7 +89,7 @@ const viewPassengerCountByDest = async (req,res) => {
     endDate = (value.endDate===null)?undefined: value.endDate.toISOString().substring(0, 10);
     try {
         const results = await model.getNoOfPassengersToDest(destination,startDate,endDate);
-        if (results.length===0){
+        if (results.length===0 || results[0].no_of_passengers===0){
             return res.status(404).json({message: "Destination Passenger Count not found"});
         }
         res.status(200).json({result: results[0], message: "Destination Passenger Counts found"});
