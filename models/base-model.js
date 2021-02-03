@@ -1,6 +1,10 @@
 const { pool } = require(`../database/connection`);
 const logger = require('../utils/logger');
 
+/**
+ * @description get connection from pool
+ * @returns {Promise<object>} Promise of a query output
+ */
 async function getConnection() {
     return new Promise((resolve, reject) => {
         pool.getConnection(function (err, connection) {
@@ -13,9 +17,9 @@ async function getConnection() {
 }
 
 /**
+ * @description release connection to pool
+ * @param {object} connection 
  * 
- * @param {*} connection 
- * @todo implement
  */
 function releaseConnection(connection) {
     connection.release();
@@ -23,9 +27,9 @@ function releaseConnection(connection) {
 }
 
 /**
- * 
- * @param {*} connection 
- * @todo implement
+ * @description start a database transaction
+ * @param {object} connection 
+ * @returns {Promise<object>} Promise of a query output
  */
 async function startTransaction(connection) {
     return new Promise((resolve, reject) => {
@@ -42,9 +46,9 @@ async function startTransaction(connection) {
 }
 
 /**
- * 
- * @param {*} connection 
- * @todo implement
+ * @description end a database transaction
+ * @param {object} connection 
+ * @returns {Promise<object>} Promise of a query output
  */
 async function endTransaction(connection) {
     return new Promise((resolve, reject) => {
@@ -60,11 +64,31 @@ async function endTransaction(connection) {
     })
 }
 
+/**
+ * @description rollback a database transaction
+ * @param {object} connection 
+ * @returns {Promise<object>} Promise of a query output
+ */
+async function rollbackTransaction(connection) {
+    return new Promise((resolve, reject) => {
+        const result = connection.query("ROLLBACK;",
+            function (error, results) {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                resolve({results: results, connection: connection});
+
+            }
+        );
+    })
+}
+
 module.exports = {
     getConnection,
     releaseConnection,
     startTransaction,
-    endTransaction
+    endTransaction,
+    rollbackTransaction
 }
 
 
