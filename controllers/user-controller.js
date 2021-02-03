@@ -1,11 +1,12 @@
 const bookingModel = require("../models/booking-model");
 const reservedSeatModel = require("../models/reserved-seat-model");
 const baseModel = require("../models/base-model");
+const userModel = require("../models/user-model");
 const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const logger = require('../utils/logger');
 const _ = require('lodash');
-const User = require('../models/User');
+//const User = require('../models/User');
 
 function validateUserDetails(title, email, first_name, last_name, gender, password) {
     const schema = Joi.object({
@@ -43,12 +44,12 @@ const signupUser = async (req, res, next) => {
         console.log(error);
         return res.status(422).json({ error: error.details[0].message, message: "Validation failed", originalValues: value })
     }
-    if (await User.isEmailRegistered(value.email)) {
+    if (await userModel.isEmailRegistered(value.email)) {
         return res.status(422).json({ error: "Email already registered", message: "Validation failed", originalValues: value })
     }
     try {
         const hashedPw = await bcrypt.hash(value.password, 12);
-        const queryResult = await User.createUser(value.title, value.first_name, value.last_name, value.email, value.gender, hashedPw, 2);
+        const queryResult = await userModel.createUser(value.title, value.first_name, value.last_name, value.email, value.gender, hashedPw, 2);
         res.status(201).json({ message: 'User created successfully', userId: queryResult.insertId });
     }
     catch (err) {
@@ -59,7 +60,7 @@ const signupUser = async (req, res, next) => {
 
 const updateUser = async (req, res) => {
     const userId = req.params.userid;
-    const user = await User.findUndeletedById(userId);
+    const user = await userModel.findUndeletedById(userId);
     if (user.length === 0) {
         return res.status(422).json({ error: "User not found", message: "Validation failed" })
     }
@@ -74,12 +75,12 @@ const updateUser = async (req, res) => {
         console.log(error);
         return res.status(422).json({ error: error.details[0].message, message: "Validation failed", postedValues: value })
     }
-    if (value.email !== user[0].email && await User.isEmailRegistered(value.email)) {
+    if (value.email !== user[0].email && await userModel.isEmailRegistered(value.email)) {
         return res.status(422).json({ error: "Email already registered", message: "Validation failed", originalValues: value })
     }
     try {
         const hashedPw = (value.password === null) ? null : await bcrypt.hash(value.password, 12);
-        const queryResult = await User.updateById({ 'title': value.title, 'email': value.email, 'first_name': value.first_name, 'last_name': value.last_name, 'gender': value.gender, 'password': hashedPw }, userId);
+        const queryResult = await userModel.updateById({ 'title': value.title, 'email': value.email, 'first_name': value.first_name, 'last_name': value.last_name, 'gender': value.gender, 'password': hashedPw }, userId);
         res.status(201).json({ message: 'User updated successfully' });
     }
     catch (err) {
@@ -204,7 +205,7 @@ const deleteBooking = async (req, res) => {
 * @throws Error
 */
 const deleteUser = async (req, res) => {
-    model
+    userModel
         .deleteUser(req.params.userID)
         .then((result) => {
             let message = result == true ? "Deleted successfully" : "Couldnt delete";
