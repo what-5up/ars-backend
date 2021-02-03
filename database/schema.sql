@@ -375,3 +375,19 @@ WHERE `sf`.`departure` < CURDATE()
 GROUP BY `sf`.`id`
 	,`tc`.`id`;
 
+-- View structure for 'user_auth'
+-- details required for auth
+--
+
+CREATE VIEW `user_auth`
+AS
+(SELECT `user`.`id`,`email`,`password`,`account_type_name` AS `acc_type`,`is_deleted`
+FROM `user`
+INNER JOIN `account_type`
+    ON `user`.`account_type_id` = `account_type`.`id`)
+UNION
+(SELECT `employee`.`id`,`email`,`password`,`privilege` AS `acc_type`,`is_deleted`
+FROM `employee`
+INNER JOIN `designation`
+    ON `employee`.`designation_id` = `designation`.`id`
+);
