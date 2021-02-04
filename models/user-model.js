@@ -55,9 +55,10 @@ async function isEmailRegistered(email){
     });
 }
 
-async function createUser(title,firstName,lastName,email,gender,password,accountTypeId) {
+async function createUser(title,firstName,lastName,email,gender,password,accountType) {
     return new Promise((resolve, reject) => {
-        const result = pool.query("INSERT INTO user(title,first_name,last_name,email,gender,password,account_type_id) VALUES ((SELECT id from title where title_name = ?),?,?,?,?,?,?)" ,
+        const result = pool.query("INSERT INTO user(title,first_name,last_name,email,gender,password,account_type_id) VALUES " +
+            "((SELECT id from title where title_name = ?),?,?,?,?,?,(SELECT id from account_type where account_type_name = ?))" ,
             [
                 title,
                 firstName,
@@ -65,7 +66,7 @@ async function createUser(title,firstName,lastName,email,gender,password,account
                 email,
                 gender,
                 password,
-                accountTypeId
+                accountType
             ],
             function (error, results, fields) {
                 if (error) {
