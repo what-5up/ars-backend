@@ -33,7 +33,7 @@ CREATE TABLE `user` (
   `last_name` varchar(150) NOT NULL,
   `email` varchar(100) NOT NULL UNIQUE,
   `gender` enum('m','f','o') NOT NULL,
-  `password` char(32),
+  `password` char(60),
   `account_type_id` int NOT NULL,
   `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
@@ -62,7 +62,7 @@ CREATE TABLE `employee` (
   `first_name` varchar(150) NOT NULL,
   `last_name` varchar(150) NOT NULL,
   `email` varchar(100) NOT NULL UNIQUE,
-  `password` char(32) NOT NULL,
+  `password` char(60) NOT NULL,
   `designation_id` int NOT NULL,
   `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
@@ -375,6 +375,24 @@ WHERE `sf`.`departure` < CURDATE()
 GROUP BY `sf`.`id`
 	,`tc`.`id`;
 
+                                                         
+-- View structure for 'user_auth'
+-- details required for auth
+--
+
+CREATE VIEW `user_auth`
+AS
+(SELECT `user`.`id`,`email`,`password`,`account_type_name` AS `acc_type`,`is_deleted`
+FROM `user`
+INNER JOIN `account_type`
+    ON `user`.`account_type_id` = `account_type`.`id`)
+UNION
+(SELECT `employee`.`id`,`email`,`password`,`privilege` AS `acc_type`,`is_deleted`
+FROM `employee`
+INNER JOIN `designation`
+    ON `employee`.`designation_id` = `designation`.`id`
+);
+
 --
 -- Function to return address of an airport
 -- NOTE: run "SET GLOBAL log_bin_trust_function_creators = 1;" to remove deterministic check
@@ -415,6 +433,3 @@ BEGIN
 END $$
 
 DELIMITER ;
-
-
-

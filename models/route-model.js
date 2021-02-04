@@ -1,8 +1,8 @@
 const { pool } = require('../database/connection');
 
-class Route {
 
-    static getRoute(routeId){
+
+async function getRoute(routeId){
         return new Promise((resolve,reject)=>{
             const result = pool.query('SELECT * FROM route_with_airports WHERE id = ?',
                 [routeId],
@@ -14,9 +14,9 @@ class Route {
                 }
             )
         });
-    };
+    }
 
-    static getRoutes(origin_code=undefined,destination_code=undefined,order=undefined,limit=undefined){
+async function getRoutes(origin_code=undefined,destination_code=undefined,order=undefined,limit=undefined){
         let whereClause = '';
         let variableNames = [];
         let variableValues = [];
@@ -56,6 +56,8 @@ class Route {
         });
     }
 
-}
 
-module.exports = Route;
+
+module.exports = {
+    getRoute,getRoutes
+};

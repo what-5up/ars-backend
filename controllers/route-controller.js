@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const Route = require('../models/Route');
+const routeModel = require('../models/route-model');
 const Price = require('../models/price-model');
 
 function validateRouteId(routeId) {
@@ -14,7 +14,7 @@ const viewRoutes = async (req, res) => {
     const originCode = (req.query.origin !== undefined && req.query.origin.trim() === '') ? undefined : req.query.origin;
     const destinationCode = (req.query.destination !== undefined && req.query.destination.trim() === '') ? undefined : req.query.destination;
     try {
-        const routes = await Route.getRoutes(originCode, destinationCode);
+        const routes = await routeModel.getRoutes(originCode, destinationCode);
         if (routes.length === 0) {
             return res.status(404).json({ message: "Specified Routes not found" });
         }
@@ -35,7 +35,7 @@ const viewRoute = async (req, res) => {
         return res.status(400).json({ error: error.details[0].message, message: "Invalid Route ID provided" })
     }
     try {
-        const route = await Route.getRoute(routeId);
+        const route = await routeModel.getRoute(routeId);
         if (route.length === 0) {
             return res.status(404).json({ message: "Route not found" })
         }
@@ -58,4 +58,4 @@ module.exports = {
     viewRoute,
     viewRoutes,
     updateRoutePrice
-}
+};
