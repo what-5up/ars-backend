@@ -1,6 +1,7 @@
 const Joi = require('joi');
 
 const model = require("../models/report-model");
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 
 /**
@@ -17,7 +18,7 @@ const viewPassengersByFlightNo = async (req, res, next) => {
             return {above18: result[0], below18: result[1]}
         })
         .catch(err => next(err));
-    return res.status(200).send(records);
+    return successMessage(res, records);
 }
 
 /**
@@ -30,16 +31,16 @@ const viewPassengersByFlightNo = async (req, res, next) => {
  */
 const viewBookingsByPassengerType = async (req, res, next) => {
     if ((req.query.startDate && req.query.endDate) && (req.query.startDate>req.query.endDate)) {
-        return res.status(422).json({message: "The start date must be before the end date"})
+        return errorMessage(res, "The start date must be before the end date", 422);
     }
     const records = await model.getBookingsByPassengerType(req.query.startDate, req.query.endDate)
         .then(result => {
-            return result.map((row, index) => {
-                return { id: index, object: row };
+            return result.map((row) => {
+                return row;
             })
         })
         .catch(err => next(err));
-    return res.status(200).send(records);
+    return successMessage(res, records);
 };
 
 const viewRevenueByAircraftModel = async (req, res, next) => {
@@ -55,7 +56,7 @@ const viewRevenueByAircraftModel = async (req, res, next) => {
             }, {});
         })
         .catch(err => next(err));
-    return res.status(200).send(records);
+    return successMessage(res, records);
 }
 
 const viewPastFlightDetails = async (req, res, next) => {

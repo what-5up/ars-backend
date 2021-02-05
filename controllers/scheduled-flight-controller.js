@@ -1,4 +1,5 @@
 const model = require("../models/scheduled-flight-model");
+const { successMessage } = require("../utils/message-template");
 
 /**
  * View all scheduled flights
@@ -8,15 +9,19 @@ const model = require("../models/scheduled-flight-model");
  * @return {Response} {id, object} if success
  * @throws Error
  */
-const viewScheduledFlights = async (req, res) => {
-    const records = await model.getScheduledFlights(req.query.origin, req.query.destination, req.query.aircraftID, req.query.aircraftModel, req.query.isDeleted)
+const viewScheduledFlights = async (req, res, next) => {
+    const records = await model.getScheduledFlights(req.query.origin, 
+                                                    req.query.destination, 
+                                                    req.query.aircraftID, 
+                                                    req.query.aircraftModel, 
+                                                    req.query.isDeleted)
         .then(result => {
-            return result.map((row, index) => {
-                return { id: index, object: row };
+            return result.map((row) => {
+                return row;
             })
         })
-        .catch(err => { return res.status(400).send({ error: err.message }); });
-    return res.status(200).send(records);
+        .catch(err => next(err));
+    return successMessage(res, records);
 }
 
 
