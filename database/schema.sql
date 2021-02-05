@@ -10,6 +10,7 @@ CREATE TABLE `account_type` (
   `id` int NOT NULL AUTO_INCREMENT,
   `account_type_name` varchar(15) NOT NULL UNIQUE,
   `discount` numeric(5,2),
+  `criteria` int unsigned, 
   PRIMARY KEY (`id`),
   CONSTRAINT CHK_AccountDiscount CHECK(`discount` BETWEEN 0 AND 100)
 );
@@ -178,6 +179,44 @@ CREATE TABLE `booking` (
   CONSTRAINT FL_BookingFlight FOREIGN KEY (`scheduled_flight_id`) 
   REFERENCES `scheduled_flight`(`id`) ON UPDATE CASCADE
 );
+
+--
+-- Trigger structure for 'TR_UpgradeUser'
+-- Upgrades the user if he has passed the criteria.
+--
+DELIMITER $$
+
+CREATE TRIGGER `TR_UpgradeUser` AFTER INSERT ON `booking` FOR EACH ROW BEGIN
+    DECLARE current_criteria, number_of_bookings, next_criteria_id, next_criteria INT;
+    
+    /* finding the number of bookings the user has made */
+    SELECT `ac`.`criteria`, COUNT(*)
+    INTO current_criteria, number_of_bookings
+    FROM `user` `u` 
+        INNER JOIN `account_type` `ac` 
+            ON `u`.`account_type_id` = `ac`.`id`
+        INNER JOIN `booking` `b`
+            ON `b`.`user_id` = `u`.`id`
+    WHERE `u`.`id` = new.`user_id`;
+    
+    /* finding the immediate upgrade to the current criteria */
+    SELECT `id`, `criteria` 
+    INTO next_criteria_id, next_criteria 
+    FROM `account_type`
+    WHERE `criteria` > current_criteria
+    LIMIT 1;
+        
+    /* upgrade the user if he has passed the criteria */
+    IF (number_of_bookings >= next_criteria)
+    	THEN
+           UPDATE `user` 
+           SET `account_type_id` = next_criteria_id
+           WHERE  `id` =  new.`user_id`;
+    END IF;
+    
+END $$
+
+DELIMITER ;
 
 --
 -- Table structure for 'passenger'

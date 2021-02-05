@@ -5,11 +5,11 @@ USE b_airways;
 --
 SET AUTOCOMMIT=0;
 INSERT INTO `account_type`
-(`account_type_name`, `discount`) VALUES 
-('guest', 0),
-('normal user', 0),
-('frequent user', 5),
-('gold user', 9);
+(`account_type_name`, `discount`, `criteria`) VALUES 
+('guest', 0, null),
+('normal user', 0, 0),
+('frequent user', 5, 3),
+('gold user', 9, 5);
 
 --
 -- Inserting values to 'title' table
@@ -23,11 +23,11 @@ INSERT INTO `title`
 --
 INSERT INTO `user`
 (`title`, `first_name`, `last_name`, `password`, `email`, `gender`, `account_type_id`) VALUES
-(1, 'Danushka', 'Gunathilake', '900150983cd24fb0d6963f7d28e17f72', 'danushka@gmail.com', 'm', 1),
-(1, 'Joe', 'Roots', '900150983cd24fb0d6963f7d28e17f72', 'roots@gmail.com', 'm', 4),
-(1, 'Lasith', 'Embuldeniya', '900150983cd24fb0d6963f7d28e17f72', 'lasith@gmail.com', 'm', 1),
-(1, 'Angelo', 'Mathews', '900150983cd24fb0d6963f7d28e17f72', 'mathews@gmail.com', 'm', 2),
-(8, 'Moda', 'Nagitha', '900150983cd24fb0d6963f7d28e17f72', 'nagitha@modaya.lk', 'o', 3);
+(1, 'Danushka', 'Gunathilake', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 'danushka@gmail.com', 'm', 1),
+(1, 'Joe', 'Roots', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 'roots@gmail.com', 'm', 2),
+(1, 'Lasith', 'Embuldeniya', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 'lasith@gmail.com', 'm', 1),
+(1, 'Angelo', 'Mathews', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 'mathews@gmail.com', 'm', 2),
+(8, 'Moda', 'Nagitha', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 'nagitha@modaya.lk', 'o', 2);
 COMMIT;
 
 --
@@ -46,10 +46,10 @@ INSERT INTO `designation`
 --
 INSERT INTO `employee`
 (`title`, `first_name`, `last_name`, `email`, `password`, `designation_id`) VALUES
-(1, 'Kusal', 'Mendis', 'kmendis@gmail.com', '900150983cd24fb0d6963f7d28e17f72', 1),
-(1, 'Niroshan', 'Dickwella', 'dickwella@gmail.com', '900150983cd24fb0d6963f7d28e17f72', 2),
-(1, 'Dinesh', 'Chandimal', 'chandi@gmail.com', '900150983cd24fb0d6963f7d28e17f72', 3),
-(1, 'Kane', 'Williamson', 'wkane@gmail.com', '900150983cd24fb0d6963f7d28e17f72', 4);
+(1, 'Kusal', 'Mendis', 'kmendis@gmail.com', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 1),
+(1, 'Niroshan', 'Dickwella', 'dickwella@gmail.com', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 2),
+(1, 'Dinesh', 'Chandimal', 'chandi@gmail.com', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 3),
+(1, 'Kane', 'Williamson', 'wkane@gmail.com', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 4);
 COMMIT;
 
 --

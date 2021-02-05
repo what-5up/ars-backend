@@ -19,13 +19,13 @@ const login = async (req, res) => {
         }
         const token = jwt.sign({
                 email: loadedUser.email,
-                userId: loadedUser.id.toString(),
+                userID: loadedUser.id.toString(),
                 accType: loadedUser.acc_type
             },
             'somesupersecret',                 //put in ENV
             {expiresIn: '1h'}
         );
-        res.status(200).json({token: token,userId: loadedUser.id.toString()});
+        res.status(200).json({token: token,userID: loadedUser.id.toString(), expiresIn: 3600});
     }
     catch (err) {
         res.status(500).json({message:"Internal Server Error"});
