@@ -6,7 +6,6 @@ USE b_airways;
 SET AUTOCOMMIT=0;
 INSERT INTO `account_type`
 (`account_type_name`, `discount`, `criteria`) VALUES 
-('guest', 0, null),
 ('normal user', 0, 0),
 ('frequent user', 5, 3),
 ('gold user', 9, 5);
@@ -21,14 +20,21 @@ INSERT INTO `title`
 --
 -- Inserting values to 'user' table
 --
-INSERT INTO `user`
+INSERT INTO `registered_user`
 (`title`, `first_name`, `last_name`, `password`, `email`, `gender`, `account_type_id`) VALUES
 (1, 'Danushka', 'Gunathilake', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 'danushka@gmail.com', 'm', 1),
-(1, 'Joe', 'Roots', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 'roots@gmail.com', 'm', 2),
+(1, 'Joe', 'Roots', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 'roots@gmail.com', 'm', 1),
 (1, 'Lasith', 'Embuldeniya', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 'lasith@gmail.com', 'm', 1),
-(1, 'Angelo', 'Mathews', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 'mathews@gmail.com', 'm', 2),
-(8, 'Moda', 'Nagitha', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 'nagitha@modaya.lk', 'o', 2);
+(1, 'Angelo', 'Mathews', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 'mathews@gmail.com', 'm', 1),
+(8, 'Moda', 'Nagitha', '$2y$12$NcZJNn6goM7upV5rKidpSO5/UbS64Q0o8EkFOaE2ODdIh9yrF/7SC', 'nagitha@modaya.lk', 'o', 1);
 COMMIT;
+
+INSERT INTO `guest`
+(`title`, `first_name`, `last_name`, `email`, `gender`) VALUES
+(1, 'Dimuth', 'Karunaratne', 'karuna@gmail.com', 'm'),
+(1, 'Kane', 'Williamson', 'kane@gmail.com', 'm'),
+(1, 'Mohommad', 'Shami', 'shami@gmail.com', 'm'),
+(1, 'Dimuth', 'Karunaratne', 'karuna@gmail.com', 'm');
 
 --
 -- Inserting values to 'designation' table
@@ -179,7 +185,11 @@ INSERT INTO `booking`
 (3, 28, '2021-01-10 13:12:05', 62000.00),
 (4, 12, '2021-01-02 23:11:43', 75000.00),
 (5, 5, '2021-01-02 12:12:12', 120000.00),
-(2, 19, '2021-01-02 11:12:33', 98000.00);
+(2, 19, '2021-01-02 11:05:19', 98000.00),
+(6, 24, '2021-01-11 19:12:42', 120000.00),
+(7, 25, '2021-01-14 14:39:51', 150000.00),
+(8, 1, '2021-01-18 23:12:32', 270000.00),
+(9, 4, '2021-01-22 05:42:23', 150000.00);
 COMMIT;
 
 --
@@ -197,7 +207,11 @@ INSERT INTO `passenger`
 (1, 4, 'Angelo', 'Mathews', ' 1989-11-12','m', 'Sri Lanka', '1259863325', '2021-06-12'),
 (8, 5, 'Moda', 'Nagitha', ' 1950-11-12', 'o', 'Sri Lanka', '115522996', '2021-11-30'),
 (10, 3, 'Hashan', 'Mendis', '2002-03-11', 'm', 'Sri Lanka', '5282433246', '2021-02-20'),
-(9, 3, 'Sigithi', 'Mendis', '2004-04-12', 'f', 'Sri Lanka', '1382333326', '2021-02-20');
+(9, 3, 'Sigithi', 'Mendis', '2004-04-12', 'f', 'Sri Lanka', '1382333326', '2021-02-20'),
+(9, 6, 'Dimuth', 'Karunaratne', '1989-04-13', 'm', 'Sri Lanka', '282333324', '2021-02-23'),
+(9, 3, 'Kane', 'Williamson', '1989-04-19', 'm', 'New Zealand', '342333324', '2021-02-24'),
+(9, 3, 'Mohommad', 'Shami', '1992-03-29', 'm', 'India', '1322333326', '2021-02-24'),
+(9, 9, 'Dimuth', 'Karunaratne', '1989-04-13', 'm', 'Sri Lanka', '342333324', '2021-02-28');
 
 --
 -- Inserting values to 'price' table
@@ -279,5 +293,9 @@ INSERT INTO `reserved_seat`
 (12, 8, 5, 5), 
 (60, 5, 19, 6),
 (30, 9, 12, 4),
-(31, 10, 12, 4);
+(31, 10, 12, 4),
+(11, 11, 24, 7),
+(12, 12, 25, 8),
+(18, 13, 1, 9),
+(19, 14, 4, 10);
 COMMIT;

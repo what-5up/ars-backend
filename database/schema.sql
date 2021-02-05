@@ -28,7 +28,49 @@ CREATE TABLE `title` (
 -- Table structure for 'user'
 --
 CREATE TABLE `user` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL,
+  `type` enum('g','r') NOT NULL,
+  PRIMARY KEY (`id`, `type`)
+);
+
+--
+-- Table structure for 'guest'
+--
+CREATE TABLE `guest` (
+  `id` int NOT NULL,
+  `title` int NOT NULL,
+  `first_name` varchar(150) NOT NULL,
+  `last_name` varchar(150) NOT NULL,
+  `gender` enum('m','f','o') NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `created_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  CONSTRAINT FK_GuestTitle FOREIGN KEY (`title`) 
+  REFERENCES `title`(`id`) ON UPDATE CASCADE,
+  CONSTRAINT FK_GuestParent FOREIGN KEY (`id`) 
+  REFERENCES `user`(`id`) ON UPDATE CASCADE
+);
+
+--
+-- Trigger structure for 'TR_AddParentRegisteredUser'
+-- Add a row to parent user table after inserting to registered user
+--
+DELIMITER $$
+
+CREATE TRIGGER `TR_AddParentForGuest` BEFORE INSERT ON `guest` FOR EACH ROW BEGIN
+  DECLARE new_id INT;
+  SELECT COUNT(*) + 1 INTO new_id FROM `user`;
+  INSERT INTO `user` VALUES (new_id, 'g');
+  SET new.`id` = new_id;
+END $$
+
+DELIMITER ;
+
+--
+-- Table structure for 'registered_user'
+--
+CREATE TABLE `registered_user` (
+  `id` int NOT NULL,
   `title` int NOT NULL,
   `first_name` varchar(150) NOT NULL,
   `last_name` varchar(150) NOT NULL,
@@ -38,11 +80,28 @@ CREATE TABLE `user` (
   `account_type_id` int NOT NULL,
   `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
-  CONSTRAINT FK_UserAccountType FOREIGN KEY (`account_type_id`) 
+  CONSTRAINT FK_RegisteredUserAccountType FOREIGN KEY (`account_type_id`) 
   REFERENCES `account_type`(`id`) ON UPDATE CASCADE,
-  CONSTRAINT FK_UserTitle FOREIGN KEY (`title`) 
-  REFERENCES `title`(`id`) ON UPDATE CASCADE  
+  CONSTRAINT FK_RegisteredUserTitle FOREIGN KEY (`title`) 
+  REFERENCES `title`(`id`) ON UPDATE CASCADE,
+  CONSTRAINT FK_RegisteredUserParent FOREIGN KEY (`id`) 
+  REFERENCES `user`(`id`) ON UPDATE CASCADE
 );
+
+--
+-- Trigger structure for 'TR_AddParentRegisteredUser'
+-- Add a row to parent user table after inserting to registered user
+--
+DELIMITER $$
+
+CREATE TRIGGER `TR_AddParentRegisteredUser` BEFORE INSERT ON `registered_user` FOR EACH ROW BEGIN
+  DECLARE new_id INT;
+  SELECT COUNT(*) + 1 INTO new_id FROM `user`;
+  INSERT INTO `user` VALUES (new_id, 'r');
+  SET new.`id` = new_id;
+END $$
+
+DELIMITER ;
 
 --
 -- Table structure for 'designation'
@@ -192,7 +251,7 @@ CREATE TRIGGER `TR_UpgradeUser` AFTER INSERT ON `booking` FOR EACH ROW BEGIN
     /* finding the number of bookings the user has made */
     SELECT `ac`.`criteria`, COUNT(*)
     INTO current_criteria, number_of_bookings
-    FROM `user` `u` 
+    FROM `registered_user` `u` 
         INNER JOIN `account_type` `ac` 
             ON `u`.`account_type_id` = `ac`.`id`
         INNER JOIN `booking` `b`
@@ -209,7 +268,7 @@ CREATE TRIGGER `TR_UpgradeUser` AFTER INSERT ON `booking` FOR EACH ROW BEGIN
     /* upgrade the user if he has passed the criteria */
     IF (number_of_bookings >= next_criteria)
     	THEN
-           UPDATE `user` 
+           UPDATE `registered_user` 
            SET `account_type_id` = next_criteria_id
            WHERE  `id` =  new.`user_id`;
     END IF;
@@ -230,7 +289,7 @@ CREATE TABLE `passenger` (
   `birthday` date NOT NULL,
   `gender` enum('m','f','o'), 
   `country` varchar(60) NOT NULL,
-  `passport_no` varchar(20) UNIQUE,
+  `passport_no` varchar(20),
   `passport_expiry` date,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_PassengerUser FOREIGN KEY (`user_id`) 
@@ -343,8 +402,10 @@ SELECT DATE(`sf`.`departure`) AS `departure_date` , `ac`.`account_type_name` AS 
 FROM `booking` `b` 
   INNER JOIN `user` `u` 
     ON `b`.`user_id` = `u`.`id` 
+  INNER JOIN `registered_user` `ru`
+    ON `ru`.`id` = `u`.`id`
   INNER JOIN `account_type` `ac` 
-    ON `u`.`account_type_id` = `ac`.`id` 
+    ON `ru`.`account_type_id` = `ac`.`id` 
   INNER JOIN `scheduled_flight` `sf` 
     ON `b`.`scheduled_flight_id` = `sf`.`id`
 ORDER BY `sf`.`departure`;
@@ -421,10 +482,10 @@ GROUP BY `sf`.`id`
 
 CREATE VIEW `user_auth`
 AS
-(SELECT `user`.`id`,`email`,`password`,`account_type_name` AS `acc_type`,`is_deleted`
-FROM `user`
+(SELECT `registered_user`.`id`,`email`,`password`,`account_type_name` AS `acc_type`,`is_deleted`
+FROM `registered_user`
 INNER JOIN `account_type`
-    ON `user`.`account_type_id` = `account_type`.`id`)
+    ON `registered_user`.`account_type_id` = `account_type`.`id`)
 UNION
 (SELECT `employee`.`id`,`email`,`password`,`privilege` AS `acc_type`,`is_deleted`
 FROM `employee`
