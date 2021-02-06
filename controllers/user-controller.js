@@ -49,8 +49,8 @@ const signupUser = async (req, res, next) => {
     }
     try {
         const hashedPw = await bcrypt.hash(value.password, 12);
-        const queryResult = await userModel.createUser(value.title, value.first_name, value.last_name, value.email, value.gender, hashedPw, 'normal user');
-        res.status(201).json({ message: 'User created successfully', userId: queryResult.insertId });
+        const queryResult = await userModel.createUser(value.title, value.first_name, value.last_name, value.email, value.gender, hashedPw);
+        res.status(201).json({ message: 'User created successfully'});
     }
     catch (err) {
         console.log(err);
@@ -76,7 +76,7 @@ const updateUser = async (req, res) => {
         return res.status(422).json({ error: error.details[0].message, message: "Validation failed", postedValues: value })
     }
     if (value.email !== user[0].email && await userModel.isEmailRegistered(value.email)) {
-        return res.status(422).json({ error: "Email already registered", message: "Validation failed", originalValues: value })
+        return res.status(422).json({ error: "Email already registered", message: "Validation failed", postedValues: value })
     }
     try {
         const hashedPw = (value.password === null) ? null : await bcrypt.hash(value.password, 12);
