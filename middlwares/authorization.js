@@ -18,7 +18,7 @@ const isAuth = (req,res,next)=>{
     if (!decodedToken){
         return res.status(401).json({message: 'Not authenticated.'})
     }
-    req.userId = decodedToken.userId;
+    req.userID = decodedToken.userID;
     req.accType = decodedToken.accType;
     next();
 };
