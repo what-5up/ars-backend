@@ -104,6 +104,23 @@ END $$
 DELIMITER ;
 
 --
+-- Trigger structure for 'TR_AddAccountType'
+-- Set account type id before inserting a new row to registered user
+--
+DELIMITER $$
+
+CREATE TRIGGER `TR_AddAccountType` BEFORE INSERT ON `registered_user` FOR EACH ROW BEGIN
+  DECLARE normal_user_id INT;
+  SELECT `id`
+  INTO normal_user_id
+  FROM `account_type`
+  WHERE `account_type_name` = "normal user";
+  SET new.`account_type_id` = normal_user_id;
+END $$
+
+DELIMITER ;
+
+--
 -- Table structure for 'designation'
 --
 CREATE TABLE `designation` (
