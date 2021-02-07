@@ -66,7 +66,7 @@ INSERT INTO `aircraft_model`
 (`model_name`, `seating_capacity`, `max_rows`, `max_columns`) VALUES
 ('Boeing 737', 30, 5, 6),
 ('Boeing 757', 36, 7, 6),
-('Airbus A380', 42, 8, 6);
+('Airbus A380', 48, 8, 6);
 
 --
 -- Inserting values to 'aircraft' table
@@ -137,7 +137,7 @@ COMMIT;
 --
 SET AUTOCOMMIT=0;
 INSERT INTO `scheduled_flight`
-(`route`, `departure`, `assigned_airplane_id`, `delayed_departure`) VALUES
+(`route`, `departure`, `assigned_aircraft_id`, `delayed_departure`) VALUES
 (1, '2021-02-10 07:00:00', 1, NULL),
 (8, '2021-02-10 14:00:00', 1, NULL),
 (24, '2021-02-10 20:00:00', 1, '2021-02-10 21:00:00'),

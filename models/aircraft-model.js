@@ -34,7 +34,7 @@ const getAllAircrafts = async () => {
  */
 const getDetailsForAircraft = async (id) => {
     return new Promise((resolve, reject) => {
-        const result = pool.query('SELECT a.id, am.model_name, am.seating_capacity, sf.route, sf.departure FROM aircraft a INNER JOIN aircraft_model am ON a.model_id = am.id INNER JOIN scheduled_flight sf ON a.id = sf.assigned_airplane_id where a.id = ? ',
+        const result = pool.query('SELECT a.id, am.model_name, am.seating_capacity, sf.route, sf.departure FROM aircraft a INNER JOIN aircraft_model am ON a.model_id = am.id INNER JOIN scheduled_flight sf ON a.id = sf.assigned_aircraft_id where a.id = ? ',
             [id],
             (error, results, fields) => {
                 if (error) {
@@ -54,7 +54,7 @@ const getDetailsForAircraft = async (id) => {
  */
 const getAvailableAircrafts = async (startTime, endTime, seatingCapacity) => {
     return new Promise((resolve, reject) => {
-        const result = pool.query('SELECT a.id, am.model_name, am.seat_capacity FROM aircraft a INNER JOIN aircraft_model am ON a.model_id = am.id INNER JOIN scheduled_flight sf ON a.id = sf.assigned_airplane_id where am.seating_capacity>? sf.departure NOT BETWEEN IN ? AND ?',
+        const result = pool.query('SELECT a.id, am.model_name, am.seat_capacity FROM aircraft a INNER JOIN aircraft_model am ON a.model_id = am.id INNER JOIN scheduled_flight sf ON a.id = sf.assigned_aircraft_id where am.seating_capacity>? sf.departure NOT BETWEEN IN ? AND ?',
             [seatingCapacity, startTime, endTime],
             (error, results, fields) => {
                 if (error) {
