@@ -63,10 +63,10 @@ COMMIT;
 --
 SET AUTOCOMMIT=0;
 INSERT INTO `aircraft_model`
-(`model_name`, `seating_capacity`) VALUES
-('Boeing 737', 30),
-('Boeing 757', 36),
-('Airbus A380', 42);
+(`model_name`, `seating_capacity`, `max_rows`, `max_columns`) VALUES
+('Boeing 737', 30, 5, 6),
+('Boeing 757', 36, 7, 6),
+('Airbus A380', 42, 8, 6);
 
 --
 -- Inserting values to 'aircraft' table

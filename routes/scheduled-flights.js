@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    viewScheduledFlights, deleteScheduledFlight, addScheduledFlight, updateScheduledFlight
+    viewScheduledFlights, deleteScheduledFlight, addScheduledFlight, updateScheduledFlight, viewSeatMap
 } = require('../controllers/scheduled-flight-controller');
 
 /**
@@ -52,5 +52,11 @@ router.put('/:id', );
  * @todo include middleware
  */
 router.delete('/:id', );
+
+/**
+ * @todo assign controller method
+ * @todo include middleware
+ */
+router.get('/:id/seat-map', viewSeatMap);
 
 module.exports = router;
