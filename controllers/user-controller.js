@@ -6,7 +6,6 @@ const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const logger = require('../utils/logger');
 const _ = require('lodash');
-//const User = require('../models/User');
 
 function validateUserDetails(title, email, first_name, last_name, gender, password) {
     const schema = Joi.object({
@@ -42,10 +41,10 @@ const signupUser = async (req, res, next) => {
     const { error, value } = validateUserDetails(title, email, firstName, lastName, gender, password);
     if (error) {
         console.log(error);
-        return res.status(422).json({ error: error.details[0].message, message: "Validation failed", originalValues: value })
+        return res.status(422).json({ error: error.details[0].message, message: "Validation failed"})
     }
     if (await userModel.isEmailRegistered(value.email)) {
-        return res.status(422).json({ error: "Email already registered", message: "Validation failed", originalValues: value })
+        return res.status(422).json({ error: "Email already registered", message: "Validation failed"})
     }
     try {
         const hashedPw = await bcrypt.hash(value.password, 12);
@@ -73,10 +72,10 @@ const updateUser = async (req, res) => {
     const { error, value } = validateUpdateUser(title, email, firstName, lastName, gender, password);
     if (error) {
         console.log(error);
-        return res.status(422).json({ error: error.details[0].message, message: "Validation failed", postedValues: value })
+        return res.status(422).json({ error: error.details[0].message, message: "Validation failed" })
     }
     if (value.email !== user[0].email && await userModel.isEmailRegistered(value.email)) {
-        return res.status(422).json({ error: "Email already registered", message: "Validation failed", postedValues: value })
+        return res.status(422).json({ error: "Email already registered", message: "Validation failed" })
     }
     try {
         const hashedPw = (value.password === null) ? null : await bcrypt.hash(value.password, 12);
