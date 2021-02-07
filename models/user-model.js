@@ -10,7 +10,7 @@ const { pool } = require(`../database/connection`);
 exports.deleteUser = async (id) => {
   return new Promise((resolve, reject) => {
     pool.query(
-      "UPDATE user SET is_deleted=1 WHERE id = ?",
+      "UPDATE registered_user SET is_deleted=1 WHERE id = ?",
       [parseInt(id)],
       (error, result) => {
         if (error) reject(error);
@@ -29,7 +29,7 @@ exports.deleteUser = async (id) => {
 
 async function findUndeletedById(userId){
     return new Promise((resolve,reject)=>{
-        const result = pool.query('SELECT id,title,first_name,last_name,email,gender,account_type_id FROM user WHERE id = ? AND is_deleted = ?',
+        const result = pool.query('SELECT id,title,first_name,last_name,email,gender,account_type_id FROM registered_user WHERE id = ? AND is_deleted = ?',
             [userId,0],
             function (error, results) {
                 if (error) {
@@ -43,7 +43,7 @@ async function findUndeletedById(userId){
 
 async function isEmailRegistered(email){
     return new Promise((resolve,reject)=>{
-        const result = pool.query('SELECT id FROM user WHERE email = ?',
+        const result = pool.query('SELECT id FROM registered_user WHERE email = ?',
             [email],
             function (error, results) {
                 if (error) {
@@ -55,18 +55,17 @@ async function isEmailRegistered(email){
     });
 }
 
-async function createUser(title,firstName,lastName,email,gender,password,accountType) {
+async function createUser(title,firstName,lastName,email,gender,password) {
     return new Promise((resolve, reject) => {
-        const result = pool.query("INSERT INTO user(title,first_name,last_name,email,gender,password,account_type_id) VALUES " +
-            "((SELECT id from title where title_name = ?),?,?,?,?,?,(SELECT id from account_type where account_type_name = ?))" ,
+        const result = pool.query("INSERT INTO registered_user(title,first_name,last_name,email,gender,password) VALUES " +
+            "((SELECT id from title where title_name = ?),?,?,?,?,?)" ,
             [
                 title,
                 firstName,
                 lastName,
                 email,
                 gender,
-                password,
-                accountType
+                password
             ],
             function (error, results, fields) {
                 if (error) {
@@ -81,7 +80,7 @@ async function createUser(title,firstName,lastName,email,gender,password,account
 
 async function updateById(params,userId){
     let variableValues=[];
-    let sql = "UPDATE user SET ";
+    let sql = "UPDATE registered_user SET ";
     for (const[key, value] of Object.entries(params)) {
         if (value!==null){
             if(key==='title'){

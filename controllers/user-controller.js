@@ -6,7 +6,6 @@ const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const logger = require('../utils/logger');
 const _ = require('lodash');
-//const User = require('../models/User');
 
 function validateUserDetails(title, email, first_name, last_name, gender, password) {
     const schema = Joi.object({
@@ -42,15 +41,15 @@ const signupUser = async (req, res, next) => {
     const { error, value } = validateUserDetails(title, email, firstName, lastName, gender, password);
     if (error) {
         console.log(error);
-        return res.status(422).json({ error: error.details[0].message, message: "Validation failed", originalValues: value })
+        return res.status(422).json({ message: error.details[0].message})
     }
     if (await userModel.isEmailRegistered(value.email)) {
-        return res.status(422).json({ error: "Email already registered", message: "Validation failed", originalValues: value })
+        return res.status(422).json({ message: "Email already registered"})
     }
     try {
         const hashedPw = await bcrypt.hash(value.password, 12);
-        const queryResult = await userModel.createUser(value.title, value.first_name, value.last_name, value.email, value.gender, hashedPw, 'normal user');
-        res.status(201).json({ message: 'User created successfully', userId: queryResult.insertId });
+        const queryResult = await userModel.createUser(value.title, value.first_name, value.last_name, value.email, value.gender, hashedPw);
+        res.status(201).json({ message: 'User created successfully'});
     }
     catch (err) {
         console.log(err);
@@ -62,7 +61,7 @@ const updateUser = async (req, res) => {
     const userId = req.params.userid;
     const user = await userModel.findUndeletedById(userId);
     if (user.length === 0) {
-        return res.status(422).json({ error: "User not found", message: "Validation failed" })
+        return res.status(422).json({ message: "User not found" })
     }
     const title = req.body.title;
     const email = req.body.email;
@@ -73,10 +72,10 @@ const updateUser = async (req, res) => {
     const { error, value } = validateUpdateUser(title, email, firstName, lastName, gender, password);
     if (error) {
         console.log(error);
-        return res.status(422).json({ error: error.details[0].message, message: "Validation failed", postedValues: value })
+        return res.status(422).json({ message: error.details[0].message })
     }
     if (value.email !== user[0].email && await userModel.isEmailRegistered(value.email)) {
-        return res.status(422).json({ error: "Email already registered", message: "Validation failed", originalValues: value })
+        return res.status(422).json({ message: "Email already registered" })
     }
     try {
         const hashedPw = (value.password === null) ? null : await bcrypt.hash(value.password, 12);

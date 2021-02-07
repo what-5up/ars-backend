@@ -32,7 +32,7 @@ const viewRoute = async (req, res) => {
     const { error } = validateRouteId(routeId);
     if (error) {
         console.log(error);
-        return res.status(400).json({ error: error.details[0].message, message: "Invalid Route ID provided" })
+        return res.status(400).json({ message: "Invalid Route ID provided. "+error.details[0].message })
     }
     try {
         const route = await routeModel.getRoute(routeId);
