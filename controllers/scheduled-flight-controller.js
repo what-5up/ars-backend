@@ -103,7 +103,7 @@ const viewSeatMap = async (req, res, next) => {
     seatingCapacity : seatMapDetails[0].seating_capacity,
     maxRows: seatMapDetails[0].max_rows,
     maxColumns: seatMapDetails[0].max_columns,
-    seatMap: records
+    seatMap: records[0]
   };
   return successMessage(res, result);
 }
