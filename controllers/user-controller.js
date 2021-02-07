@@ -41,10 +41,10 @@ const signupUser = async (req, res, next) => {
     const { error, value } = validateUserDetails(title, email, firstName, lastName, gender, password);
     if (error) {
         console.log(error);
-        return res.status(422).json({ error: error.details[0].message, message: "Validation failed"})
+        return res.status(422).json({ message: error.details[0].message})
     }
     if (await userModel.isEmailRegistered(value.email)) {
-        return res.status(422).json({ error: "Email already registered", message: "Validation failed"})
+        return res.status(422).json({ message: "Email already registered"})
     }
     try {
         const hashedPw = await bcrypt.hash(value.password, 12);
@@ -61,7 +61,7 @@ const updateUser = async (req, res) => {
     const userId = req.params.userid;
     const user = await userModel.findUndeletedById(userId);
     if (user.length === 0) {
-        return res.status(422).json({ error: "User not found", message: "Validation failed" })
+        return res.status(422).json({ message: "User not found" })
     }
     const title = req.body.title;
     const email = req.body.email;
@@ -72,10 +72,10 @@ const updateUser = async (req, res) => {
     const { error, value } = validateUpdateUser(title, email, firstName, lastName, gender, password);
     if (error) {
         console.log(error);
-        return res.status(422).json({ error: error.details[0].message, message: "Validation failed" })
+        return res.status(422).json({ message: error.details[0].message })
     }
     if (value.email !== user[0].email && await userModel.isEmailRegistered(value.email)) {
-        return res.status(422).json({ error: "Email already registered", message: "Validation failed" })
+        return res.status(422).json({ message: "Email already registered" })
     }
     try {
         const hashedPw = (value.password === null) ? null : await bcrypt.hash(value.password, 12);
