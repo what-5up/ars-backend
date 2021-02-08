@@ -548,27 +548,30 @@ DELIMITER ;
 DELIMITER $$
 
 CREATE PROCEDURE 
-  generate_seat_map( scheduled_flight_id INT )
+  generate_seat_map( flightID INT )
 BEGIN  
-  DECLARE route_id, model_id INT;
+   DECLARE routeID, modelID INT;
 
   SELECT `sf`.`route`, `a`.`model_id` 
-  INTO route_id, model_id
+  INTO routeID, modelID
   FROM `scheduled_flight` `sf`
   INNER JOIN `aircraft` `a` 
     ON `sf`.`assigned_aircraft_id` = `a`.`id`
-  WHERE `sf`.`id` = scheduled_flight_id;
+  WHERE `sf`.`id` = flightID;
   
-  SELECT DISTINCT `sm`.`id`, `sm`.`seat_number`, `tc`.`class`, `tc`.`id`, `p`.`amount`, !ISNULL(`rs`.`seat_id`) AS `is_reserved` 
+  SELECT DISTINCT `sm`.`id`, `sm`.`seat_number`, `tc`.`class`, `tc`.`id`, `p`.`amount`, !ISNULL(`rs`.`seat_id`) as `is_reserved`
   FROM `seat_map` `sm`
   INNER JOIN `traveler_class` `tc`
     ON `sm`.`traveler_class` = `tc`.`id`
   INNER JOIN `price` `p` 
     ON `p`.`traveler_class` = `tc`.`id`
-  LEFT JOIN `reserved_seat` `rs`
-    ON `sm`.`id` = `rs`.`seat_id`
-  WHERE `sm`.`aircraft_model_id` = model_id
-  AND `p`.`route_id` = route_id;
+  LEFT JOIN
+	(SELECT `seat_id` 
+    FROM `reserved_seat`
+    WHERE `scheduled_flight_id` = flightID) `rs`
+	ON `rs`.`seat_id` = `sm`.`id`
+  WHERE `sm`.`aircraft_model_id` = modelID
+  AND `p`.`route_id` = routeID;
   
 END $$
 
