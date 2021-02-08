@@ -8,6 +8,7 @@ routes.use('/scheduled-flights', require('./scheduled-flights'));
 routes.use('/session', require('./session'));
 routes.use('/tickets', require('./tickets'));
 routes.use('/users', require('./users'));
+routes.use('/passenger',require('./passenger'));
 
 routes.use('/', (req, res) => {
     res.status(200).send('home page');
