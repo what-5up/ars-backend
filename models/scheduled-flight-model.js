@@ -10,13 +10,13 @@ const { pool } = require(`../database/connection`);
  * @returns {Promise<object>} query output
  * @throws Error -database connection error
  */
-async function getScheduledFlights(origin = undefined, destination = undefined, aircraftID = undefined, aircraftModel = undefined, isDeleted = undefined) {
+async function getScheduledFlights(flightID = undefined, origin = undefined, destination = undefined, aircraftID = undefined, aircraftModel = undefined, isDeleted = undefined) {
     return new Promise((resolve, reject) => {
         //building the where clause
         let whereClause = '';
         let variableNames = [];
         let variableValues = [];
-        if (origin !== undefined || destination !== undefined || aircraftID !== undefined || aircraftModel !== undefined || isDeleted !== undefined) {
+        if (origin !== undefined || destination !== undefined || aircraftID !== undefined || aircraftModel !== undefined || isDeleted !== undefined || flightID !== undefined) {
             whereClause = ' WHERE '
             if (origin !== undefined) {
                 variableNames.push('origin_code = ?');
@@ -37,6 +37,10 @@ async function getScheduledFlights(origin = undefined, destination = undefined, 
             if (isDeleted !== undefined) {
                 variableNames.push('is_deleted = ?');
                 variableValues.push(isDeleted);
+            }
+            if (flightID !== undefined) {
+              variableNames.push('id = ?');
+              variableValues.push(flightID);
             }
             (variableNames.length == 1) ? whereClause += variableNames[0] :
                 whereClause += variableNames.join(' AND ');

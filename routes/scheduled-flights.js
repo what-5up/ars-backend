@@ -2,7 +2,12 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    viewScheduledFlights, deleteScheduledFlight, addScheduledFlight, updateScheduledFlight, viewSeatMap
+    viewScheduledFlights, 
+    viewScheduledFlight, 
+    deleteScheduledFlight, 
+    addScheduledFlight, 
+    updateScheduledFlight, 
+    viewSeatMap
 } = require('../controllers/scheduled-flight-controller');
 
 /**
@@ -18,6 +23,12 @@ router.get('/', viewScheduledFlights);
 router.post('/', addScheduledFlight);
 
 /**
+ * @todo assign controller method
+ * @todo include middleware
+ */
+router.get('/:id', viewScheduledFlight);
+
+/**
 * @todo assign controller method
  * @todo include middleware
  */
@@ -28,30 +39,6 @@ router.put('/:id', updateScheduledFlight);
  * @todo include middleware
  */
 router.delete('/:id', deleteScheduledFlight);
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.get('/:id', );
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.post('/:id', );
-
-/**
-* @todo assign controller method
- * @todo include middleware
- */
-router.put('/:id', );
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.delete('/:id', );
 
 /**
  * @todo assign controller method

@@ -12,7 +12,7 @@ const { successMessage } = require("../utils/message-template");
  * @throws Error
  */
 const viewScheduledFlights = async (req, res, next) => {
-  const records = await model.getScheduledFlights(req.query.origin,
+  const records = await model.getScheduledFlights(undefined, req.query.origin,
     req.query.destination,
     req.query.aircraftID,
     req.query.aircraftModel,
@@ -24,6 +24,14 @@ const viewScheduledFlights = async (req, res, next) => {
     })
     .catch(err => next(err));
   return successMessage(res, records);
+}
+
+const viewScheduledFlight = async (req, res, next) => {
+  model.getScheduledFlights(req.params.id)
+    .then(result => {
+      return successMessage(res,result[0]);
+    })
+    .catch(err => next(err));
 }
 
 
@@ -109,5 +117,10 @@ const viewSeatMap = async (req, res, next) => {
 }
 
 module.exports = {
-  viewScheduledFlights, deleteScheduledFlight, addScheduledFlight, updateScheduledFlight, viewSeatMap
+  viewScheduledFlights, 
+  viewScheduledFlight,
+  deleteScheduledFlight, 
+  addScheduledFlight, 
+  updateScheduledFlight, 
+  viewSeatMap
 };
