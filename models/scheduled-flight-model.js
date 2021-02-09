@@ -97,7 +97,7 @@ const addScheduledFlight = async (
   payload = {
     route: undefined,
     departure: undefined,
-    assignedaircraftId: undefined,
+    assignedAircraftId: undefined,
     delayedDeparture: "0",
   }
 ) => {
@@ -119,7 +119,6 @@ const addScheduledFlight = async (
       (error, result) => {
         if (error) reject(error);
         else {
-          console.log(result);
           resolve(result);
         }
       }

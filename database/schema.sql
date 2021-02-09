@@ -550,29 +550,7 @@ DELIMITER $$
 CREATE PROCEDURE 
   generate_seat_map( flightID INT )
 BEGIN  
-   DECLARE routeID, modelID INT;
-
-  SELECT `sf`.`route`, `a`.`model_id` 
-  INTO routeID, modelID
-  FROM `scheduled_flight` `sf`
-  INNER JOIN `aircraft` `a` 
-    ON `sf`.`assigned_aircraft_id` = `a`.`id`
-  WHERE `sf`.`id` = flightID;
-  
-  SELECT DISTINCT `sm`.`id`, `sm`.`seat_number`, `tc`.`class`, `tc`.`id`, `p`.`amount`, !ISNULL(`rs`.`seat_id`) as `is_reserved`
-  FROM `seat_map` `sm`
-  INNER JOIN `traveler_class` `tc`
-    ON `sm`.`traveler_class` = `tc`.`id`
-  INNER JOIN `price` `p` 
-    ON `p`.`traveler_class` = `tc`.`id`
-  LEFT JOIN
-	(SELECT `seat_id` 
-    FROM `reserved_seat`
-    WHERE `scheduled_flight_id` = flightID) `rs`
-	ON `rs`.`seat_id` = `sm`.`id`
-  WHERE `sm`.`aircraft_model_id` = modelID
-  AND `p`.`route_id` = routeID;
-  
+  SELECT sm.`id`, sm.`seat_number`, tc.`class`, rs.`scheduled_flight_id` IS NOT NULL as is_reserved, p.`amount` FROM `seat_map` as sm LEFT JOIN (SELECT * FROM `reserved_seat` WHERE `scheduled_flight_id` = scheduled_flight_id_) as rs ON sm.`id` = rs.`seat_id` LEFT JOIN `traveler_class` as tc ON sm.`traveler_class` = tc.`id` LEFT JOIN (SELECT * FROM `price` WHERE `route_id` IN (SELECT `route` FROM `scheduled_flight` WHERE `id` = scheduled_flight_id_)) as p ON p.`traveler_class` = sm.`traveler_class` WHERE (sm.`aircraft_model_id` IN (SELECT am.`id` FROM `aircraft` as a LEFT JOIN `aircraft_model` as am ON a.`model_id` = am.`id` WHERE a.`id` IN (SELECT `assigned_airplane_id` FROM `scheduled_flight` WHERE `id` = scheduled_flight_id_)));
 END $$
 
 DELIMITER ;

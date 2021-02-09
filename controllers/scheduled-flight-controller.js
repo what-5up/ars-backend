@@ -1,7 +1,7 @@
 const model = require("../models/scheduled-flight-model");
 const seatMapModel = require("../models/seat-map-model");
 const aircraftModelModel = require("../models/aircraft-model-model");
-const { successMessage } = require("../utils/message-template");
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 /**
  * View all scheduled flights
@@ -47,8 +47,8 @@ const deleteScheduledFlight = async (req, res) => {
   model
     .deleteScheduledFlight(req.params.id)
     .then((result) => {
-      let message = result == true ? "Deleted successfully" : "Couldnt delete";
-      return res.status(200).send(message);
+      if (result == true) return successMessage(res,null,"Scheduled flight deleted successfully")
+      else return errorMessage (res,"Unable to delete the scheduled flight");
     })
     .catch((error) => {
       return res.status(400).send(error.message);
@@ -63,14 +63,12 @@ const deleteScheduledFlight = async (req, res) => {
  * @return {object} promise of a record object
  * @throws Error
  */
-const addScheduledFlight = async (req, res) => {
+const addScheduledFlight = async (req, res, next) => {
   model.addScheduledFlight(req.body)
     .then((result) => {
-      return res.status(200).send(result);
+      return successMessage(res,{id: result.insertId},"Added successfully");
     })
-    .catch((error) => {
-      return res.status(400).send(error.message);
-    });
+    .catch((error) => {return errorMessage(res,error.message)});
 }
 
 /**
@@ -84,10 +82,9 @@ const addScheduledFlight = async (req, res) => {
 const updateScheduledFlight = async (req, res) => {
   model.updateScheduledFlight(req.params.id, req.body)
     .then((result) => {
-      return res.status(200).send(result);
+      return successMessage(res,null,"Updated successfully");
     })
-    .catch((error) => {
-      return res.status(400).send(error.message);
+    .catch((error) => {next(error)
     });
 }
 
