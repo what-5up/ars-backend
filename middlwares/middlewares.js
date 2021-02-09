@@ -1,5 +1,7 @@
 const logger = require('../utils/logger');
 
+const { errorMesage, errorMessage } = require('../utils/message-template')
+
 const requestLogger = (request, response, next) => {
     logger.info('Method:', request.method);
     logger.info('Path:  ', request.path);
@@ -10,7 +12,7 @@ const requestLogger = (request, response, next) => {
 }
 
 const unknownEndpoint = (request, response) => {
-    response.status(404).send({ error: 'unknown endpoint' });
+    return errorMessage(response, "Unknown endpoint", 404);
 }
 
 const errorHandler = (error, request, response, next) => {

@@ -34,15 +34,15 @@ const viewDetailsForAircraft = async (req, res, next) => {
     const id = req.params.id;
     const records = await model.getDetailsForAircraft(id)
         .then(result => {
-            return result.reduce((airplaneDetails,row) => {
-                airplaneDetails.id = row.id;
-                airplaneDetails.model_name=row.model_name;
-                airplaneDetails.scheduled_flights = airplaneDetails.scheduled_flights || [];
-                airplaneDetails.scheduled_flights.push({
+            return result.reduce((aircraftDetails,row) => {
+                aircraftDetails.id = row.id;
+                aircraftDetails.model_name=row.model_name;
+                aircraftDetails.scheduled_flights = aircraftDetails.scheduled_flights || [];
+                aircraftDetails.scheduled_flights.push({
                     route:row.route,
                     departure: row.departure
                 });
-                return airplaneDetails;
+                return aircraftDetails;
             }, {})
         })
         .catch(err => next(err));

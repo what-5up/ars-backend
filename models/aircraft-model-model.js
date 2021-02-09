@@ -12,7 +12,7 @@ const getSeatMapDetails = async (scheduled_flight_id) => {
             if (error) {
                 reject(new Error(error.message));
             }
-            connection.query('SELECT `seating_capacity`, `max_rows`, `max_columns` FROM `aircraft_model` WHERE `id` IN (SELECT am.`id` FROM `aircraft` as a LEFT JOIN `aircraft_model` as am ON a.`model_id` = am.`id` WHERE a.`id` IN (SELECT `assigned_airplane_id` FROM `scheduled_flight` WHERE `id` = ?));',
+            connection.query('SELECT `seating_capacity`, `max_rows`, `max_columns` FROM `aircraft_model` WHERE `id` IN (SELECT am.`id` FROM `aircraft` as a LEFT JOIN `aircraft_model` as am ON a.`model_id` = am.`id` WHERE a.`id` IN (SELECT `assigned_aircraft_id` FROM `scheduled_flight` WHERE `id` = ?));',
                 [scheduled_flight_id],
                 (error, results, fields) => {
                     connection.release();

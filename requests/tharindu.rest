@@ -39,7 +39,7 @@ Content-Type: application/json
 {
     "route":1,
     "departure": "2021-02-10T01:30:00.000Z",
-    "assignedAirplaneId":1
+    "assignedaircraftId":1
 }
 
 ###
