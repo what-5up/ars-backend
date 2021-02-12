@@ -10,53 +10,57 @@ const { pool } = require(`../database/connection`);
  * @returns {Promise<object>} query output
  * @throws Error -database connection error
  */
-async function getScheduledFlights(flightID = undefined, origin = undefined, destination = undefined, aircraftID = undefined, aircraftModel = undefined, isDeleted = undefined) {
-    return new Promise((resolve, reject) => {
-        //building the where clause
-        let whereClause = '';
-        let variableNames = [];
-        let variableValues = [];
-        if (origin !== undefined || destination !== undefined || aircraftID !== undefined || aircraftModel !== undefined || isDeleted !== undefined || flightID !== undefined) {
-            whereClause = ' WHERE '
-            if (origin !== undefined) {
-                variableNames.push('origin_code = ?');
-                variableValues.push(origin);
-            }
-            if (destination !== undefined) {
-                variableNames.push('destination_code = ?');
-                variableValues.push(destination);
-            }
-            if (aircraftID !== undefined) {
-                variableNames.push('aircraft_id = ?');
-                variableValues.push(aircraftID);
-            }
-            if (aircraftModel !== undefined) {
-                variableNames.push('aircraft_model = ?');
-                variableValues.push(aircraftModel);
-            }
-            if (isDeleted !== undefined) {
-                variableNames.push('is_deleted = ?');
-                variableValues.push(isDeleted);
-            }
-            if (flightID !== undefined) {
-              variableNames.push('id = ?');
-              variableValues.push(flightID);
-            }
-            (variableNames.length == 1) ? whereClause += variableNames[0] :
-                whereClause += variableNames.join(' AND ');
-        }
+async function getScheduledFlights(flightID = undefined, origin = undefined, destination = undefined, aircraftID = undefined, aircraftModel = undefined, passengers = undefined, isDeleted = undefined) {
+  return new Promise((resolve, reject) => {
+    //building the where clause
+    let whereClause = '';
+    let variableNames = [];
+    let variableValues = [];
+    if (origin !== undefined || destination !== undefined || aircraftID !== undefined || aircraftModel !== undefined || passengers !== undefined || isDeleted !== undefined || flightID !== undefined) {
+      whereClause = ' WHERE '
+      if (origin !== undefined) {
+        variableNames.push('origin_code = ?');
+        variableValues.push(origin);
+      }
+      if (destination !== undefined) {
+        variableNames.push('destination_code = ?');
+        variableValues.push(destination);
+      }
+      if (aircraftID !== undefined) {
+        variableNames.push('aircraft_id = ?');
+        variableValues.push(aircraftID);
+      }
+      if (aircraftModel !== undefined) {
+        variableNames.push('aircraft_model = ?');
+        variableValues.push(aircraftModel);
+      }
+      if (passengers !== undefined) {
+        variableNames.push('available_seats > ?');
+        variableValues.push(passengers);
+      }
+      if (isDeleted !== undefined) {
+        variableNames.push('is_deleted = ?');
+        variableValues.push(isDeleted);
+      }
+      if (flightID !== undefined) {
+        variableNames.push('id = ?');
+        variableValues.push(flightID);
+      }
+      (variableNames.length == 1) ? whereClause += variableNames[0] :
+        whereClause += variableNames.join(' AND ');
+    }
 
-        //fetching data from the database
-        const result = pool.query('SELECT departure, origin_code, origin, destination_code, destination, aircraft_id, aircraft_model FROM scheduled_flights_list' + whereClause,
-            variableValues,
-            function (error, results) {
-                if (error) {
-                    reject(new Error(error.message));
-                }
-                resolve(results);
-            }
-        );
-    })
+    //fetching data from the database
+    const result = pool.query('SELECT departure, origin_code, origin, destination_code, destination, aircraft_id, aircraft_model FROM scheduled_flights_list' + whereClause,
+      variableValues,
+      function (error, results) {
+        if (error) {
+          reject(new Error(error.message));
+        }
+        resolve(results);
+      }
+    );
+  })
 }
 
 /**
@@ -101,17 +105,17 @@ const addScheduledFlight = async (
     delayedDeparture: "0",
   }
 ) => {
-    let fields = [];
-    let placeholders = [];
-    let values = [];
-    Object.keys(payload).forEach((key) => {
-      if (payload[key] != null) {
-        let updatedKey = key.split(/(?=[A-Z])/).join("_");
-        fields.push(`${updatedKey}`);
-        values.push(payload[key]);
-        placeholders.push("?")
-      }
-    });
+  let fields = [];
+  let placeholders = [];
+  let values = [];
+  Object.keys(payload).forEach((key) => {
+    if (payload[key] != null) {
+      let updatedKey = key.split(/(?=[A-Z])/).join("_");
+      fields.push(`${updatedKey}`);
+      values.push(payload[key]);
+      placeholders.push("?")
+    }
+  });
   return new Promise((resolve, reject) => {
     pool.query(
       `INSERT INTO scheduled_flight (${fields.join()}) VALUES (${placeholders.join()})`,

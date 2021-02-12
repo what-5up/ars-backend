@@ -388,6 +388,38 @@ END $$
 DELIMITER ;
 
 --
+-- Function for genreating available seats of a scheduled_flight
+-- @param flight_id int - scheduled_flight_id
+-- @return number of available seats
+--
+DELIMITER $$
+
+CREATE FUNCTION `get_available_seats`(`flight_id` INT) RETURNS INT
+    READS SQL DATA
+    DETERMINISTIC
+BEGIN
+	DECLARE capacity, reserved_seats_count INT;
+	SELECT `am`.`seating_capacity`
+	INTO capacity
+	FROM `scheduled_flight` `sf` 
+		INNER JOIN `aircraft` `a`
+		ON `sf`.`assigned_aircraft_id` = `a`.`id`
+		INNER JOIN `aircraft_model` `am`
+		ON `a`.`model_id` = `am`.`id`
+	WHERE `sf`.`id` = `flight_id`;
+
+	SELECT COUNT(`seat_id`) 
+	INTO reserved_seats_count
+	FROM `reserved_seat`
+	WHERE `scheduled_flight_id` = `flight_id`;
+    
+  RETURN capacity - reserved_seats_count;
+
+END $$
+
+DELIMITER ;
+
+--
 -- View structure for `route_with_airports`
 -- detailed view routes with its respective airport names
 --
@@ -404,7 +436,7 @@ FROM route `r`
 -- detailed view of scheduled flights
 --
 CREATE VIEW `scheduled_flights_list` AS 
-SELECT `sf`.`id`, `sf`.`departure`, `r`.`origin_code`, `r`.`origin`, `r`.`destination_code`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model`, `sf`.`is_deleted`
+SELECT `sf`.`id`, `sf`.`departure`, `r`.`origin_code`, `r`.`origin`, `r`.`destination_code`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model`, `sf`.`is_deleted`, get_available_seats(`sf`.`id`) AS `available_seats`
 FROM `scheduled_flight` `sf` 
   INNER JOIN `route_with_airports` `r` 
     ON `sf`.`route` = `r`.`id` 
@@ -496,7 +528,7 @@ WHERE `sf`.`departure` < CURDATE()
 GROUP BY `sf`.`id`
 	,`tc`.`id`;
 
-                                                         
+--                                                     
 -- View structure for 'user_auth'
 -- details required for auth
 --
