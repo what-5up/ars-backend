@@ -49,7 +49,7 @@ const signupUser = async (req, res, next) => {
     try {
         const hashedPw = await bcrypt.hash(value.password, 12);
         const queryResult = await userModel.createUser(value.title, value.first_name, value.last_name, value.email, value.gender, hashedPw);
-        res.status(201).json({ message: 'User created successfully'});
+        res.status(201).json({userID: queryResult.insertId.toString(), message: 'User created successfully'});
     }
     catch (err) {
         console.log(err);
