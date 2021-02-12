@@ -37,7 +37,7 @@ CREATE TABLE `user` (
 -- Table structure for 'guest'
 --
 CREATE TABLE `guest` (
-  `id` int NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
   `title` int NOT NULL,
   `first_name` varchar(150) NOT NULL,
   `last_name` varchar(150) NOT NULL,
