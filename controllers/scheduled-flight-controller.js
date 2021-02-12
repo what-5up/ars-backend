@@ -12,10 +12,13 @@ const { successMessage, errorMessage } = require("../utils/message-template");
  * @throws Error
  */
 const viewScheduledFlights = async (req, res, next) => {
-  const records = await model.getScheduledFlights(undefined, req.query.origin,
+  const records = await model.getScheduledFlights(
+    undefined, 
+    req.query.origin,
     req.query.destination,
     req.query.aircraftID,
     req.query.aircraftModel,
+    req.query.passengers,
     req.query.isDeleted)
     .then(result => {
       return result.map((row) => {
