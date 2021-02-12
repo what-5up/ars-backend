@@ -10,5 +10,6 @@ routes.use('/tickets', require('./tickets'));
 routes.use('/users', require('./users'));
 routes.use('/passenger',require('./passenger'));
 routes.use('/guest',require('./guest'));
+routes.use('/title',require('./title'));
 
 module.exports = routes;
