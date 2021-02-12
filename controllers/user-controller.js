@@ -9,7 +9,7 @@ const _ = require('lodash');
 
 function validateUserDetails(title, email, first_name, last_name, gender, password) {
     const schema = Joi.object({
-        title: Joi.number().trim().required().label('Title'),
+        title: Joi.number().required().label('Title'),
         email: Joi.string().email().trim().lowercase().max(100).required().label('Email'),
         first_name: Joi.string().trim().max(150).required().label('First Name'),
         last_name: Joi.string().trim().max(150).required().label('Last Name'),
@@ -21,7 +21,7 @@ function validateUserDetails(title, email, first_name, last_name, gender, passwo
 
 function validateUpdateUser(title, email, first_name, last_name, gender, password) {
     const schema = Joi.object({
-        title: Joi.number().trim().default(null).label('Title'),
+        title: Joi.number().default(null).label('Title'),
         email: Joi.string().email().trim().lowercase().max(100).default(null).label('Email'),
         first_name: Joi.string().trim().max(150).default(null).label('First Name'),
         last_name: Joi.string().trim().max(150).default(null).label('Last Name'),
