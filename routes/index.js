@@ -11,8 +11,4 @@ routes.use('/users', require('./users'));
 routes.use('/passenger',require('./passenger'));
 routes.use('/guest',require('./guest'));
 
-routes.use('/', (req, res) => {
-    res.status(200).send('home page');
-});
-
 module.exports = routes;

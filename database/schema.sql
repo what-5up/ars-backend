@@ -156,6 +156,8 @@ CREATE TABLE `aircraft_model` (
   `id` int NOT NULL AUTO_INCREMENT,
   `model_name` varchar(100),
   `seating_capacity` smallint unsigned,
+  `max_rows` smallint unsigned,
+  `max_columns` smallint unsigned,
   PRIMARY KEY (`id`)
 );
 
@@ -230,12 +232,14 @@ CREATE TABLE `scheduled_flight` (
   `id` int NOT NULL AUTO_INCREMENT,
   `route` int NOT NULL,
   `departure` timestamp NOT NULL,
-  `assigned_airplane_id` int NOT NULL,
+  `assigned_aircraft_id` int NOT NULL,
   `delayed_departure` timestamp NULL DEFAULT NULL,
   `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_ScheduledFlightRoute FOREIGN KEY (`route`) 
   REFERENCES `route`(`id`) ON UPDATE CASCADE,
+  CONSTRAINT FK_ScheduledFlightAircraft FOREIGN KEY (`assigned_aircraft_id`)
+  REFERENCES `aircraft`(`id`) ON UPDATE CASCADE,
   CONSTRAINT UC_FlightSchedule UNIQUE (`route`, `departure`)
 );
 
@@ -384,6 +388,38 @@ END $$
 DELIMITER ;
 
 --
+-- Function for genreating available seats of a scheduled_flight
+-- @param flight_id int - scheduled_flight_id
+-- @return number of available seats
+--
+DELIMITER $$
+
+CREATE FUNCTION `get_available_seats`(`flight_id` INT) RETURNS INT
+    READS SQL DATA
+    DETERMINISTIC
+BEGIN
+	DECLARE capacity, reserved_seats_count INT;
+	SELECT `am`.`seating_capacity`
+	INTO capacity
+	FROM `scheduled_flight` `sf` 
+		INNER JOIN `aircraft` `a`
+		ON `sf`.`assigned_aircraft_id` = `a`.`id`
+		INNER JOIN `aircraft_model` `am`
+		ON `a`.`model_id` = `am`.`id`
+	WHERE `sf`.`id` = `flight_id`;
+
+	SELECT COUNT(`seat_id`) 
+	INTO reserved_seats_count
+	FROM `reserved_seat`
+	WHERE `scheduled_flight_id` = `flight_id`;
+    
+  RETURN capacity - reserved_seats_count;
+
+END $$
+
+DELIMITER ;
+
+--
 -- View structure for `route_with_airports`
 -- detailed view routes with its respective airport names
 --
@@ -400,12 +436,12 @@ FROM route `r`
 -- detailed view of scheduled flights
 --
 CREATE VIEW `scheduled_flights_list` AS 
-SELECT `sf`.`id`, `sf`.`departure`, `r`.`origin_code`, `r`.`origin`, `r`.`destination_code`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model`, `sf`.`is_deleted`
+SELECT `sf`.`id`, `sf`.`departure`, `r`.`origin_code`, `r`.`origin`, `r`.`destination_code`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model`, `sf`.`is_deleted`, get_available_seats(`sf`.`id`) AS `available_seats`
 FROM `scheduled_flight` `sf` 
   INNER JOIN `route_with_airports` `r` 
     ON `sf`.`route` = `r`.`id` 
   INNER JOIN `aircraft` `a` 
-    ON `sf`.`assigned_airplane_id` = `a`.`id` 
+    ON `sf`.`assigned_aircraft_id` = `a`.`id` 
   INNER JOIN `aircraft_model` `am` 
     ON `a`.`model_id` = `am`.`id`
 ORDER BY `sf`.`id`;
@@ -467,7 +503,7 @@ SELECT `model_name`
 	,DATE_FORMAT(`date_of_booking`, "%Y-%m") AS `month`
 FROM `booking`
 INNER JOIN `scheduled_flight` ON `booking`.`scheduled_flight_id` = `scheduled_flight`.`id`
-INNER JOIN `aircraft` ON `aircraft`.`id` = `scheduled_flight`.`assigned_airplane_id`
+INNER JOIN `aircraft` ON `aircraft`.`id` = `scheduled_flight`.`assigned_aircraft_id`
 INNER JOIN `aircraft_model` ON `aircraft_model`.`id` = `aircraft`.`model_id`
 GROUP BY `aircraft`.`model_id`
 	,month;
@@ -492,7 +528,7 @@ WHERE `sf`.`departure` < CURDATE()
 GROUP BY `sf`.`id`
 	,`tc`.`id`;
 
-                                                         
+--                                                     
 -- View structure for 'user_auth'
 -- details required for auth
 --
@@ -544,9 +580,9 @@ DELIMITER ;
 DELIMITER $$
 
 CREATE PROCEDURE 
-  generate_seat_map( scheduled_flight_id_ INT )
+  generate_seat_map( flightID INT )
 BEGIN  
-  SELECT sm.`id`, sm.`seat_number`, tc.`class`, rs.`seat_id` IS NOT NULL as is_reserved FROM `seat_map` as sm LEFT JOIN `reserved_seat` as rs ON sm.`id` = rs.`seat_id` LEFT JOIN `traveler_class` as tc ON sm.`traveler_class` = tc.`id` WHERE ((rs.`scheduled_flight_id` = scheduled_flight_id_ OR rs.`seat_id` IS NULL) AND sm.`aircraft_model_id` IN (SELECT am.`id` FROM `aircraft` as a LEFT JOIN `aircraft_model` as am ON a.`model_id` = am.`id` WHERE a.`id` IN (SELECT `assigned_airplane_id` FROM `scheduled_flight` WHERE `id` = scheduled_flight_id_)));
+  SELECT sm.`id`, sm.`seat_number`, tc.`class`, rs.`scheduled_flight_id` IS NOT NULL as is_reserved, p.`amount` FROM `seat_map` as sm LEFT JOIN (SELECT * FROM `reserved_seat` WHERE `scheduled_flight_id` = scheduled_flight_id_) as rs ON sm.`id` = rs.`seat_id` LEFT JOIN `traveler_class` as tc ON sm.`traveler_class` = tc.`id` LEFT JOIN (SELECT * FROM `price` WHERE `route_id` IN (SELECT `route` FROM `scheduled_flight` WHERE `id` = scheduled_flight_id_)) as p ON p.`traveler_class` = sm.`traveler_class` WHERE (sm.`aircraft_model_id` IN (SELECT am.`id` FROM `aircraft` as a LEFT JOIN `aircraft_model` as am ON a.`model_id` = am.`id` WHERE a.`id` IN (SELECT `assigned_airplane_id` FROM `scheduled_flight` WHERE `id` = scheduled_flight_id_)));
 END $$
 
 DELIMITER ;
