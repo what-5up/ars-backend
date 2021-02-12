@@ -11,5 +11,6 @@ routes.use('/users', require('./users'));
 routes.use('/passenger',require('./passenger'));
 routes.use('/guest',require('./guest'));
 routes.use('/title',require('./title'));
+routes.use('/traveler-class',require('./traveler-class'));
 
 module.exports = routes;
