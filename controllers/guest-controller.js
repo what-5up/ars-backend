@@ -5,7 +5,7 @@ const guestModel = require("../models/guest-model");
 
 function validateGuestDetails(title, first_name, last_name, gender, email) {
     const schema = Joi.object({
-        title: Joi.string().trim().required().label('Title'),
+        title: Joi.number().trim().required().label('Title'),
         first_name: Joi.string().trim().max(150).required().label('First Name'),
         last_name: Joi.string().trim().max(150).required().label('Last Name'),
         gender: Joi.string().max(1).required().label('Gender'),

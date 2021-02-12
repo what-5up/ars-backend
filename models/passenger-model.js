@@ -2,11 +2,11 @@ const { pool } = require(`../database/connection`);
 
 async function addPassengers(passengers,userID){
     let sql = "INSERT INTO passenger(user_id,title,first_name,last_name,birthday,gender,country,passport_no,passport_expiry) VALUES ";
-    let valuesStatement = "(?,(SELECT id from title where title_name = ?),?,?,?,?,?,?,?),";
+    let valuesStatement = "(?,?,?,?,?,?,?,?,?),";
     let variableValues = [];
     for (const passenger of passengers){
         sql+=valuesStatement;
-        variableValues.push(userID)
+        variableValues.push(userID);
         for (const[key, value] of Object.entries(passenger)){
             variableValues.push(value)
         }

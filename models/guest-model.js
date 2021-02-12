@@ -3,7 +3,7 @@ const { pool } = require(`../database/connection`);
 async function createGuest(title,firstName,lastName,gender,email){
     return new Promise((resolve, reject) => {
         const result = pool.query("INSERT INTO guest(title,first_name,last_name,gender,email) VALUES " +
-            "((SELECT id from title where title_name = ?),?,?,?,?)" ,
+            "(?,?,?,?,?)" ,
             [
                 title,
                 firstName,
