@@ -57,7 +57,7 @@ CREATE TABLE `guest` (
 --
 DELIMITER $$
 
-CREATE TRIGGER `TR_AddParentForGuest` BEFORE INSERT ON `guest` FOR EACH ROW BEGIN
+CREATE TRIGGER `TR_AddParentOfGuest` BEFORE INSERT ON `guest` FOR EACH ROW BEGIN
   DECLARE new_id INT;
   SELECT COUNT(*) + 1 INTO new_id FROM `user`;
   INSERT INTO `user` VALUES (new_id, 'g');
@@ -94,7 +94,7 @@ CREATE TABLE `registered_user` (
 --
 DELIMITER $$
 
-CREATE TRIGGER `TR_AddParentRegisteredUser` BEFORE INSERT ON `registered_user` FOR EACH ROW BEGIN
+CREATE TRIGGER `TR_AddParentOfRegisteredUser` BEFORE INSERT ON `registered_user` FOR EACH ROW BEGIN
   DECLARE new_id INT;
   SELECT COUNT(*) + 1 INTO new_id FROM `user`;
   INSERT INTO `user` VALUES (new_id, 'r');
@@ -222,7 +222,9 @@ CREATE TABLE `route` (
   CONSTRAINT FK_RouteOrigin FOREIGN KEY (`origin`) 
   REFERENCES `airport`(`id`) ON UPDATE CASCADE,
   CONSTRAINT FK_RouteDestination FOREIGN KEY (`destination`) 
-  REFERENCES `airport`(`id`) ON UPDATE CASCADE
+  REFERENCES `airport`(`id`) ON UPDATE CASCADE,
+  CONSTRAINT UC_OriginDestination UNIQUE(`origin`, `destination`),
+  CONSTRAINT UC_Airport CHECK (`origin` != `destination`)
 );
 
 --
@@ -380,10 +382,8 @@ READS SQL DATA
 BEGIN
 	DECLARE `age` INT;
 	SELECT DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(`birthday`, '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(`birthday`, '00-%m-%d')) 
-    INTO `age` 
-    FROM `passenger`
-    WHERE `passenger`.`birthday` = `birthday`;
-	RETURN `age`;
+  INTO `age`;
+  RETURN `age`;
 END $$
 DELIMITER ;
 
@@ -582,7 +582,33 @@ DELIMITER $$
 CREATE PROCEDURE 
   generate_seat_map( flightID INT )
 BEGIN  
-  SELECT sm.`id`, sm.`seat_number`, tc.`class`, rs.`scheduled_flight_id` IS NOT NULL as is_reserved, p.`amount` FROM `seat_map` as sm LEFT JOIN (SELECT * FROM `reserved_seat` WHERE `scheduled_flight_id` = scheduled_flight_id_) as rs ON sm.`id` = rs.`seat_id` LEFT JOIN `traveler_class` as tc ON sm.`traveler_class` = tc.`id` LEFT JOIN (SELECT * FROM `price` WHERE `route_id` IN (SELECT `route` FROM `scheduled_flight` WHERE `id` = scheduled_flight_id_)) as p ON p.`traveler_class` = sm.`traveler_class` WHERE (sm.`aircraft_model_id` IN (SELECT am.`id` FROM `aircraft` as a LEFT JOIN `aircraft_model` as am ON a.`model_id` = am.`id` WHERE a.`id` IN (SELECT `assigned_airplane_id` FROM `scheduled_flight` WHERE `id` = scheduled_flight_id_)));
+  SELECT sm.`id`, sm.`seat_number`, tc.`class`, rs.`scheduled_flight_id` IS NOT NULL as is_reserved, p.`amount` 
+  FROM `seat_map` as sm 
+    LEFT JOIN (
+      SELECT * 
+      FROM `reserved_seat` 
+      WHERE `scheduled_flight_id` = scheduled_flight_id_) as rs 
+    ON sm.`id` = rs.`seat_id` 
+    LEFT JOIN `traveler_class` as tc 
+    ON sm.`traveler_class` = tc.`id` 
+    LEFT JOIN (
+      SELECT * 
+      FROM `price` 
+      WHERE `route_id` IN (
+        SELECT `route` 
+        FROM `scheduled_flight` 
+        WHERE `id` = scheduled_flight_id_)) as p 
+    ON p.`traveler_class` = sm.`traveler_class` 
+  WHERE (sm.`aircraft_model_id` IN (
+    SELECT am.`id` 
+    FROM `aircraft` as a 
+      LEFT JOIN `aircraft_model` as am 
+      ON a.`model_id` = am.`id` 
+    WHERE a.`id` IN (
+      SELECT `assigned_airplane_id` 
+      FROM `scheduled_flight` 
+      WHERE `id` = scheduled_flight_id_
+  )));
 END $$
 
 DELIMITER ;
