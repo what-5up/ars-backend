@@ -1,14 +1,14 @@
-
 const travelerClassModel = require("../models/traveler-class-model");
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 const getAllTravelerClass = async (req, res) => {
     try {
         const travelerClasses = await travelerClassModel.getAllTravelerClass();
-        res.status(200).json({travelerClasses: travelerClasses});
+        successMessage(res,travelerClasses);
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ message: "Internal Server Error" });
+        errorMessage(res,"Internal server error",500)
     }
 };
 
