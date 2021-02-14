@@ -6,6 +6,7 @@ const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const logger = require('../utils/logger');
 const _ = require('lodash');
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 function validateUserDetails(title, email, first_name, last_name, gender, password) {
     const schema = Joi.object({
@@ -105,8 +106,8 @@ const viewBookings = async (req, res) => {
                 return { id: index, object: row };
             })
         })
-        .catch(err => { return res.status(400).send({ error: err.message }); });
-    return res.status(200).send(records);
+        .catch(err => { return errorMessage(res,err.message); });
+    return successMessage(res,records); //res.status(200).send(records);
 }
 
 
@@ -151,9 +152,41 @@ const addBooking = async (req, res) => {
                         })
                 })
         })
-        .catch(err => { return res.status(400).send({ error: err.message }); });
+        .catch(err => { return errorMessage(res,err.message); });
 
-    return res.status(200).send("succesfully added booking!"); //TODO: what should be returned?
+    return res.status(200).send("succesfully added booking!"); 
+}
+
+/**
+ * update booking
+ * 
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * @return {object} promise of a record object
+ * @todo move function to an appropriate file
+ */
+const updateBooking = async (req, res) => {
+
+    if(req.body.scenario == "complete_payment"){
+        if(req.body.transactionKey=="1234"){
+            const conditions = {
+                "id":req.params.bookingid
+            }
+            const values = {
+                "state":"completed"
+            }
+            const records = await bookingModel.updateBooking(conditions,values)
+        .catch(err => { return errorMessage(res,err.message); });
+        }else{
+            logger.info("invalid transaction key!");
+            return errorMessage(res,"invalid transaction key");
+        }
+    }else{
+        logger.info("invalid scenario!");
+        return errorMessage(res,"invalid transaction key");
+    }
+
+    return successMessage(res,{},"booking state set to completed");
 }
 
 /**
@@ -190,9 +223,9 @@ const deleteBooking = async (req, res) => {
                         })
                 })
         })
-        .catch(err => { return res.status(400).send({ error: err.message }); });
+        .catch(err => { return errorMessage(res,err.message); });
 
-    return res.status(200).send("query success");
+        return successMessage(res,{},"booking cancelled");
 }
 
 /**
@@ -217,6 +250,7 @@ const deleteUser = async (req, res) => {
 module.exports = {
     viewBookings,
     addBooking,
+    updateBooking,
     deleteBooking,
     deleteUser,
     signupUser,

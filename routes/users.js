@@ -6,6 +6,7 @@ const {
     viewBookings,
     addBooking,
     deleteBooking,
+    updateBooking,
     signupUser,
     deleteUser,
     updateUser
@@ -99,7 +100,7 @@ router.post('/:userid/bookings/:bookingid', );
 * @todo assign controller method
  * @todo include middleware
  */
-router.put('/:userid/bookings/:bookingid', );
+router.put('/:userid/bookings/:bookingid', updateBooking);
 
 /**
  * @todo assign controller method
