@@ -1,16 +1,8 @@
 const { pool } = require(`../database/connection`);
 
-async function createGuest(title,firstName,lastName,gender,email){
+async function getAllTravelerClass(){
     return new Promise((resolve, reject) => {
-        const result = pool.query("INSERT INTO guest(title,first_name,last_name,gender,email) VALUES " +
-            "(?,?,?,?,?)" ,
-            [
-                title,
-                firstName,
-                lastName,
-                gender,
-                email
-            ],
+        const result = pool.query("SELECT * FROM traveler_class",
             function (error, results) {
                 if (error) {
                     console.log(result.sql);
@@ -23,5 +15,5 @@ async function createGuest(title,firstName,lastName,gender,email){
 }
 
 module.exports = {
-    createGuest
+    getAllTravelerClass
 };

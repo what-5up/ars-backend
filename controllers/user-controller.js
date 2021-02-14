@@ -10,7 +10,7 @@ const { successMessage, errorMessage } = require("../utils/message-template");
 
 function validateUserDetails(title, email, first_name, last_name, gender, password) {
     const schema = Joi.object({
-        title: Joi.string().trim().required().label('Title'),
+        title: Joi.number().required().label('Title'),
         email: Joi.string().email().trim().lowercase().max(100).required().label('Email'),
         first_name: Joi.string().trim().max(150).required().label('First Name'),
         last_name: Joi.string().trim().max(150).required().label('Last Name'),
@@ -22,7 +22,7 @@ function validateUserDetails(title, email, first_name, last_name, gender, passwo
 
 function validateUpdateUser(title, email, first_name, last_name, gender, password) {
     const schema = Joi.object({
-        title: Joi.string().trim().default(null).label('Title'),
+        title: Joi.number().default(null).label('Title'),
         email: Joi.string().email().trim().lowercase().max(100).default(null).label('Email'),
         first_name: Joi.string().trim().max(150).default(null).label('First Name'),
         last_name: Joi.string().trim().max(150).default(null).label('Last Name'),
@@ -50,7 +50,7 @@ const signupUser = async (req, res, next) => {
     try {
         const hashedPw = await bcrypt.hash(value.password, 12);
         const queryResult = await userModel.createUser(value.title, value.first_name, value.last_name, value.email, value.gender, hashedPw);
-        res.status(201).json({ message: 'User created successfully'});
+        res.status(201).json({userID: queryResult.insertId.toString(), message: 'User created successfully'});
     }
     catch (err) {
         console.log(err);

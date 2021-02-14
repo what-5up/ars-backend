@@ -58,7 +58,7 @@ async function isEmailRegistered(email){
 async function createUser(title,firstName,lastName,email,gender,password) {
     return new Promise((resolve, reject) => {
         const result = pool.query("INSERT INTO registered_user(title,first_name,last_name,email,gender,password) VALUES " +
-            "((SELECT id from title where title_name = ?),?,?,?,?,?)" ,
+            "(?,?,?,?,?,?)" ,
             [
                 title,
                 firstName,
@@ -83,12 +83,7 @@ async function updateById(params,userId){
     let sql = "UPDATE registered_user SET ";
     for (const[key, value] of Object.entries(params)) {
         if (value!==null){
-            if(key==='title'){
-                sql += key+" = (SELECT id from title where title_name = ?), ";
-            }
-            else {
-                sql += key+" = ?, ";
-            }
+            sql += key+" = ?, ";
             variableValues.push(value);
         }
     }
