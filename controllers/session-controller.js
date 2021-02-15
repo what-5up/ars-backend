@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 const sessionModel = require("../models/session-model");
 
@@ -17,18 +18,18 @@ const login = async (req, res) => {
     const password = req.body.password;
     const { error, value } = validateLogin(email,password);
     if (error) {
-        return res.status(422).json({ message: error.details[0].message})
+        errorMessage(res, error.details[0].message,422);
     }
     let loadedUser;
     try {
         const result = await sessionModel.findUserByEmail(value.email);
         if (result.length === 0) {
-            return res.status(401).json({message: 'Incorrect email or password.'})
+            errorMessage(res, "Incorrect email or password.", 401);
         }
         loadedUser = result[0];
         const isEqual = await bcrypt.compare(password,result[0].password);
         if (!isEqual){
-            return res.status(401).json({message: 'Incorrect email or password.'})
+            errorMessage(res, "Incorrect email or password.", 401);
         }
         const token = jwt.sign({
                 email: loadedUser.email,
@@ -41,7 +42,7 @@ const login = async (req, res) => {
         res.status(200).json({token: token,userID: loadedUser.id.toString(), expiresIn: 3600});
     }
     catch (err) {
-        res.status(500).json({message:"Internal Server Error"});
+        errorMessage(res, "Internal Server Error", 500);
     }
 };
 
