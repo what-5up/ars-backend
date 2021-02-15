@@ -1,3 +1,4 @@
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 const baseModel = require("../models/base-model");
 const passengerModel = require("../models/passenger-model");
@@ -12,7 +13,7 @@ const addPassengers = async (req, res) => {
     const userID = req.userID;
     const passengers = req.body.passengers;
     if (passengers.length===0){
-        return res.status(422).json({ message: "Must be at least 1 passenger present"})
+        errorMessage(res, "Must be at least 1 passenger present", 422);
     }
     try{
         const lock = await baseModel.writeLock('passenger');
@@ -21,10 +22,10 @@ const addPassengers = async (req, res) => {
         for (let i=0; i < passengers.length; i++){
             idArray.push(queryResult.insertId+i);
         }
-        res.status(201).json({idArray:idArray, message: 'Passengers added successfully'});
+        successMessage(res, idArray,'Passengers added successfully',201);
     }
     catch (err) {
-        res.status(500).json({ message: "Internal Server Error" });
+        errorMessage(res, "Internal Server Error", 500);
     }
 };
 
