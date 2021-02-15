@@ -420,11 +420,39 @@ END $$
 DELIMITER ;
 
 --
+-- Function to return address of an airport
+-- NOTE: run "SET GLOBAL log_bin_trust_function_creators = 1;" to remove deterministic check
+--
+DELIMITER $$
+
+CREATE FUNCTION `generate_airport_address`(airport_code VARCHAR(10)) RETURNS VARCHAR(200)
+BEGIN
+  DECLARE airport_address VARCHAR(200);
+  DECLARE parent_region_id_ INT;
+  DECLARE sub_region VARCHAR(100);
+
+  SET airport_address = airport_code;
+  SET parent_region_id_ = (SELECT `parent_region_id` FROM `airport` WHERE `code` = airport_code );
+
+  WHILE parent_region_id_ IS NOT NULL DO
+      
+      SET sub_region = (SELECT `name` FROM `region` WHERE `id` = parent_region_id_);
+      SET airport_address = CONCAT(sub_region, " -> ", airport_address);
+      SET parent_region_id_ = (SELECT `parent_id` FROM `region` WHERE `id` = parent_region_id_);
+  END WHILE;
+
+  RETURN airport_address;
+END $$
+
+DELIMITER ;
+
+--
 -- View structure for `route_with_airports`
 -- detailed view routes with its respective airport names
 --
 CREATE VIEW `route_with_airports` AS 
-SELECT `r`.`id`, `a1`.`code` AS `origin_code`,`a1`.`name` AS `origin`, `a2`.`code` AS `destination_code`,  `a2`.`name` AS `destination` 
+SELECT `r`.`id`, `a1`.`code` AS `origin_code`,`a1`.`name` AS `origin`, generate_airport_address(`a1`.`code`) AS `origin_region`,
+`a2`.`code` AS `destination_code`,  `a2`.`name` AS `destination`, generate_airport_address(`a2`.`code`) AS `destination_region`
 FROM route `r` 
   INNER JOIN `airport` `a1` 
     ON `r`.`origin` = `a1`.`id` 
@@ -546,32 +574,6 @@ INNER JOIN `designation`
     ON `employee`.`designation_id` = `designation`.`id`
 );
 
---
--- Function to return address of an airport
--- NOTE: run "SET GLOBAL log_bin_trust_function_creators = 1;" to remove deterministic check
---
-DELIMITER $$
-
-CREATE FUNCTION `generate_airport_address`(airport_code VARCHAR(10)) RETURNS VARCHAR(200)
-BEGIN
-  DECLARE airport_address VARCHAR(200);
-  DECLARE parent_region_id_ INT;
-  DECLARE sub_region VARCHAR(100);
-
-  SET airport_address = airport_code;
-  SET parent_region_id_ = (SELECT `parent_region_id` FROM `airport` WHERE `code` = airport_code );
-
-  WHILE parent_region_id_ IS NOT NULL DO
-      
-      SET sub_region = (SELECT `name` FROM `region` WHERE `id` = parent_region_id_);
-      SET airport_address = CONCAT(sub_region, " -> ", airport_address);
-      SET parent_region_id_ = (SELECT `parent_id` FROM `region` WHERE `id` = parent_region_id_);
-  END WHILE;
-
-  RETURN airport_address;
-END $$
-
-DELIMITER ;
 
 --
 -- Generate a seat map for of a aircraft with the attribute is_reserved
