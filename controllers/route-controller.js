@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 const routeModel = require('../models/route-model');
 const Price = require('../models/price-model');
@@ -16,13 +17,13 @@ const viewRoutes = async (req, res) => {
     try {
         const routes = await routeModel.getRoutes(originCode, destinationCode);
         if (routes.length === 0) {
-            return res.status(404).json({ message: "Specified Routes not found" });
+            errorMessage(res, "Specified Routes not found", 404);
         }
-        res.status(200).json({ routes: routes, message: "Routes found" });
+        successMessage(res, routes,'Routes found',200);
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ message: "Internal Server Error" });
+        errorMessage(res, "Internal Server Error", 500);
     }
 
 };
@@ -32,18 +33,18 @@ const viewRoute = async (req, res) => {
     const { error } = validateRouteId(routeId);
     if (error) {
         console.log(error);
-        return res.status(400).json({ message: "Invalid Route ID provided. "+error.details[0].message })
+        errorMessage(res, "Invalid Route ID provided. "+error.details[0].message , 400);
     }
     try {
         const route = await routeModel.getRoute(routeId);
         if (route.length === 0) {
-            return res.status(404).json({ message: "Route not found" })
+            errorMessage(res, "Route not found", 404);
         }
-        res.status(200).json({ route: route[0], message: "Route found" });
+        successMessage(res, route[0],'Route found',200);
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ message: "Internal Server Error" });
+        errorMessage(res, "Internal Server Error", 500);
     }
 
 };
