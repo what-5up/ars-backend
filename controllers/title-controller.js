@@ -1,14 +1,13 @@
-
 const titleModel = require("../models/title-model");
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 const getAllTitles = async (req, res) => {
     try {
         const titles = await titleModel.getAllTitles();
-        res.status(200).json({titles: titles});
+        successMessage(res, titles);
     }
     catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Internal Server Error" });
+        errorMessage(res, "Internal server error", 500);
     }
 };
 

@@ -55,10 +55,10 @@ async function getLastBooking(user_id, connection = pool) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if(connection == pool){
+                if (connection == pool) {
                     resolve(results);
                 }
-                else{
+                else {
                     resolve({ results: results, connection: connection });
                 }
 
@@ -86,13 +86,67 @@ async function addBooking(bookingDetails, connection = pool) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if(connection == pool){
+                if (connection == pool) {
                     resolve(results);
                 }
-                else{
+                else {
                     resolve({ results: results, connection: connection });
                 }
 
+            }
+        );
+    })
+}
+
+/**
+ * set booking state to completed in database
+ * 
+ * @param {string} user_id default undefined
+ * @returns {object} Promise of a query output
+ * @throws Error
+ */
+async function updateBooking(conditions, values, connection = pool) {
+    return new Promise((resolve, reject) => {
+        //building query
+        let query = "UPDATE booking";
+
+        //building SET clause
+        query += " SET ";
+
+        let valueNames = [];
+        let queryValues = [];
+        for (const [key, value] of Object.entries(values)) {
+            valueNames.push(key+" = ?");
+            queryValues.push(value);
+        }
+        query+=valueNames.join(" , ");
+
+        //building WHERE clause
+        query+=" WHERE "
+        let conditionNames = [];
+        for (const [key, value] of Object.entries(conditions)) {
+            conditionNames.push(key+" = ?");
+            queryValues.push(value);
+        }
+        query+=conditionNames.join(" , ");
+
+        //finish building query
+        query+=";";
+        
+        logger.info(query);
+        logger.info(queryValues);
+        const result = connection.query(query, //'UPDATE booking SET state = ? WHERE id = ? and user_id = ?;'
+            queryValues,
+            function (error, results) {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                if (connection == pool) {
+                    resolve(results);
+                }
+                else {
+                    resolve({ results: results, connection: connection });
+                }
             }
         );
     })
@@ -113,10 +167,10 @@ async function deleteBooking(user_id, booking_id, connection = pool) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if(connection == pool){
+                if (connection == pool) {
                     resolve(results);
                 }
-                else{
+                else {
                     resolve({ results: results, connection: connection });
                 }
             }
@@ -128,5 +182,6 @@ module.exports = {
     getBookings,
     addBooking,
     getLastBooking,
+    updateBooking,
     deleteBooking
 }

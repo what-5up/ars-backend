@@ -8,9 +8,9 @@ routes.use('/scheduled-flights', require('./scheduled-flights'));
 routes.use('/session', require('./session'));
 routes.use('/tickets', require('./tickets'));
 routes.use('/users', require('./users'));
-routes.use('/passenger',require('./passenger'));
-routes.use('/guest',require('./guest'));
-routes.use('/title',require('./title'));
-routes.use('/traveler-class',require('./traveler-class'));
+routes.use('/passengers',require('./passengers'));
+routes.use('/guests',require('./guests'));
+routes.use('/titles',require('./titles'));
+routes.use('/traveler-classes',require('./traveler-classes'));
 
 module.exports = routes;
