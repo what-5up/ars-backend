@@ -83,12 +83,42 @@ async function rollbackTransaction(connection) {
     })
 }
 
+async function writeLock(table){
+    return new Promise((resolve, reject) => {
+        const result = pool.query("LOCK TABLES ?? WRITE",[table],
+            function (error, results) {
+                if (error) {
+                    console.log(result.sql);
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+            }
+        )
+    })
+}
+
+async function unlockTables(){
+    return new Promise((resolve, reject) => {
+        const result = pool.query("UNLOCK TABLES",
+            function (error, results) {
+                if (error) {
+                    console.log(result.sql);
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+            }
+        )
+    })
+}
+
 module.exports = {
     getConnection,
     releaseConnection,
     startTransaction,
     endTransaction,
-    rollbackTransaction
+    rollbackTransaction,
+    writeLock,
+    unlockTables
 }
 
 
