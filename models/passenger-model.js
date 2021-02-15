@@ -12,17 +12,17 @@ async function addPassengers(passengers,userID){
         }
     }
     sql = sql.slice(0,-1);
-    console.log(sql);
-    console.log(variableValues);
+    // console.log(sql);
+    // console.log(variableValues);
     return new Promise((resolve,reject)=>{
         const result = pool.query(sql,
             variableValues,
             function (error, results) {
                 if (error) {
-                    console.log(result.sql);
+                    // console.log(result.sql);
                     reject (new Error(error.message));
                 }
-                console.log(result.sql);
+                // console.log(result.sql);
                 resolve(results);
             }
         )

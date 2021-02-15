@@ -1,4 +1,5 @@
 const model = require("../models/aircraft-model");
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 /**
  * View all Aircrafts
@@ -16,7 +17,7 @@ const viewAllAircrafts = async (req, res, next) => {
             })
         })
         .catch(err => next(err));
-    return res.status(200).send(records);
+    return successMessage(res,records);
 }
 
 /**
@@ -29,7 +30,7 @@ const viewAllAircrafts = async (req, res, next) => {
  */
 const viewDetailsForAircraft = async (req, res, next) => {
     if (!req.params.id) {
-        return res.status(400).send({ error: "No aircraft id given" });
+        return errorMessage(res,"No aircraft id is given")
     }
     const id = req.params.id;
     const records = await model.getDetailsForAircraft(id)
@@ -46,7 +47,7 @@ const viewDetailsForAircraft = async (req, res, next) => {
             }, {})
         })
         .catch(err => next(err));
-    return res.status(200).send(records);
+    return successMessage(res, records);
 }
 
 module.exports = {
