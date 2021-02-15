@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 const routeModel = require('../models/route-model');
 const Price = require('../models/price-model');
@@ -31,7 +32,6 @@ const viewRoute = async (req, res, next) => {
     const routeId = req.params.id;
     const { error } = validateRouteId(routeId);
     if (error) {
-        console.log(error);
         return errorMessage(res, "Invalid Route ID provided. "+error.details[0].message);
     }
     try {

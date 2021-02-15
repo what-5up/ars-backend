@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 const guestModel = require("../models/guest-model");
 const { successMessage, errorMessage } = require("../utils/message-template");
@@ -22,6 +23,7 @@ const createGuest = async (req, res, next) => {
     const gender = req.body.gender;
     const email = req.body.email;
     const { error, value } = validateGuestDetails(title, firstName, lastName, gender, email);
+
     if (error) return errorMessage(res, error.details[0].message, 422);
     try {
         const queryResult = await guestModel.createGuest(value.title, value.first_name, value.last_name, value.gender, value.email);
