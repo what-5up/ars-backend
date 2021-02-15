@@ -42,19 +42,19 @@ const signupUser = async (req, res, next) => {
     const { error, value } = validateUserDetails(title, email, firstName, lastName, gender, password);
     if (error) {
         console.log(error);
-        return res.status(422).json({ message: error.details[0].message})
+        errorMessage(res, error.details[0].message,422);
     }
     if (await userModel.isEmailRegistered(value.email)) {
-        return res.status(422).json({ message: "Email already registered"})
+        errorMessage(res, "Email already registered", 422);
     }
     try {
         const hashedPw = await bcrypt.hash(value.password, 12);
         const queryResult = await userModel.createUser(value.title, value.first_name, value.last_name, value.email, value.gender, hashedPw);
-        res.status(201).json({userID: queryResult.insertId.toString(), message: 'User created successfully'});
+        successMessage(res,queryResult.insertId.toString(),'User created successfully',201);
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ message: "Internal Server Error" });
+        errorMessage(res, "Internal Server Error", 500);
     }
 };
 
@@ -62,7 +62,7 @@ const updateUser = async (req, res) => {
     const userId = req.params.userid;
     const user = await userModel.findUndeletedById(userId);
     if (user.length === 0) {
-        return res.status(422).json({ message: "User not found" })
+        errorMessage(res, "User not found", 422);
     }
     const title = req.body.title;
     const email = req.body.email;
@@ -73,19 +73,19 @@ const updateUser = async (req, res) => {
     const { error, value } = validateUpdateUser(title, email, firstName, lastName, gender, password);
     if (error) {
         console.log(error);
-        return res.status(422).json({ message: error.details[0].message })
+        errorMessage(res, error.details[0].message,422);
     }
     if (value.email !== user[0].email && await userModel.isEmailRegistered(value.email)) {
-        return res.status(422).json({ message: "Email already registered" })
+        errorMessage(res, "Email already registered",422);
     }
     try {
         const hashedPw = (value.password === null) ? null : await bcrypt.hash(value.password, 12);
         const queryResult = await userModel.updateById({ 'title': value.title, 'email': value.email, 'first_name': value.first_name, 'last_name': value.last_name, 'gender': value.gender, 'password': hashedPw }, userId);
-        res.status(201).json({ message: 'User updated successfully' });
+        successMessage(res,'User updated successfully',201);
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ message: "Internal Server Error" });
+        errorMessage(res, "Internal Server Error", 500);
     }
 
 
