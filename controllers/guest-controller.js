@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 const guestModel = require("../models/guest-model");
 
@@ -23,7 +24,7 @@ const createGuest = async (req, res) => {
     const { error, value } = validateGuestDetails(title, firstName, lastName, gender, email);
     if (error) {
         console.log(error);
-        return res.status(422).json({ message: error.details[0].message})
+        errorMessage(res, error.details[0].message, 422);
     }
     try {
         const queryResult = await guestModel.createGuest(value.title, value.first_name, value.last_name, value.gender, value.email);
@@ -38,7 +39,7 @@ const createGuest = async (req, res) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ message: "Internal Server Error" });
+        errorMessage(res, "Internal Server Error", 500);
     }
 };
 
