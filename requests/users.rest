@@ -2,6 +2,9 @@
 GET http://localhost:5000/users/2/bookings
 
 ###
+POST http://localhost:5000/passengers/
+
+###
 POST http://localhost:5000/users/1/bookings
 Content-Type: application/json
 

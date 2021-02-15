@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 
 const sessionModel = require("../models/session-model");
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 function validateLogin(email,password) {
     const schema = Joi.object({
@@ -12,23 +13,23 @@ function validateLogin(email,password) {
     return schema.validate({ email: email, password: password })
 }
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
     const { error, value } = validateLogin(email,password);
     if (error) {
-        return res.status(422).json({ message: error.details[0].message})
+        return errorMessage(res, error.details[0].message, 422);
     }
     let loadedUser;
     try {
         const result = await sessionModel.findUserByEmail(value.email);
         if (result.length === 0) {
-            return res.status(401).json({message: 'Incorrect email or password.'})
+            return errorMessage(res, 'Incorrect email or password', 401);
         }
         loadedUser = result[0];
         const isEqual = await bcrypt.compare(password,result[0].password);
         if (!isEqual){
-            return res.status(401).json({message: 'Incorrect email or password.'})
+            return errorMessage(res, 'Incorrect email or password', 401);
         }
         const token = jwt.sign({
                 email: loadedUser.email,
@@ -38,10 +39,10 @@ const login = async (req, res) => {
             'somesupersecret',                 //put in ENV
             {expiresIn: '1h'}
         );
-        res.status(200).json({token: token,userID: loadedUser.id.toString(), expiresIn: 3600});
+        return successMessage(res, {token: token,userID: loadedUser.id.toString(), expiresIn: 3600}, 'Logged in successfully')
     }
     catch (err) {
-        res.status(500).json({message:"Internal Server Error"});
+        next(err);
     }
 };
 
