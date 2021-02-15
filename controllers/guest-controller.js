@@ -3,6 +3,7 @@ const Joi = require('joi');
 const { successMessage, errorMessage } = require("../utils/message-template");
 
 const guestModel = require("../models/guest-model");
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 function validateGuestDetails(title, first_name, last_name, gender, email) {
     const schema = Joi.object({
@@ -15,17 +16,15 @@ function validateGuestDetails(title, first_name, last_name, gender, email) {
     return schema.validate({ title: title, first_name: first_name, last_name: last_name, gender: gender, email: email})
 }
 
-const createGuest = async (req, res) => {
+const createGuest = async (req, res, next) => {
     const title = req.body.title;
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
     const gender = req.body.gender;
     const email = req.body.email;
     const { error, value } = validateGuestDetails(title, firstName, lastName, gender, email);
-    if (error) {
-        console.log(error);
-        errorMessage(res, error.details[0].message, 422);
-    }
+
+    if (error) return errorMessage(res, error.details[0].message, 422);
     try {
         const queryResult = await guestModel.createGuest(value.title, value.first_name, value.last_name, value.gender, value.email);
         const token = jwt.sign({
@@ -35,11 +34,10 @@ const createGuest = async (req, res) => {
             'somesupersecret',                 //put in ENV
             {expiresIn: '1h'}
         );
-        res.status(201).json({token: token,userID: queryResult.insertId.toString(), expiresIn: 3600});
+        return successMessage(res, {token: token,userID: queryResult.insertId.toString(), expiresIn: 3600}, "Guest created successfullly", 201)
     }
     catch (err) {
-        console.log(err);
-        errorMessage(res, "Internal Server Error", 500);
+        next(err);
     }
 };
 

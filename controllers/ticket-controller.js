@@ -1,4 +1,5 @@
 const model = require('../models/price-model');
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 /**
  * View all the ticket prices
@@ -9,14 +10,9 @@ const model = require('../models/price-model');
  * @return {Response} {id, object} if success
  */
 const viewAllTicketPrices = async (req, res, next) => {
-    const records = await model.fetchAllTicketPrices()
-        .then(result => {
-            return result.map((row, index) => {
-                return { id: index, object: row };
-            })
-        })
+    model.fetchAllTicketPrices()
+        .then(records => successMessage(res, records))
         .catch(err => next(err));
-    return res.status(200).send(records);
 }
 
 /**
@@ -28,19 +24,14 @@ const viewAllTicketPrices = async (req, res, next) => {
  * @return {Response} {class, price} if success
  */
 const viewTicketPrice = async (req, res, next) => {
-    const records = await model.fetchTicketPrices(req.params.id)
-        .then(result => {
-            return result.map((row) => {
-                return { class: row.traveler_class, price: row.price };
-            })
-        })
+    model.fetchTicketPrices(req.params.id)
+        .then(records => successMessage(res, records))
         .catch((err) => next(err));
-    return res.status(200).send(records);
 }
 
 const updateDiscount = async (req, res, next) => {
     model.updateDiscount(req.params.id, req.body.discount)
-        .then(() => res.status(200).send({ success: true, message: `Successfully updated discount` }))
+        .then(() => successMessage(res,true,'Successfully updated discount'))
         .catch((err) => next(err));
 }
 

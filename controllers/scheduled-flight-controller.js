@@ -8,11 +8,11 @@ const { successMessage, errorMessage } = require("../utils/message-template");
  * 
  * @param {object} req http request object
  * @param {object} res http response object
- * @return {Response} {id, object} if success
- * @throws Error
+ * 
+ * @return {Response} [{ departure, origin_code, origin, destination_code, destination, aircraft_id, aircraft_model }] if success
  */
 const viewScheduledFlights = async (req, res, next) => {
-  const records = await model.getScheduledFlights(
+  model.getScheduledFlights(
     undefined, 
     req.query.origin,
     req.query.destination,
@@ -20,23 +20,23 @@ const viewScheduledFlights = async (req, res, next) => {
     req.query.aircraftModel,
     req.query.passengers,
     req.query.isDeleted)
-    .then(result => {
-      return result.map((row) => {
-        return row;
-      })
-    })
-    .catch(err => next(err));
-  return successMessage(res, records);
+      .then(records => successMessage(res, records))
+      .catch(err => next(err));
 }
 
+/**
+ * View the scheduled flight for the given id
+ * 
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * 
+ * @return {Response} { departure, origin_code, origin, destination_code, destination, aircraft_id, aircraft_model } if success
+ */
 const viewScheduledFlight = async (req, res, next) => {
   model.getScheduledFlights(req.params.id)
-    .then(result => {
-      return successMessage(res,result[0]);
-    })
+    .then(result => successMessage(res,result[0]))
     .catch(err => next(err));
 }
-
 
 /**
  * Delete a scheduled flight
@@ -46,16 +46,14 @@ const viewScheduledFlight = async (req, res, next) => {
  * @return {object} promise of a message 
  * @throws Error
  */
-const deleteScheduledFlight = async (req, res) => {
+const deleteScheduledFlight = async (req, res, next) => {
   model
     .deleteScheduledFlight(req.params.id)
     .then((result) => {
       if (result == true) return successMessage(res,null,"Scheduled flight deleted successfully")
       else return errorMessage (res,"Unable to delete the scheduled flight");
     })
-    .catch((error) => {
-      return res.status(400).send(error.message);
-    });
+    .catch((error) => next(error));
 }
 
 /**
@@ -71,7 +69,7 @@ const addScheduledFlight = async (req, res, next) => {
     .then((result) => {
       return successMessage(res,{id: result.insertId},"Added successfully");
     })
-    .catch((error) => {return errorMessage(res,error.message)});
+    .catch((error) => next(error));
 }
 
 /**
