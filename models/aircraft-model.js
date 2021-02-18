@@ -66,10 +66,31 @@ const getAvailableAircrafts = async (startTime, endTime, seatingCapacity) => {
     });
 }
 
+/**
+ * Fetches aircfrft model list from the database
+ * 
+ * @returns {object} Promise of a query output
+ * @throws Error
+ */
+const getAircraftModelList = async (id) => {
+    return new Promise((resolve, reject) => {
+        const result = pool.query('SELECT model_name FROM aircraft_model',
+            [],
+            (error, results, fields) => {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+            }
+        );
+    });
+}
+
 const Aircraft = {
     getAllAircrafts,
     getDetailsForAircraft,
-    getAvailableAircrafts
+    getAvailableAircrafts,
+    getAircraftModelList
 }
 
 module.exports = Aircraft;

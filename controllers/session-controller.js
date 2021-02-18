@@ -4,7 +4,6 @@ const Joi = require('joi');
 const { successMessage, errorMessage } = require("../utils/message-template");
 
 const sessionModel = require("../models/session-model");
-const { successMessage, errorMessage } = require("../utils/message-template");
 
 function validateLogin(email,password) {
     const schema = Joi.object({

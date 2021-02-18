@@ -123,8 +123,8 @@ async function getRevenueByAircraftModel(model = undefined, month = undefined) {
 
 async function getNoOfPassengersToDest(destination,startDate = undefined, endDate = undefined){
     let whereClause = '';
-    let variableValues = [destination,'booked'];
-    let sql = 'SELECT dest_code,dest_name,COUNT(*) AS no_of_passengers FROM passenger_destination WHERE dest_code = ? AND state= ?';
+    let variableValues = ['booked'];
+    let sql = 'SELECT dest_code,dest_name,COUNT(*) AS no_of_passengers FROM passenger_destination WHERE state= ?';
     if (startDate !== undefined && endDate !== undefined) {
         whereClause = ' AND departure_date BETWEEN ? AND ?';
         variableValues.push(startDate,endDate);
@@ -137,8 +137,12 @@ async function getNoOfPassengersToDest(destination,startDate = undefined, endDat
         whereClause = ' AND departure_date >= ?';
         variableValues.push(startDate);
     }
-    sql+=whereClause;
-    console.log(sql,variableValues);
+    if (destination) {
+        whereClause += ' AND dest_code = ?';
+        variableValues.push(destination);
+    }
+    sql+=whereClause + ' GROUP BY dest_code';
+    console.log(sql)
     return new Promise((resolve, reject) => {
         pool.query(sql,
                    variableValues,

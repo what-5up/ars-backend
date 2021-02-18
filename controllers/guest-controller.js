@@ -3,7 +3,6 @@ const Joi = require('joi');
 const { successMessage, errorMessage } = require("../utils/message-template");
 
 const guestModel = require("../models/guest-model");
-const { successMessage, errorMessage } = require("../utils/message-template");
 
 function validateGuestDetails(title, first_name, last_name, gender, email) {
     const schema = Joi.object({

@@ -4,3 +4,6 @@ GET http://localhost:5000/aircrafts
 ###
 GET http://localhost:5000/aircrafts/1
 
+###
+GET http://localhost:5000/aircraft-models
+
