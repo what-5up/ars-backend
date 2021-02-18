@@ -51,7 +51,7 @@ async function getScheduledFlights(flightID = undefined, origin = undefined, des
     }
 
     //fetching data from the database
-    const result = pool.query('SELECT departure, origin_code, origin, destination_code, destination, aircraft_id, aircraft_model FROM scheduled_flights_list' + whereClause,
+    const result = pool.query('SELECT * FROM scheduled_flights_list' + whereClause,
       variableValues,
       function (error, results) {
         if (error) {

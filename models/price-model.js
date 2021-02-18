@@ -23,11 +23,31 @@ async function fetchAllTicketPrices() {
 /**
  * Fetch all the ticket prices with their classes
  * 
+ * @return {Promise<object>} query output
+ * @throws {Error} - database connection error
+ */
+async function fetchTicketPricesOfScheduledFlights() {
+    return new Promise((resolve, reject) => {
+        pool.query("SELECT `tc`.`class`, `p`.`amount`, `p`.`route_id` FROM `price` `p` INNER JOIN `traveler_class` `tc` ON `p`.traveler_class = `tc`.`id` WHERE `route_id` IN (SELECT `id` FROM `scheduled_flight` WHERE `departure` > CURRENT_TIMESTAMP)",
+            [],
+            (error, results) => {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+            }
+        );
+    });
+}
+
+/**
+ * Fetch the ticket prices with their classes for a given route
+ * 
  * @param {string} route - route of the ticket prices to be fetched
  * @return {Promise<object>} query output
  * @throws {Error} - database connection error
  */
-async function fetchTicketPrices(route) {
+async function fetchTicketPrice(route) {
     return new Promise((resolve, reject) => {
         pool.query("SELECT tc.class AS traveler_class, p.amount AS price FROM price p INNER JOIN traveler_class tc ON p.traveler_class = tc.id INNER JOIN route_with_airports r ON p.route_id = r.id WHERE r.id = ?",
             [route],
@@ -84,7 +104,8 @@ const updateDiscount = async (id, discount) => {
 
 module.exports = {
     fetchAllTicketPrices,
-    fetchTicketPrices,
+    fetchTicketPrice,
+    fetchTicketPricesOfScheduledFlights,
     updatePriceForRoute,
     updateDiscount
 }
