@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 
 const sessionModel = require("../models/session-model");
-const { successMessage, errorMessage } = require("../utils/message-template");
 
 function validateLogin(email,password) {
     const schema = Joi.object({

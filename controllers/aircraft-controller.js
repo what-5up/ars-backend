@@ -17,7 +17,7 @@ const viewAllAircrafts = async (req, res, next) => {
             })
         })
         .catch(err => next(err));
-    return successMessage(res,records);
+    return successMessage(res, records);
 }
 
 /**
@@ -30,17 +30,17 @@ const viewAllAircrafts = async (req, res, next) => {
  */
 const viewDetailsForAircraft = async (req, res, next) => {
     if (!req.params.id) {
-        return errorMessage(res,"No aircraft id is given")
+        return errorMessage(res, "No aircraft id is given")
     }
     const id = req.params.id;
     const records = await model.getDetailsForAircraft(id)
         .then(result => {
-            return result.reduce((aircraftDetails,row) => {
+            return result.reduce((aircraftDetails, row) => {
                 aircraftDetails.id = row.id;
-                aircraftDetails.model_name=row.model_name;
+                aircraftDetails.model_name = row.model_name;
                 aircraftDetails.scheduled_flights = aircraftDetails.scheduled_flights || [];
                 aircraftDetails.scheduled_flights.push({
-                    route:row.route,
+                    route: row.route,
                     departure: row.departure
                 });
                 return aircraftDetails;
@@ -50,7 +50,26 @@ const viewDetailsForAircraft = async (req, res, next) => {
     return successMessage(res, records);
 }
 
+/**
+ * Get all Aircraft Model List
+ * 
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * @return {object} promise of a record object
+ * @throws Error
+ */
+const viewAircraftModelList = async (req, res, next) => {
+    try {
+        const aircraftModelList = await model.getAircraftModelList();
+        successMessage(res, aircraftModelList.map((row)=>row.model_name));
+    }
+    catch (err) {
+        errorMessage(res, "Internal server error", 500)
+    }
+}
+
 module.exports = {
     viewAllAircrafts,
-    viewDetailsForAircraft
+    viewDetailsForAircraft,
+    viewAircraftModelList
 };

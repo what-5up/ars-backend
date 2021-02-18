@@ -2,7 +2,6 @@ const Joi = require('joi');
 
 const routeModel = require('../models/route-model');
 const Price = require('../models/price-model');
-const { successMessage, errorMessage } = require("../utils/message-template");
 
 function validateRouteId(routeId) {
     const schema = Joi.object({

@@ -17,10 +17,13 @@ GET http://localhost:5000/reports/1
 GET http://localhost:5000/reports/2
 
 ###
-GET http://localhost:5000/reports/3?destination=ADS
+GET http://localhost:5000/reports/3
 
 ###
-GET http://localhost:5000/reports/3?destination=BIA&startDate=2021-02-11&endDate=2021-03-15
+GET http://localhost:5000/reports/3?destination=BIA
+
+###
+GET http://localhost:5000/reports/3?destination=BIA&startDate=2021-03-14&endDate=2021-03-15
 
 ###
 GET http://localhost:5000/reports/5

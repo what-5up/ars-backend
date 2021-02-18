@@ -14,7 +14,7 @@ const { successMessage, errorMessage } = require("../utils/message-template");
  */
 const viewPassengersByFlightNo = async (req, res, next) => {
     model.getPassengersByFlightNo(req.query.route)
-        .then(result => successMessage(res, {above18: result[0], below18: result[1]}))
+        .then(result => successMessage(res, { above18: result[0], below18: result[1] }))
         .catch(err => next(err));
 }
 
@@ -27,7 +27,7 @@ const viewPassengersByFlightNo = async (req, res, next) => {
  * @throws Error - database connection error
  */
 const viewBookingsByPassengerType = async (req, res, next) => {
-    if ((req.query.startDate && req.query.endDate) && (req.query.startDate>req.query.endDate)) {
+    if ((req.query.startDate && req.query.endDate) && (req.query.startDate > req.query.endDate)) {
         return errorMessage(res, "The start date must be before the end date", 422);
     }
     model.getBookingsByPassengerType(req.query.startDate, req.query.endDate)
@@ -54,38 +54,38 @@ const viewRevenueByAircraftModel = async (req, res, next) => {
 const viewPastFlightDetails = async (req, res, next) => {
     model
         .getPastFlightsDetails()
-        .then((result) => successMessage(res,result))
+        .then((result) => successMessage(res, result))
         .catch(err => next(err));
 }
 
-function validatePassengerCountByDest(destination,startDate,endDate) {
+function validatePassengerCountByDest(destination, startDate, endDate) {
     const schema = Joi.object({
-        destination: Joi.string().required().label('Destination'),
+        destination: Joi.string().default(null).label('Destination'),
         startDate: Joi.date().iso().default(null).label('Start Date'),
         endDate: Joi.date().iso().default(null).label('End Date'),
     });
-    return schema.validate({destination:destination,startDate:startDate,endDate:endDate});
+    return schema.validate({ destination: destination, startDate: startDate, endDate: endDate });
 }
 
-const viewPassengerCountByDest = async (req,res, next) => {
+const viewPassengerCountByDest = async (req, res, next) => {
     let destination = req.query.destination;
     let startDate = req.query.startDate;
     let endDate = req.query.endDate;
-    const {error,value} = validatePassengerCountByDest(destination,startDate,endDate);
-    if (error){
+    const { error, value } = validatePassengerCountByDest(destination, startDate, endDate);
+    if (error) {
         return errorMessage(res, error.details[0].message, 422)
     }
-    if ((value.startDate && value.endDate) && (value.startDate>value.endDate)) {
+    if ((value.startDate && value.endDate) && (value.startDate > value.endDate)) {
         return errorMessage(res, "The start date must be before the end date", 422)
     }
-    startDate = (value.startDate===null)?undefined: value.startDate.toISOString().substring(0, 10);
-    endDate = (value.endDate===null)?undefined: value.endDate.toISOString().substring(0, 10);
+    startDate = (value.startDate === null) ? undefined : value.startDate.toISOString().substring(0, 10);
+    endDate = (value.endDate === null) ? undefined : value.endDate.toISOString().substring(0, 10);
     try {
-        const results = await model.getNoOfPassengersToDest(destination,startDate,endDate);
-        if (results.length===0 || results[0].no_of_passengers===0){
+        const results = await model.getNoOfPassengersToDest(destination, startDate, endDate);
+        if (results.length === 0 || results[0].no_of_passengers === 0) {
             return errorMessage(res, "Destination Passenger Count not found", 404)
         }
-        return successMessage(res, results[0], "Destination Passenger Counts found");
+        return successMessage(res, results, "Destination Passenger Counts found");
     }
     catch (err) {
         next(err);

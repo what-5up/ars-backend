@@ -7,7 +7,6 @@ const getAllTravelerClass = async (req, res) => {
         successMessage(res,travelerClasses);
     }
     catch (err) {
-        console.log(err);
         errorMessage(res,"Internal server error",500)
     }
 };
