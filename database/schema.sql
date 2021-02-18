@@ -234,6 +234,7 @@ CREATE TABLE `scheduled_flight` (
   `id` int NOT NULL AUTO_INCREMENT,
   `route` int NOT NULL,
   `departure` timestamp NOT NULL,
+  `arrival` timestamp NULL, 
   `assigned_aircraft_id` int NOT NULL,
   `delayed_departure` timestamp NULL DEFAULT NULL,
   `is_deleted` tinyint(1) DEFAULT 0,
@@ -242,7 +243,8 @@ CREATE TABLE `scheduled_flight` (
   REFERENCES `route`(`id`) ON UPDATE CASCADE,
   CONSTRAINT FK_ScheduledFlightAircraft FOREIGN KEY (`assigned_aircraft_id`)
   REFERENCES `aircraft`(`id`) ON UPDATE CASCADE,
-  CONSTRAINT UC_FlightSchedule UNIQUE (`route`, `departure`)
+  CONSTRAINT UC_FlightSchedule UNIQUE (`route`, `departure`),
+  CONSTRAINT CHK_DepartureBeforeArrival CHECK (`arrival` IS NOT NULL AND `departure` < `arrival`)
 );
 
 --
@@ -464,7 +466,7 @@ FROM route `r`
 -- detailed view of scheduled flights
 --
 CREATE VIEW `scheduled_flights_list` AS 
-SELECT `sf`.`id`, `sf`.`departure`, `r`.`origin_code`, `r`.`origin`, `r`.`destination_code`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model`, `sf`.`is_deleted`, get_available_seats(`sf`.`id`) AS `available_seats`
+SELECT `sf`.`id`, `r`.`id` AS `route_id`, `sf`.`departure`, `sf`.`arrival`, `r`.`origin_code`, `r`.`origin`, `r`.`destination_code`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model`, `sf`.`is_deleted`, get_available_seats(`sf`.`id`) AS `available_seats`
 FROM `scheduled_flight` `sf` 
   INNER JOIN `route_with_airports` `r` 
     ON `sf`.`route` = `r`.`id` 
@@ -472,6 +474,7 @@ FROM `scheduled_flight` `sf`
     ON `sf`.`assigned_aircraft_id` = `a`.`id` 
   INNER JOIN `aircraft_model` `am` 
     ON `a`.`model_id` = `am`.`id`
+WHERE `sf`.`departure` > CURRENT_TIMESTAMP
 ORDER BY `sf`.`id`;
 
 --
@@ -496,7 +499,7 @@ ORDER BY `sf`.`departure`;
 -- departure date of the booking with the type of the passenger who booked it
 --
 CREATE VIEW `passengers_with_routes` AS
-SELECT `sf`.`route`, `sf`.`departure`, `p`.`first_name`, `p`.`last_name`, calculate_age(`p`.`birthday`) AS `passenger_age` 
+SELECT `p`.`id`, `sf`.`route`, `sf`.`departure`, `p`.`first_name`, `p`.`last_name`, calculate_age(`p`.`birthday`) AS `passenger_age` 
 FROM `reserved_seat` `rs` 
   INNER JOIN `passenger` `p`
     ON `p`.`id` = `rs`.`passenger_id`

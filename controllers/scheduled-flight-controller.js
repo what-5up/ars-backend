@@ -1,6 +1,7 @@
 const model = require("../models/scheduled-flight-model");
 const seatMapModel = require("../models/seat-map-model");
 const aircraftModelModel = require("../models/aircraft-model-model");
+const priceModel = require('../models/price-model');
 const { successMessage, errorMessage } = require("../utils/message-template");
 
 /**
@@ -12,16 +13,23 @@ const { successMessage, errorMessage } = require("../utils/message-template");
  * @return {Response} [{ departure, origin_code, origin, destination_code, destination, aircraft_id, aircraft_model }] if success
  */
 const viewScheduledFlights = async (req, res, next) => {
-  model.getScheduledFlights(
-    undefined, 
-    req.query.origin,
-    req.query.destination,
-    req.query.aircraftID,
-    req.query.aircraftModel,
-    req.query.passengers,
-    req.query.isDeleted)
-      .then(records => successMessage(res, records))
-      .catch(err => next(err));
+  try {
+    let flights = await model.getScheduledFlights(undefined,
+      req.query.origin,
+      req.query.destination,
+      req.query.aircraftID,
+      req.query.aircraftModel,
+      req.query.passengers,
+      req.query.isDeleted)
+    let prices = await priceModel.fetchTicketPricesOfScheduledFlights();
+    let result = flights.map(({ route_id, ...restFlights }) => {
+      restFlights.prices = prices.filter((price) => price.route_id === route_id).map(({ route_id, ...restPrices }) => restPrices)
+      return restFlights;
+    })
+    return successMessage(res, result);
+  } catch (err) {
+    next(err);
+  }
 }
 
 /**
@@ -34,7 +42,7 @@ const viewScheduledFlights = async (req, res, next) => {
  */
 const viewScheduledFlight = async (req, res, next) => {
   model.getScheduledFlights(req.params.id)
-    .then(result => successMessage(res,result[0]))
+    .then(result => successMessage(res, result[0]))
     .catch(err => next(err));
 }
 
@@ -50,8 +58,8 @@ const deleteScheduledFlight = async (req, res, next) => {
   model
     .deleteScheduledFlight(req.params.id)
     .then((result) => {
-      if (result == true) return successMessage(res,null,"Scheduled flight deleted successfully")
-      else return errorMessage (res,"Unable to delete the scheduled flight");
+      if (result == true) return successMessage(res, null, "Scheduled flight deleted successfully")
+      else return errorMessage(res, "Unable to delete the scheduled flight");
     })
     .catch((error) => next(error));
 }
@@ -67,7 +75,7 @@ const deleteScheduledFlight = async (req, res, next) => {
 const addScheduledFlight = async (req, res, next) => {
   model.addScheduledFlight(req.body)
     .then((result) => {
-      return successMessage(res,{id: result.insertId},"Added successfully");
+      return successMessage(res, { id: result.insertId }, "Added successfully");
     })
     .catch((error) => next(error));
 }
@@ -83,9 +91,10 @@ const addScheduledFlight = async (req, res, next) => {
 const updateScheduledFlight = async (req, res) => {
   model.updateScheduledFlight(req.params.id, req.body)
     .then((result) => {
-      return successMessage(res,null,"Updated successfully");
+      return successMessage(res, null, "Updated successfully");
     })
-    .catch((error) => {next(error)
+    .catch((error) => {
+      next(error)
     });
 }
 
@@ -104,9 +113,9 @@ const viewSeatMap = async (req, res, next) => {
   const seatMapDetails = await aircraftModelModel.getSeatMapDetails(req.params.id)
     .catch(err => next(err));
 
-    console.log(seatMapDetails[0].seating_capacity);
-  result = { 
-    seatingCapacity : seatMapDetails[0].seating_capacity,
+  console.log(seatMapDetails[0].seating_capacity);
+  result = {
+    seatingCapacity: seatMapDetails[0].seating_capacity,
     maxRows: seatMapDetails[0].max_rows,
     maxColumns: seatMapDetails[0].max_columns,
     seatMap: records[0]
@@ -115,10 +124,10 @@ const viewSeatMap = async (req, res, next) => {
 }
 
 module.exports = {
-  viewScheduledFlights, 
+  viewScheduledFlights,
   viewScheduledFlight,
-  deleteScheduledFlight, 
-  addScheduledFlight, 
-  updateScheduledFlight, 
+  deleteScheduledFlight,
+  addScheduledFlight,
+  updateScheduledFlight,
   viewSeatMap
 };
