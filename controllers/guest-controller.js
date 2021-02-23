@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
+const { successMessage, errorMessage } = require("../utils/message-template");
 
 const guestModel = require("../models/guest-model");
 
