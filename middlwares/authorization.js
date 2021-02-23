@@ -1,11 +1,12 @@
 const jwt = require('jsonwebtoken');
+const { successMessage, errorMessage } = require('../utils/message-template');
 
 //authentication
 
 const isAuth = (req,res,next)=>{
     const authHeader = req.get('Authorization');      //token set to auth header by client
     if (!authHeader){
-        return res.status(401).json({message: 'Not authenticated.'})
+        return errorMessage(res,"Not authenticated.",401);
     }
     const token = authHeader.split(' ')[1]; //'Bearer token'-->['Bearer','token']-->'token'
     let decodedToken;
@@ -13,10 +14,10 @@ const isAuth = (req,res,next)=>{
         decodedToken = jwt.verify(token, 'somesupersecret');  //ENV
     }
     catch (err) {
-        res.status(500).json({message:"Internal Server Error"});
+        errorMessage(res,"Internal Server Error",500);
     }
     if (!decodedToken){
-        return res.status(401).json({message: 'Not authenticated.'})
+        return errorMessage(res,"Not authenticated.",401);
     }
     req.userID = decodedToken.userID;
     req.accType = decodedToken.accType;
@@ -27,7 +28,7 @@ const isAuth = (req,res,next)=>{
 
 const requiresAdmin = (req,res,next) =>{
     if(req.accType !== 'a') {
-        return res.status(401).json({message: 'Not authorized.'})
+        return errorMessage(res,"Not authorized.",401);
     }
     else {
         next();
