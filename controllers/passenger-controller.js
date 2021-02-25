@@ -23,7 +23,7 @@ const addPassengers = async (req, res, next) => {
         for (let i=0; i < passengers.length; i++){
             idArray.push(queryResult.insertId+i);
         }
-        return successMessage(res, null, 'Passengers added successfully', 201);
+        return successMessage(res, idArray, 'Passengers added successfully', 201);
     }
     catch (err) {
         next(err);    
