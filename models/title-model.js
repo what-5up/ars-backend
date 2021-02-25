@@ -14,6 +14,20 @@ async function getAllTitles(){
     })
 }
 
+async function getTitleById(titleId){
+    return new Promise((resolve,reject)=>{
+        const result = pool.query('SELECT * FROM title WHERE id = ?',
+            [titleId],
+            function (error, results) {
+                if (error) {
+                    reject (new Error(error.message));
+                }
+                resolve(results);
+            }
+        )
+    });
+}
+
 async function updateTitleById(titleName,titleId){
     let sql = "";
     let variableValues=[];
@@ -38,5 +52,6 @@ async function updateTitleById(titleName,titleId){
 
 module.exports = {
     getAllTitles,
+    getTitleById,
     updateTitleById
 };

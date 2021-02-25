@@ -24,6 +24,10 @@ function validateUpdateTitle(titleName) {
 
 const updateTitle = async (req, res) => {
     const titleId = req.params.titleId;
+    const title = await titleModel.getTitleById(titleId);
+    if (title.length === 0) {
+        return errorMessage(res, "Title not found", 422)
+    }
     const titleName = req.body.titleName;
     const { error, value } = validateUpdateTitle(titleName);
     if (error) {
