@@ -60,7 +60,7 @@ const viewPastFlightDetails = async (req, res, next) => {
 
 function validatePassengerCountByDest(destination, startDate, endDate) {
     const schema = Joi.object({
-        destination: Joi.string().required().label('Destination'),
+        destination: Joi.string().default(null).label('Destination'),
         startDate: Joi.date().iso().default(null).label('Start Date'),
         endDate: Joi.date().iso().default(null).label('End Date'),
     });
