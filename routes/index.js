@@ -13,5 +13,6 @@ routes.use('/guests', require('./guests'));
 routes.use('/titles', require('./titles'));
 routes.use('/traveler-classes', require('./traveler-classes'));
 routes.use('/aircraft-models', require('./aircraft-model'));
+routes.use('/account-types', require('./account-types'));
 
 module.exports = routes;
