@@ -30,7 +30,6 @@ const updateTitle = async (req, res) => {
         return errorMessage(res, error.details[0].message, 422)
     }
     try {
-        console.log(value.titleName);
         const queryResult = await titleModel.updateTitleById(value.titleName,titleId)
         return successMessage(res, null, 'Title updated successfully');
     }
