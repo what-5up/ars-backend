@@ -2,6 +2,7 @@ const bookingModel = require("../models/booking-model");
 const reservedSeatModel = require("../models/reserved-seat-model");
 const baseModel = require("../models/base-model");
 const userModel = require("../models/user-model");
+const passengerModel = require("../models/passenger-model");
 const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const logger = require('../utils/logger');
@@ -49,7 +50,7 @@ const signupUser = async (req, res, next) => {
     try {
         const hashedPw = await bcrypt.hash(value.password, 12);
         const queryResult = await userModel.createUser(value.title, value.first_name, value.last_name, value.email, value.gender, hashedPw);
-        return successMessage(res, {userID: queryResult.insertId.toString()}, 'User created successfully', 201);
+        return successMessage(res, { userID: queryResult.insertId.toString() }, 'User created successfully', 201);
     }
     catch (err) {
         next(err);
@@ -102,8 +103,8 @@ const viewBookings = async (req, res) => {
                 return { id: index, object: row };
             })
         })
-        .catch(err => { return errorMessage(res,err.message); });
-    return successMessage(res,records); //res.status(200).send(records);
+        .catch(err => { return errorMessage(res, err.message); });
+    return successMessage(res, records); //res.status(200).send(records);
 }
 
 
@@ -127,30 +128,35 @@ const addBooking = async (req, res) => {
 
     reservedSeats = req.body.reservedSeats; //an array of objects with passenger_id and seat_id should be included in this
 
+    passengers = req.body.passengers;
+
     const records = await baseModel.getConnection()
         .then(DBconnection => {
             baseModel.startTransaction(DBconnection)
                 .then(results => {
                     bookingModel.addBooking(bookingDetails, results.connection)
                         .then(results => {
-                            bookingModel.getLastBooking(bookingDetails.user_id, results.connection)
+                            passengerModel.addPassengers(passengers, bookingDetails.user_id, results.connection)
                                 .then(results => {
-                                    bookingID = results.results[0].id;
-                                    scheduledFlightID = results.results[0].scheduled_flight_id;
-                                    reservedSeatModel.addReservedSeats(reservedSeats, bookingID, scheduledFlightID, results.connection)
+                                    bookingModel.getLastBooking(bookingDetails.user_id, results.connection)
                                         .then(results => {
-                                            baseModel.endTransaction(results.connection)
+                                            bookingID = results.results[0].id;
+                                            scheduledFlightID = results.results[0].scheduled_flight_id;
+                                            reservedSeatModel.addReservedSeats(reservedSeats, bookingID, scheduledFlightID, results.connection)
                                                 .then(results => {
-                                                    baseModel.releaseConnection(results.connection);
+                                                    baseModel.endTransaction(results.connection)
+                                                        .then(results => {
+                                                            baseModel.releaseConnection(results.connection);
+                                                        })
                                                 })
                                         })
                                 })
                         })
                 })
         })
-        .catch(err => { return errorMessage(res,err.message); });
+        .catch(err => { return errorMessage(res, err.message); });
 
-    return res.status(200).send("succesfully added booking!"); 
+    return res.status(200).send("succesfully added booking!");
 }
 
 /**
@@ -163,26 +169,26 @@ const addBooking = async (req, res) => {
  */
 const updateBooking = async (req, res) => {
 
-    if(req.body.scenario == "complete_payment"){
-        if(req.body.transactionKey=="1234"){
+    if (req.body.scenario == "complete_payment") {
+        if (req.body.transactionKey == "1234") {
             const conditions = {
-                "id":req.params.bookingid
+                "id": req.params.bookingid
             }
             const values = {
-                "state":"completed"
+                "state": "completed"
             }
-            const records = await bookingModel.updateBooking(conditions,values)
-        .catch(err => { return errorMessage(res,err.message); });
-        }else{
+            const records = await bookingModel.updateBooking(conditions, values)
+                .catch(err => { return errorMessage(res, err.message); });
+        } else {
             logger.info("invalid transaction key!");
-            return errorMessage(res,"invalid transaction key");
+            return errorMessage(res, "invalid transaction key");
         }
-    }else{
+    } else {
         logger.info("invalid scenario!");
-        return errorMessage(res,"invalid transaction key");
+        return errorMessage(res, "invalid transaction key");
     }
 
-    return successMessage(res,{},"booking state set to completed");
+    return successMessage(res, {}, "booking state set to completed");
 }
 
 /**
@@ -219,9 +225,9 @@ const deleteBooking = async (req, res) => {
                         })
                 })
         })
-        .catch(err => { return errorMessage(res,err.message); });
+        .catch(err => { return errorMessage(res, err.message); });
 
-        return successMessage(res,{},"booking cancelled");
+    return successMessage(res, {}, "booking cancelled");
 }
 
 /**
