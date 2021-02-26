@@ -88,7 +88,7 @@ const addScheduledFlight = async (req, res, next) => {
  * @return {object} promise of a record object
  * @throws Error
  */
-const updateScheduledFlight = async (req, res) => {
+const updateScheduledFlight = async (req, res, next) => {
   model.updateScheduledFlight(req.params.id, req.body)
     .then((result) => {
       return successMessage(res, null, "Updated successfully");

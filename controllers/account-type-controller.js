@@ -1,16 +1,78 @@
-const accountTypeModel = require("../models/account-type-model");
+const model = require("../models/account-type-model");
 const { successMessage, errorMessage } = require("../utils/message-template");
 
-const getAllAccountTypes = async (req, res) => {
+/**
+ * view all the account types of the system
+ * 
+ * @param {object} req - http request
+ * @param {object} res - http response
+ * @return {Response} [{ id, account_type_name, discount, criteria }]
+ */
+const viewAllAccountTypes = async (req, res) => {
     try {
-        const accountTypes = await accountTypeModel.getAllAccountTypes();
+        const accountTypes = await model.getAllAccountTypes();
         successMessage(res, accountTypes);
     }
     catch (err) {
-        errorMessage(res, "Internal server error", 500);
+        errorMessage(res, "Unable to fetch account-types", 500);
     }
 };
 
+/**
+ * Add an account type
+ * 
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * @return {object} { id }
+ */
+const addAccountType = async (req, res, next) => {
+    model.addAccountType(req.body)
+      .then((result) => {
+        return successMessage(res, { id: result.insertId }, "Account type added successfully");
+      })
+      .catch((error) => next(error));
+  }
+  
+  /**
+   * Update a scheduled flight
+   * 
+   * @param {object} req http request object
+   * @param {object} res http response object
+   * @return {object} promise of a record object
+   * @throws Error
+   */
+  const updateAccountType = async (req, res, next) => {
+    model.updateAccountType(req.params.id, req.body)
+      .then(() => {
+        return successMessage(res, true, "Updated successfully");
+      })
+      .catch((error) => {
+        next(error)
+      });
+  }
+  
+
+/**
+ * Delete an account-type
+ * 
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * @return {Response} { bool }
+ * @throws Error
+ */
+const deleteAccountType = async (req, res, next) => {
+    model
+      .deleteAccontType(req.params.id)
+      .then((result) => {
+        if (result == true) return successMessage(res, null, "Account type deleted successfully")
+        else return errorMessage(res, "Unable to delete the scheduled flight", 500);
+      })
+      .catch((error) => next(error));
+  }
+
 module.exports = {
-    getAllAccountTypes
+    viewAllAccountTypes,
+    addAccountType,
+    updateAccountType,
+    deleteAccountType
 };

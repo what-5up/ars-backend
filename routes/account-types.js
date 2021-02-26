@@ -2,13 +2,22 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    getAllAccountTypes
+    viewAllAccountTypes, 
+    addAccountType,
+    updateAccountType,
+    deleteAccountType
 } = require('../controllers/account-type-controller');
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/', getAllAccountTypes);
+router.get('/', viewAllAccountTypes);
+
+router.post('/', addAccountType)
+
+router.put('/:id', updateAccountType);
+
+router.delete('/:id', deleteAccountType )
 
 module.exports = router;
