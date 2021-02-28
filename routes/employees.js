@@ -5,56 +5,33 @@ const authenticate = require('../middlewares/authentication')
 const authorize = require('../middlewares/authorization')
 const { AccountTypesEnum } = require('../utils/constants');
 
-const {
+const employeeValidator = require('../middlewares/schema-validators/employee-validator');
+const employeeController = require('../controllers/employee-controller');
 
-} = require('../controllers/employee-controller');
+router.get('/',
+    authenticate,
+    authorize([AccountTypesEnum.ADMIN]),
+    employeeController.viewAllEmployees
+);
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.get('/', );
+router.post('/',
+    authenticate,
+    authorize([AccountTypesEnum.ADMIN]),
+    employeeValidator.addEmployee,
+    employeeController.addEmployee
+);
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.post('/', );
+router.put('/:id',
+    authenticate,
+    authorize([AccountTypesEnum.ADMIN]),
+    employeeValidator.updateEmployee,
+    employeeController.updateEmployee
+);
 
-/**
-* @todo assign controller method
- * @todo include middleware
- */
-router.put('/', );
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.delete('/', );
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.get('/:id', );
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.post('/:id', );
-
-/**
-* @todo assign controller method
- * @todo include middleware
- */
-router.put('/:id', );
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.delete('/:id', );
+router.delete('/:id',
+    authenticate,
+    authorize([AccountTypesEnum.ADMIN]),
+    employeeController.deleteEmployee
+);
 
 module.exports = router;

@@ -3,7 +3,7 @@ const app = express();
 const http = require('http');
 const bodyParser = require('body-parser');
 const logger = require('./utils/logger');
-const middleware = require('./middlwares/middlewares');
+const middleware = require('./middlewares/middlewares');
 
 const hostname = 'localhost';
 const port = 5000;
