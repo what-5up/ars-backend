@@ -9,12 +9,6 @@ const {
  * @todo assign controller method
  * @todo include middleware
  */
-router.post('/',login );
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.delete('/', );
+router.post('/', login );
 
 module.exports = router;

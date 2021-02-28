@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
+const authenticate = require('../middlewares/authentication')
+const authorize = require('../middlewares/authorization')
+const { AccountTypesEnum } = require('../utils/constants');
+
 const {
     viewPassengersByFlightNo,
     viewBookingsByPassengerType,
@@ -9,14 +13,14 @@ const {
     viewPastFlightDetails
 } = require('../controllers/report-controller');
 
-router.get('/1', viewPassengersByFlightNo);
+router.get('/1', authenticate, authorize([AccountTypesEnum.MANAGEMENT]), viewPassengersByFlightNo);
 
-router.get('/2', viewBookingsByPassengerType);
+router.get('/2', authenticate, authorize([AccountTypesEnum.MANAGEMENT]), viewBookingsByPassengerType);
 
-router.get('/3', viewPassengerCountByDest);
+router.get('/3', authenticate, authorize([AccountTypesEnum.MANAGEMENT]), viewPassengerCountByDest);
 
-router.get('/4', viewRevenueByAircraftModel);
+router.get('/4', authenticate, authorize([AccountTypesEnum.MANAGEMENT]), viewRevenueByAircraftModel);
 
-router.get('/5', viewPastFlightDetails);
+router.get('/5', authenticate, authorize([AccountTypesEnum.MANAGEMENT]), viewPastFlightDetails);
 
 module.exports = router;

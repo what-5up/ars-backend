@@ -10,7 +10,8 @@ CREATE TABLE `account_type` (
   `id` int NOT NULL AUTO_INCREMENT,
   `account_type_name` varchar(15) NOT NULL UNIQUE,
   `discount` numeric(5,2),
-  `criteria` int unsigned, 
+  `criteria` int unsigned,
+  `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT CHK_AccountDiscount CHECK(`discount` BETWEEN 0 AND 100)
 );
@@ -585,7 +586,7 @@ INNER JOIN `designation`
 DELIMITER $$
 
 CREATE PROCEDURE 
-  generate_seat_map( flightID INT )
+  generate_seat_map( scheduled_flight_id_ INT )
 BEGIN  
   SELECT sm.`id`, sm.`seat_number`, tc.`class`, rs.`scheduled_flight_id` IS NOT NULL as is_reserved, p.`amount` 
   FROM `seat_map` as sm 
@@ -610,7 +611,7 @@ BEGIN
       LEFT JOIN `aircraft_model` as am 
       ON a.`model_id` = am.`id` 
     WHERE a.`id` IN (
-      SELECT `assigned_airplane_id` 
+      SELECT `assigned_aircraft_id` 
       FROM `scheduled_flight` 
       WHERE `id` = scheduled_flight_id_
   )));

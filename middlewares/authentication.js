@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
-const { successMessage, errorMessage } = require('../utils/message-template');
+const { errorMessage } = require('../utils/message-template');
 
 //authentication
 
-const isAuthenticated = (req,res,next)=>{
+const authenticate = (req,res,next)=>{
     const authHeader = req.get('Authorization');      //token set to auth header by client
     if (!authHeader){
         return errorMessage(res,"Not authenticated.",401);
@@ -24,6 +24,4 @@ const isAuthenticated = (req,res,next)=>{
     next();
 };
 
-module.exports = {
-    isAuthenticated
-};
+module.exports = authenticate;
