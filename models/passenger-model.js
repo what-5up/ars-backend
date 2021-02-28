@@ -29,7 +29,30 @@ async function addPassengers(passengers,userID){
     });
 }
 
+/**
+ * get all the passengers that the given user have created
+ * 
+ * @param {number} userId 
+ * 
+ * @returns {Promise<object>} [{}]
+ */
+async function getPassengersOfUser(userId){
+    return new Promise((resolve, reject) => {
+        const result = pool.query("SELECT id, title , first_name, last_name, birthday, gender, country, passport_no, passport_expiry FROM passenger WHERE user_id = ?", 
+        [userId] ,
+            function (error, results) {
+                if (error) {
+                    console.log(result.sql);
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+            }
+        )
+    })
+}
+
 
 module.exports = {
-    addPassengers
+    addPassengers,
+    getPassengersOfUser
 };

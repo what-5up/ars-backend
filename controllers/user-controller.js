@@ -2,11 +2,13 @@ const bookingModel = require("../models/booking-model");
 const reservedSeatModel = require("../models/reserved-seat-model");
 const baseModel = require("../models/base-model");
 const userModel = require("../models/user-model");
+const passengerModel = require('../models/passenger-model');
 const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const logger = require('../utils/logger');
 const _ = require('lodash');
 const { successMessage, errorMessage } = require("../utils/message-template");
+const { user } = require("../config/config");
 
 function validateUserDetails(title, email, first_name, last_name, gender, password) {
     const schema = Joi.object({
@@ -243,6 +245,16 @@ const deleteUser = async (req, res) => {
             return res.status(400).send(error.message);
         });
 };
+
+
+const getPassengers = async (req, res, next) => {
+    passengerModel.getPassengersOfUser(req.params.userid)
+        .then(result => {
+            successMessage(res, result);
+        })
+        .catch(err => next(err));
+}
+
 module.exports = {
     viewBookings,
     addBooking,
@@ -250,5 +262,6 @@ module.exports = {
     deleteBooking,
     deleteUser,
     signupUser,
-    updateUser
+    updateUser,
+    getPassengers
 };
