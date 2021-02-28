@@ -34,12 +34,12 @@ const login = async (req, res, next) => {
         const token = jwt.sign({
                 email: loadedUser.email,
                 userID: loadedUser.id.toString(),
-                accType: loadedUser.acc_type
+                accType: loadedUser.acc_type,
+                expiresIn: 3600
             },
-            'somesupersecret',                 //put in ENV
-            {expiresIn: '1h'}
+            'somesupersecret'                 //put in ENV
         );
-        return successMessage(res, {token: token,userID: loadedUser.id.toString(), expiresIn: 3600}, 'Logged in successfully')
+        return successMessage(res, token, 'Logged in successfully')
     }
     catch (err) {
         next(err);

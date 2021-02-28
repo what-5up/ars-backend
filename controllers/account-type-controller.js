@@ -8,13 +8,13 @@ const { successMessage, errorMessage } = require("../utils/message-template");
  * @param {object} res - http response
  * @return {Response} [{ id, account_type_name, discount, criteria }]
  */
-const viewAllAccountTypes = async (req, res) => {
+const viewAllAccountTypes = async (req, res, next) => {
     try {
         const accountTypes = await model.getAllAccountTypes();
         successMessage(res, accountTypes);
     }
     catch (err) {
-        errorMessage(res, "Unable to fetch account-types", 500);
+        next(err);
     }
 };
 

@@ -5,16 +5,6 @@ const {
     createGuest
 } = require('../controllers/guest-controller');
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.post('/' ,createGuest);
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.get('/', );
+router.post('/', createGuest);
 
 module.exports = router;

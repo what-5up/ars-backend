@@ -236,7 +236,7 @@ const deleteBooking = async (req, res) => {
 */
 const deleteUser = async (req, res) => {
     userModel
-        .deleteUser(req.params.userID)
+        .deleteUser(req.params.userid)
         .then((result) => {
             let message = result == true ? "Deleted successfully" : "Couldnt delete";
             return res.status(200).send(message);
