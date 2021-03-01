@@ -2,6 +2,7 @@ const model = require("../models/scheduled-flight-model");
 const seatMapModel = require("../models/seat-map-model");
 const aircraftModelModel = require("../models/aircraft-model-model");
 const priceModel = require('../models/price-model');
+const userModel = require('../models/user-model');
 const { successMessage, errorMessage } = require("../utils/message-template");
 
 /**
@@ -123,11 +124,53 @@ const viewSeatMap = async (req, res, next) => {
   return successMessage(res, result);
 }
 
+/**
+ * get price and price after discount
+ * 
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * @return {Response} {id, object} if success
+ * @throws Error
+ */
+const getPricing = async (req, res, next) => {
+  const seatPrices = await seatMapModel.getSeatMap(req.params.id)
+    .catch(err => next(err));
+
+  const userDiscount = await userModel.getUserDiscount(req.body.user_id)
+    .catch(err => next(err));
+
+  const reservedSeats = req.body.reserved_seats;
+
+  let totalPrice = 0;
+
+  reservedSeats.forEach(addToTotalPrice);
+
+  function addToTotalPrice(item, index) {
+    let seatID = item.seat_id;
+    var i;
+    for (i = 0; i < seatPrices.length; i++) {
+      if(seatPrices[i].id == seatID){
+        totalPrice+=seatPrices[i].amount;
+        break;
+      }
+    }
+  }
+
+  let priceAfterDiscount = totalPrice*(1-userDiscount.discount);
+
+  result = {
+    total_price: totalPrice,
+    price_after_discount: priceAfterDiscount
+  };
+  return successMessage(res, result);
+}
+
 module.exports = {
   viewScheduledFlights,
   viewScheduledFlight,
   deleteScheduledFlight,
   addScheduledFlight,
   updateScheduledFlight,
-  viewSeatMap
+  viewSeatMap,
+  getPricing
 };

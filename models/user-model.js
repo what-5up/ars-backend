@@ -106,8 +106,40 @@ async function updateById(params,userId){
     });
 }
 
+/**
+ * get discount of user
+ * 
+ * @param {string} user_id default undefined
+ * @returns {object} Promise of a query output
+ * @throws Error
+ */
+async function getUserDiscount(user_id, connection = pool) {
+    return new Promise((resolve, reject) => {
+        //fetching data from the database
+        const result = connection.query('SELECT u.id, at.discount FROM user AS u LEFT JOIN registered_user AS ru ON u.id = ru.id LEFT JOIN account_type AS at ON ru.account_type_id = at.id  WHERE u.id = ?;',
+            [user_id],
+            function (error, results) {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                if (connection == pool) {
+                    resolve(results[0]);
+                }
+                else {
+                    resolve({ results: results[0], connection: connection });
+                }
+
+            }
+        );
+    })
+}
+
 module.exports = {
-findUndeletedById,isEmailRegistered,createUser,updateById
+findUndeletedById,
+isEmailRegistered,
+createUser,
+updateById,
+getUserDiscount
 };
 
 
