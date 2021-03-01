@@ -55,6 +55,6 @@ router.get('/:id/seat-map', authenticate, authorize([AccountTypesEnum.CREW_SCHED
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/:id/pricing', getPricing);
+router.post('/:id/pricing', getPricing);
 
 module.exports = router;
