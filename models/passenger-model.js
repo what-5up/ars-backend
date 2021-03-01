@@ -34,7 +34,44 @@ async function addPassengers(passengers, userID, connection = pool) {
     });
 }
 
+/**
+ * Fetches passengers from the database
+ * 
+ * @param {string} user_id default undefined
+ * @returns {object} Promise of a query output
+ * @throws Error
+ */
+async function getPassengers(user_id = undefined) {
+    return new Promise((resolve, reject) => {
+        //building the where clause
+        let whereClause = '';
+        let variableNames = [];
+        let variableValues = [];
+        if (user_id !== undefined) {
+            whereClause = ' WHERE '
+            if (user_id !== undefined) {
+                variableNames.push('user_id = ?');
+                variableValues.push(user_id);
+            }
+            (variableNames.length == 1) ? whereClause += variableNames[0] :
+                whereClause += variableNames.join(' AND ');
+        }
+
+        //fetching data from the database
+        const result = pool.query('SELECT * FROM passenger' + whereClause,
+            variableValues,
+            function (error, results) {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+
+            }
+        );
+    })
+}
 
 module.exports = {
-    addPassengers
+    addPassengers,
+    getPassengers
 };

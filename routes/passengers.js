@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    addPassengers
+    addPassengers,
+    getPassengers
 } = require('../controllers/passenger-controller');
 
 /**
@@ -10,5 +11,11 @@ const {
  * @todo include middleware
  */
 router.post('/',addPassengers);
+
+/**
+ * @todo assign controller method
+ * @todo include middleware
+ */
+router.get('/',getPassengers);
 
 module.exports = router;
