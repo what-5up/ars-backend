@@ -148,15 +148,15 @@ const getPricing = async (req, res, next) => {
   function addToTotalPrice(item, index) {
     let seatID = item.seat_id;
     var i;
-    for (i = 0; i < seatPrices.length; i++) {
-      if(seatPrices[i].id == seatID){
-        totalPrice+=seatPrices[i].amount;
+    for (i = 0; i < seatPrices[0].length; i++) {
+      if(seatPrices[0][i].id == seatID){
+        totalPrice+=seatPrices[0][i].amount;
         break;
       }
     }
   }
 
-  let priceAfterDiscount = totalPrice*(1-userDiscount.discount);
+  let priceAfterDiscount = totalPrice*(100-userDiscount.discount)/100;
 
   result = {
     total_price: totalPrice,
