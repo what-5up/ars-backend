@@ -76,11 +76,12 @@ async function addBooking(bookingDetails, connection = pool) {
     return new Promise((resolve, reject) => {
 
         //insert data to the database
-        const result = connection.query("INSERT INTO booking (user_id, scheduled_flight_id, date_of_booking, final_amount) VALUES (?, ?, CURRENT_TIMESTAMP, ?);",
+        const result = connection.query("INSERT INTO booking (user_id, scheduled_flight_id, date_of_booking, final_amount, state) VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?);",
             [
                 bookingDetails.user_id,
                 bookingDetails.scheduled_flight_id,
-                bookingDetails.final_amount
+                bookingDetails.final_amount,
+                bookingDetails.state
             ],
             function (error, results) {
                 if (error) {

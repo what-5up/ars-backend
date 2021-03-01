@@ -7,9 +7,14 @@ async function addPassengers(passengers, userID, connection = pool) {
     for (const passenger of passengers) {
         sql += valuesStatement;
         variableValues.push(userID);
-        for (const [key, value] of Object.entries(passenger)) {
-            variableValues.push(value)
-        }
+        variableValues.push(passenger.title);
+        variableValues.push(passenger.first_name);
+        variableValues.push(passenger.last_name);
+        variableValues.push(passenger.birthday);
+        variableValues.push(passenger.gender);
+        variableValues.push(passenger.country);
+        variableValues.push(passenger.passport_no);
+        variableValues.push(passenger.passport_expiry);
     }
     sql = sql.slice(0, -1);
     // console.log(sql);
@@ -71,7 +76,39 @@ async function getPassengers(user_id = undefined) {
     })
 }
 
+/**
+ * Fetches last booking done by a user from the database
+ * 
+ * @param {string} user_id default undefined
+ * @returns {object} Promise of a query output
+ * @throws Error
+ */
+async function getLastPassengerIDs(user_id, newPassengerCount, connection = pool) {
+    return new Promise((resolve, reject) => {
+        //fetching data from the database
+        const result = connection.query('SELECT * FROM passenger WHERE user_id = ? ORDER BY id DESC LIMIT ?;',
+            [
+                user_id,
+                newPassengerCount
+            ],
+            function (error, results) {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                if (connection == pool) {
+                    resolve(results);
+                }
+                else {
+                    resolve({ results: results, connection: connection });
+                }
+
+            }
+        );
+    })
+}
+
 module.exports = {
     addPassengers,
-    getPassengers
+    getPassengers,
+    getLastPassengerIDs
 };
