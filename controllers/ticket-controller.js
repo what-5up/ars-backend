@@ -24,7 +24,7 @@ const viewAllTicketPrices = async (req, res, next) => {
  * @return {Response} {class, price} if success
  */
 const viewTicketPrice = async (req, res, next) => {
-    model.fetchTicketPrices(req.params.id)
+    model.fetchTicketPrice(req.params.id)
         .then(records => successMessage(res, records))
         .catch((err) => next(err));
 }

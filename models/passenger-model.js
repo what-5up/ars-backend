@@ -77,7 +77,7 @@ async function getPassengers(user_id = undefined) {
 }
 
 /**
- * Fetches last booking done by a user from the database
+ * Fetches last added by a user from the database
  * 
  * @param {string} user_id default undefined
  * @returns {object} Promise of a query output
@@ -107,8 +107,32 @@ async function getLastPassengerIDs(user_id, newPassengerCount, connection = pool
     })
 }
 
+
+ * get all the passengers that the given user have created
+ * 
+ * @param {number} userId 
+ * 
+ * @returns {Promise<object>} [{}]
+ */
+async function getPassengersOfUser(userId){
+    return new Promise((resolve, reject) => {
+        const result = pool.query("SELECT id, title , first_name, last_name, birthday, gender, country, passport_no, passport_expiry FROM passenger WHERE user_id = ?", 
+        [userId] ,
+            function (error, results) {
+                if (error) {
+                    console.log(result.sql);
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+            }
+        )
+    })
+}
+
+
 module.exports = {
     addPassengers,
-    getPassengers,
-    getLastPassengerIDs
+    getPassengersOfUser,
+    getLastPassengerIDs,
+    getPassengers
 };
