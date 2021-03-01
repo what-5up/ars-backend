@@ -1,15 +1,14 @@
 const { pool } = require(`../database/connection`);
 
 /**
- * get all the account types from the database
+ * get all the designations from the database
  */
-async function getAllAccountTypes() {
+async function getAllDesignations() {
   return new Promise((resolve, reject) => {
-    const result = pool.query("SELECT * FROM account_type",
+    const result = pool.query("SELECT * FROM designation",
       function (error, results) {
         if (error) {
-          console.log(result.sql);
-          reject(new Error(error.message));
+          reject(error);
         }
         resolve(results);
       }
@@ -18,17 +17,16 @@ async function getAllAccountTypes() {
 }
 
 /**
- * Add an new account type
+ * Add an new designation
  *
  * @param {object} payload containing attributes
  * @returns {Promise<object>} Promise of a query output
  * @throws Error
  */
-const addAccountType = async (
+const addDesignation = async (
   payload = {
-    accountTypeName: undefined,
-    discount: undefined,
-    criteria: undefined,
+    name: undefined,
+    privilege: undefined
   }
 ) => {
   let fields = [];
@@ -44,7 +42,7 @@ const addAccountType = async (
   });
   return new Promise((resolve, reject) => {
     pool.query(
-      `INSERT INTO account_type (${fields.join()}) VALUES (${placeholders.join()})`,
+      `INSERT INTO designation (${fields.join()}) VALUES (${placeholders.join()})`,
       values,
       (error, result) => {
         if (error) reject(error);
@@ -57,19 +55,18 @@ const addAccountType = async (
 };
 
 /**
-* Update an account type
+* Update an designation
 *
 * @param {int} id 
 * @param {object} payload parameters to change
 * @returns {Promise<object>} Promise of a query output
 * @throws Error
 */
-const updateAccountType = async (
+const updateDesignation = async (
   id,
   payload = {
-    accountTypeName: undefined,
-    discount: undefined,
-    criteria: undefined
+    name: undefined,
+    privilege: undefined
   }
 ) => {
   let fields = [];
@@ -83,53 +80,47 @@ const updateAccountType = async (
   });
   return new Promise((resolve, reject) => {
     pool.query(
-      `UPDATE account_type
+      `UPDATE designation
         SET ${fields.join()}
         WHERE id = ?`,
       [...values, id],
       (error, result) => {
         if (error) reject(error);
-        if (result.affectedRows < 1) reject('Cannot find an account type for the given id');
-        else {
-          resolve(result);
-        }
+        if (result.affectedRows < 1) reject('Cannot find an designation for the given id');
+        resolve(result);
       }
     );
   });
 };
 
 /**
- * Delete an account type of the given an ID
+ * Delete an designation of the given an ID
  *
  * @param {string} id
  * @returns {Promise<boolean>} Promise of a query output
  * @throws Error
  */
-const deleteAccountType = async (id) => {
+const deleteDesignation = async (id) => {
   return new Promise((resolve, reject) => {
     pool.query(
-      "UPDATE account_type SET is_deleted = 1 WHERE id = ?",
+      "UPDATE designation SET is_deleted = 1 WHERE id = ?",
       [parseInt(id)],
       (error, result) => {
         if (error) reject(error);
         else {
-          console.log(result);
-          if (result.affectedRows == 1) {
-            resolve(true);
-          } else {
-            resolve(false);
-          }
+          if (error) reject(error);
+          if (result.affectedRows < 1) reject('Cannot find an designation for the given id');
+          if (result.changedRows < 1) reject('designation of the given id is already deleted');
+          resolve(true);
         }
       }
     );
   });
 };
 
-
-
 module.exports = {
-  getAllAccountTypes,
-  addAccountType,
-  updateAccountType,
-  deleteAccountType
+  getAllDesignations,
+  addDesignation,
+  updateDesignation,
+  deleteDesignation
 };

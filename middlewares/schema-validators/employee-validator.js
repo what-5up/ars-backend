@@ -11,7 +11,7 @@ module.exports.addEmployee = (req, res, next) => {
         designationId: Joi.number().required().label('Designation'),
     });
 
-    validate(req, schema, next);
+    validate(schema, req, res, next);
 }
 
 module.exports.updateEmployee = (req, res, next) => {
@@ -24,5 +24,5 @@ module.exports.updateEmployee = (req, res, next) => {
         designationId: Joi.number().default(null).label('Designation'),
     });
 
-    validate(req, schema, next);
+    validate(schema, req, res, next);
 }

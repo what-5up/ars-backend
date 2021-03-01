@@ -19,7 +19,7 @@ const {
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/', authenticate, authorize([AccountTypesEnum.CREW_SCHEDULE_COORDINATOR] + AccountTypesEnum.USERS), viewScheduledFlights);
+router.get('/', viewScheduledFlights);
 
 /**
  * @todo assign controller method

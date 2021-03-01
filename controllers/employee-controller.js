@@ -82,7 +82,7 @@ const updateEmployee = async (req, res, next) => {
  */
 const deleteEmployee = async (req, res, next) => {
     model
-        .deleteAccontType(req.params.id)
+        .deleteAccountType(req.params.id)
         .then((result) => {
             if (result == true) return successMessage(res, null, "Employee deleted successfully")
             else return errorMessage(res, "Unable to delete the employee", 500);
