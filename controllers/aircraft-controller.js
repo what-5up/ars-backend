@@ -11,11 +11,11 @@ const { successMessage, errorMessage } = require("../utils/message-template");
  */
 const viewAllAircrafts = async (req, res, next) => {
     const records = await model.getAllAircrafts()
-        .then(result => {
-            return result.map((row, index) => {
-                return { id: index, object: row };
-            })
-        })
+        // .then(result => {
+        //     return result.map((row, index) => {
+        //         return { id: index, object: row };
+        //     })
+        // })
         .catch(err => next(err));
     return successMessage(res, records);
 }
