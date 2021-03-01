@@ -11,7 +11,8 @@ const {
     deleteScheduledFlight, 
     addScheduledFlight, 
     updateScheduledFlight, 
-    viewSeatMap
+    viewSeatMap,
+    getPricing
 } = require('../controllers/scheduled-flight-controller');
 
 /**
@@ -49,5 +50,11 @@ router.delete('/:id', authenticate, authorize([AccountTypesEnum.CREW_SCHEDULE_CO
  * @todo include middleware
  */
 router.get('/:id/seat-map', authenticate, authorize([AccountTypesEnum.CREW_SCHEDULE_COORDINATOR] + AccountTypesEnum.USERS), viewSeatMap);
+
+/**
+ * @todo assign controller method
+ * @todo include middleware
+ */
+router.get('/:id/pricing', getPricing);
 
 module.exports = router;

@@ -23,8 +23,6 @@ require('./startup/routes')(app);
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 
-
-
 const server = http.createServer(app);
 
 server.listen(port, hostname, () => {
