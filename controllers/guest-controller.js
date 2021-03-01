@@ -28,12 +28,12 @@ const createGuest = async (req, res, next) => {
         const queryResult = await guestModel.createGuest(value.title, value.first_name, value.last_name, value.gender, value.email);
         const token = jwt.sign({
                 userID: queryResult.insertId.toString(),
-                accType: 'guest'
+                accType: 'guest',
+                expiresIn: 3600
             },
-            'somesupersecret',                 //put in ENV
-            {expiresIn: '1h'}
+            'somesupersecret'                 //put in ENV
         );
-        return successMessage(res, {token: token,userID: queryResult.insertId.toString(), expiresIn: 3600}, "Guest created successfullly", 201)
+        return successMessage(res, token, "Guest created successfullly", 201)
     }
     catch (err) {
         next(err);

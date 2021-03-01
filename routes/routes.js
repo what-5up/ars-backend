@@ -5,22 +5,12 @@ const authenticate = require('../middlewares/authentication')
 const authorize = require('../middlewares/authorization')
 const { AccountTypesEnum } = require('../utils/constants');
 
-const {
-    viewRoutes,
-    viewRoute,
-    updateRoutePrice
-} = require('../controllers/route-controller');
-
-const {
-    updateDiscount, 
-    viewAllTicketPrices, 
-    viewTicketPrice
-} = require('../controllers/ticket-controller');
+const routeController = require('../controllers/route-controller');
 
 /**
  * @todo include middleware
  */
-router.get('/', viewRoutes);
+router.get('/', routeController.viewRoutes);
 
 /**
  * @todo assign controller method
@@ -31,7 +21,7 @@ router.post('/');
 /**
  * @todo include middleware
  */
-router.get('/:id', viewRoute);
+router.get('/:id', routeController.viewRoute);
 
 /**
  * @todo assign controller method
@@ -45,29 +35,13 @@ router.put('/:id');
  */
 router.delete('/:id');
 
-/**
- * @todo include middleware
- */
-router.get('/:id/price',viewAllTicketPrices);
+router.get('/:id/prices', routeController.viewRoutePrice);
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.post('/:id/price');
+router.post('/:id/prices', routeController.addRoutePrice);
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.put('/:id/price', updateRoutePrice);
+router.put('/:id/prices/:classid', routeController.updateRoutePrice);
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.delete('/:id/price');
+router.delete('/:id/prices/:classid', routeController.deleteRoutePrice);
 
-router.get('/:routeid/price/:priceid',viewTicketPrice);
 
 module.exports = router;

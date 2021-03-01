@@ -21,7 +21,7 @@ const viewScheduledFlights = async (req, res, next) => {
       req.query.aircraftModel,
       req.query.passengers,
       req.query.isDeleted)
-    let prices = await priceModel.fetchTicketPricesOfScheduledFlights();
+    let prices = await priceModel.fetchTicketPricesOfScheduledFlights(flights.map(({route_id}) => route_id));
     let result = flights.map(({ route_id, ...restFlights }) => {
       restFlights.prices = prices.filter((price) => price.route_id === route_id).map(({ route_id, ...restPrices }) => restPrices)
       return restFlights;
