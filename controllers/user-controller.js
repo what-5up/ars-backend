@@ -218,6 +218,7 @@ const addBooking = async (req, res) => {
 
         var results = await baseModel.releaseConnection(results.connection);
     }
+
     catch (err) {
         logger.info(err);
         return errorMessage(res, err.message);
