@@ -109,7 +109,7 @@ const updateEmployee = async (
  * @returns {Promise<boolean>} Promise of a query output
  * @throws Error
  */
-const deleteAccontType = async (id) => {
+const deleteAccountType = async (id) => {
     return new Promise((resolve, reject) => {
         pool.query(
             "UPDATE employee SET is_deleted = 1 WHERE id = ?",
@@ -143,6 +143,6 @@ module.exports = {
     getAllEmployees,
     addEmployee,
     updateEmployee,
-    deleteAccontType,
+    deleteAccountType,
     isEmailRegistered
 };

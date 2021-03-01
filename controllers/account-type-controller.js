@@ -62,7 +62,7 @@ const addAccountType = async (req, res, next) => {
  */
 const deleteAccountType = async (req, res, next) => {
     model
-      .deleteAccontType(req.params.id)
+      .deleteAccountType(req.params.id)
       .then((result) => {
         if (result == true) return successMessage(res, null, "Account type deleted successfully")
         else return errorMessage(res, "Unable to delete the accont type", 500);

@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const { errorMessage } = require('../../utils/message-template');
 
 /**
  * Validates the schema and generates output
@@ -7,7 +8,7 @@ const Joi = require("joi");
  * @param {Joi.ObjectSchema} schema - Joi schema 
  * @param {Function} next - next middleware
  */
-const validate = (req, schema, next) => {
+const validate = (schema, req, res, next) => {
     const { error, value } = schema.validate(req.body);
 
     if (error) {

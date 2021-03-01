@@ -13,6 +13,6 @@ const {
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/', authenticate, getAllTravelerClass);
+router.get('/', getAllTravelerClass);
 
 module.exports = router;
