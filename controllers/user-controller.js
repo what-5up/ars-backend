@@ -3,7 +3,6 @@ const reservedSeatModel = require("../models/reserved-seat-model");
 const baseModel = require("../models/base-model");
 const userModel = require("../models/user-model");
 const passengerModel = require("../models/passenger-model");
-
 const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const logger = require('../utils/logger');
@@ -195,7 +194,6 @@ const addBooking = async (req, res) => {
         var results = await baseModel.releaseConnection(results.connection);
     }
     catch(err){
-        console.log(err);
         return errorMessage(res, err.message);
     }
     //return errorMessage(res, err.message, 500);
