@@ -13,7 +13,7 @@ const {
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/', authenticate, authorize([AccountTypesEnum.ADMIN] + AccountTypesEnum.USERS),  getAllTitles);
+router.get('/',   getAllTitles);
 
 /**
  * @todo assign controller method
