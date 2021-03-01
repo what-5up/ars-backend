@@ -26,7 +26,7 @@ async function fetchAllRoutePrices() {
  * @return {Promise<object>} query output
  * @throws {Error} - database connection error
  */
-async function fetchRoutePriceOfScheduledFlights(flightIDs) {
+async function fetchRoutePricesOfScheduledFlights(flightIDs) {
     return new Promise((resolve, reject) => {
         pool.query("SELECT `tc`.`class`, `p`.`amount`, `p`.`route_id` FROM `price` `p` INNER JOIN `traveler_class` `tc` ON `p`.traveler_class = `tc`.`id` WHERE `route_id` IN ( ? )",
             [flightIDs.join(', ')],
@@ -147,7 +147,7 @@ const deleteRoutePrice = async (routeId, travellerClass) => {
 
 module.exports = {
     fetchAllRoutePrices,
-    fetchRoutePriceOfScheduledFlights,
+    fetchRoutePricesOfScheduledFlights,
     fetchRoutePrice,
     addRoutePrice,
     updateRoutePrice,
