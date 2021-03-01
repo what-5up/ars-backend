@@ -129,7 +129,7 @@ async function updateBooking(conditions, values, connection = pool) {
             conditionNames.push(key+" = ?");
             queryValues.push(value);
         }
-        query+=conditionNames.join(" , ");
+        query+=conditionNames.join(" AND ");
 
         //finish building query
         query+=";";

@@ -3,6 +3,7 @@ const reservedSeatModel = require("../models/reserved-seat-model");
 const baseModel = require("../models/base-model");
 const userModel = require("../models/user-model");
 const passengerModel = require("../models/passenger-model");
+const seatMapModel = require("../models/seat-map-model");
 
 const Joi = require('joi');
 const bcrypt = require('bcryptjs');
@@ -128,7 +129,30 @@ const addBooking = async (req, res) => {
         ]
     );
 
-    bookingDetails.final_amount = 9090; //hardcoded, get from function
+    const seatPrices = await seatMapModel.getSeatMap(bookingDetails.scheduled_flight_id)
+        .catch(err => next(err));
+
+    const userDiscount = await userModel.getUserDiscount(req.params.userid)
+        .catch(err => next(err));
+
+    let reservedSeats = req.body.reservedSeats; //an array of objects with passenger_id and seat_id should be included in this
+
+    let totalPrice = 0;
+
+    reservedSeats.forEach(addToTotalPrice);
+
+    function addToTotalPrice(item, index) {
+        let seatID = item.seat_id;
+        var i;
+        for (i = 0; i < seatPrices[0].length; i++) {
+            if (seatPrices[0][i].id == seatID) {
+                totalPrice += seatPrices[0][i].amount;
+                break;
+            }
+        }
+    }
+
+    bookingDetails.final_amount = totalPrice * (100 - userDiscount.discount) / 100;
 
     if (req.body.scenario == "complete_payment") {
         if (req.body.transactionKey == "1234") {
@@ -145,7 +169,7 @@ const addBooking = async (req, res) => {
         return errorMessage(res, "invalid scenario! set req.body.scenarion appropriately", 400);
     }
 
-    reservedSeats = req.body.reservedSeats; //an array of objects with passenger_id and seat_id should be included in this
+
 
     let passengers = []; //an array of objects with user_id,title,first_name,last_name,birthday,gender,country,passport_no,passport_expiry should be included in this
     let newPassengerCount = 0;
@@ -168,9 +192,9 @@ const addBooking = async (req, res) => {
 
         var results = await bookingModel.addBooking(bookingDetails, results.connection);
 
-        var results = await passengerModel.addPassengers(passengers, bookingDetails.user_id, results.connection);
+        var results = await passengerModel.addPassengers(passengers, req.params.userid, results.connection);
 
-        var results = await passengerModel.getLastPassengerIDs(bookingDetails.user_id, newPassengerCount, results.connection);
+        var results = await passengerModel.getLastPassengerIDs(req.params.userid, newPassengerCount, results.connection);
 
         results.results.reverse();
         results.results.forEach(passenger => {
@@ -182,7 +206,7 @@ const addBooking = async (req, res) => {
                 }
             });
         });
-        var results = await bookingModel.getLastBooking(bookingDetails.user_id, results.connection);
+        var results = await bookingModel.getLastBooking(req.params.userid, results.connection);
 
         bookingID = results.results[0].id;
         scheduledFlightID = results.results[0].scheduled_flight_id;
@@ -194,8 +218,8 @@ const addBooking = async (req, res) => {
 
         var results = await baseModel.releaseConnection(results.connection);
     }
-    catch(err){
-        console.log(err);
+    catch (err) {
+        logger.info(err);
         return errorMessage(res, err.message);
     }
     //return errorMessage(res, err.message, 500);
@@ -216,13 +240,19 @@ const updateBooking = async (req, res) => {
     if (req.body.scenario == "complete_payment") {
         if (req.body.transactionKey == "1234") {
             const conditions = {
-                "id": req.params.bookingid
+                "id": req.params.bookingid,
+                "user_id": req.params.userid
             }
             const values = {
                 "state": "completed"
             }
-            const records = await bookingModel.updateBooking(conditions, values)
-                .catch(err => { return errorMessage(res, err.message); });
+            try {
+                const records = await bookingModel.updateBooking(conditions, values);
+            }
+            catch (err) {
+                console.log(err);
+                return errorMessage(res, err.message);
+            }
         } else {
             logger.info("invalid transaction key!");
             return errorMessage(res, "invalid transaction key");
@@ -245,31 +275,33 @@ const updateBooking = async (req, res) => {
  */
 const deleteBooking = async (req, res) => {
 
-    const records = await baseModel.getConnection()
-        .then(DBconnection => {
-            baseModel.startTransaction(DBconnection)
-                .then(results => {
-                    bookingModel.deleteBooking(req.params.userid, req.params.bookingid, results.connection)
-                        .then(results => {
-                            if (results.results.changedRows > 0) {
-                                reservedSeatModel.deleteReservedSeats(req.params.bookingid, results.connection)
-                                    .then(results => {
-                                        baseModel.endTransaction(results.connection)
-                                            .then(results => {
-                                                baseModel.releaseConnection(results.connection);
-                                            })
-                                    })
-                            }
-                            else {
-                                baseModel.rollbackTransaction(results.connection)
-                                    .then(results => {
-                                        baseModel.releaseConnection(results.connection);
-                                    })
-                            }
-                        })
-                })
-        })
-        .catch(err => { return errorMessage(res, err.message); });
+    try {
+        var DBconnection = await baseModel.getConnection();
+
+        var results = await baseModel.startTransaction(DBconnection);
+
+        var results = await bookingModel.deleteBooking(req.params.userid, req.params.bookingid, results.connection);
+
+        if (results.results.changedRows > 0) {
+            var results = await reservedSeatModel.deleteReservedSeats(req.params.bookingid, results.connection);
+
+            var results = await baseModel.endTransaction(results.connection);
+
+            var results = await baseModel.releaseConnection(results.connection);
+
+        }
+        else {
+            var results = await baseModel.rollbackTransaction(results.connection)
+
+            var results = await baseModel.releaseConnection(results.connection);
+
+        }
+    }
+    catch (err) {
+        logger.info(err);
+        return errorMessage(res, err.message);
+    }
+
 
     return successMessage(res, {}, "booking cancelled");
 }
