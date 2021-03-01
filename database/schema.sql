@@ -224,7 +224,7 @@ CREATE TABLE `route` (
   REFERENCES `airport`(`id`) ON UPDATE CASCADE,
   CONSTRAINT FK_RouteDestination FOREIGN KEY (`destination`) 
   REFERENCES `airport`(`id`) ON UPDATE CASCADE,
-  CONSTRAINT UC_OriginDestination UNIQUE(`origin`, `destination`),
+  CONSTRAINT UC_OriginDestination UNIQUE(`origin`, `destination`)
 );
 
 --
