@@ -107,7 +107,7 @@ async function getLastPassengerIDs(user_id, newPassengerCount, connection = pool
     })
 }
 
-
+/*
  * get all the passengers that the given user have created
  * 
  * @param {number} userId 
