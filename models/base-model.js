@@ -38,7 +38,7 @@ async function startTransaction(connection) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                resolve({results: results, connection: connection});
+                resolve({ results: results, connection: connection });
 
             }
         );
@@ -57,7 +57,7 @@ async function endTransaction(connection) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                resolve({results: results, connection: connection});
+                resolve({ results: results, connection: connection });
 
             }
         );
@@ -76,36 +76,46 @@ async function rollbackTransaction(connection) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                resolve({results: results, connection: connection});
+                resolve({ results: results, connection: connection });
 
             }
         );
     })
 }
 
-async function writeLock(table){
+async function writeLock(table, connection = pool) {
     return new Promise((resolve, reject) => {
-        const result = pool.query("LOCK TABLES ?? WRITE",[table],
+        const result = connection.query("LOCK TABLES ?? WRITE", [table],
             function (error, results) {
                 if (error) {
                     console.log(result.sql);
                     reject(new Error(error.message));
                 }
-                resolve(results);
+                if (connection == pool) {
+                    resolve(results);
+                }
+                else {
+                    resolve({ results: results, connection: connection });
+                }
             }
         )
     })
 }
 
-async function unlockTables(){
+async function unlockTables(connection = pool) {
     return new Promise((resolve, reject) => {
-        const result = pool.query("UNLOCK TABLES",
+        const result = connection.query("UNLOCK TABLES",
             function (error, results) {
                 if (error) {
                     console.log(result.sql);
                     reject(new Error(error.message));
                 }
-                resolve(results);
+                if (connection == pool) {
+                    resolve(results);
+                }
+                else {
+                    resolve({ results: results, connection: connection });
+                }
             }
         )
     })
