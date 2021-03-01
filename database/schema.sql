@@ -225,7 +225,6 @@ CREATE TABLE `route` (
   CONSTRAINT FK_RouteDestination FOREIGN KEY (`destination`) 
   REFERENCES `airport`(`id`) ON UPDATE CASCADE,
   CONSTRAINT UC_OriginDestination UNIQUE(`origin`, `destination`),
-  CONSTRAINT UC_Airport CHECK (`origin` != `destination`)
 );
 
 --
@@ -567,15 +566,15 @@ GROUP BY `sf`.`id`
 
 CREATE VIEW `user_auth`
 AS
-(SELECT `registered_user`.`id`,`email`,`password`,`account_type_name` AS `acc_type`,`is_deleted`
-FROM `registered_user`
-INNER JOIN `account_type`
-    ON `registered_user`.`account_type_id` = `account_type`.`id`)
+(SELECT `u`.`id`,`email`,`password`,`account_type_name` AS `acc_type`,`u`.`is_deleted`
+FROM `registered_user` `u`
+INNER JOIN `account_type` `a`
+    ON `u`.`account_type_id` = `a`.`id`)
 UNION
-(SELECT `employee`.`id`,`email`,`password`,`privilege` AS `acc_type`,`is_deleted`
-FROM `employee`
-INNER JOIN `designation`
-    ON `employee`.`designation_id` = `designation`.`id`
+(SELECT `e`.`id`,`email`,`password`,`privilege` AS `acc_type`, `e`.`is_deleted`
+FROM `employee` `e`
+INNER JOIN `designation` `d`
+    ON `e`.`designation_id` = `d`.`id`
 );
 
 
