@@ -1,27 +1,37 @@
 const express = require('express');
 const router = express.Router();
 
-const {
-    viewAllAccountTypes, 
-    addAccountType,
-    updateAccountType,
-    deleteAccountType
-} = require('../controllers/account-type-controller');
-
 const authenticate = require('../middlewares/authentication')
 const authorize = require('../middlewares/authorization')
 const { AccountTypesEnum } = require('../utils/constants');
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.get('/', authenticate, authorize([AccountTypesEnum.ADMIN]),  viewAllAccountTypes);
+const accountTypeValidator = require('../middlewares/schema-validators/account-type-validator');
+const accountTypeController = require('../controllers/account-type-controller');
 
-router.post('/', authenticate, authorize([AccountTypesEnum.ADMIN]), addAccountType)
+router.get('/',
+    authenticate,
+    authorize([AccountTypesEnum.SALES_REPRESENTATIVE]),
+    accountTypeController.viewAllAccountTypes
+);
 
-router.put('/:id', authenticate, authorize([AccountTypesEnum.ADMIN]), updateAccountType);
+router.post('/',
+    authenticate,
+    authorize([AccountTypesEnum.SALES_REPRESENTATIVE]),
+    accountTypeValidator.addAccountType,
+    accountTypeController.addAccountType
+);
 
-router.delete('/:id', authenticate, authorize([AccountTypesEnum.ADMIN]), deleteAccountType )
+router.put('/:id',
+    authenticate,
+    authorize([AccountTypesEnum.SALES_REPRESENTATIVE]),
+    accountTypeValidator.updateAccountType,
+    accountTypeController.updateAccountType
+);
+
+router.delete('/:id',
+    authenticate,
+    authorize([AccountTypesEnum.SALES_REPRESENTATIVE]),
+    accountTypeController.deleteAccountType
+);
 
 module.exports = router;

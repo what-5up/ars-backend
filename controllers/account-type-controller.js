@@ -23,7 +23,7 @@ const viewAllAccountTypes = async (req, res, next) => {
  * 
  * @param {object} req http request object
  * @param {object} res http response object
- * @return {object} { id }
+ * @return {Response} { id }
  */
 const addAccountType = async (req, res, next) => {
     model.addAccountType(req.body)
@@ -34,11 +34,11 @@ const addAccountType = async (req, res, next) => {
   }
   
   /**
-   * Update a scheduled flight
+   * Update a employee
    * 
    * @param {object} req http request object
    * @param {object} res http response object
-   * @return {object} promise of a record object
+   * @return {Response} promise of a record object
    * @throws Error
    */
   const updateAccountType = async (req, res, next) => {
@@ -65,7 +65,7 @@ const deleteAccountType = async (req, res, next) => {
       .deleteAccontType(req.params.id)
       .then((result) => {
         if (result == true) return successMessage(res, null, "Account type deleted successfully")
-        else return errorMessage(res, "Unable to delete the scheduled flight", 500);
+        else return errorMessage(res, "Unable to delete the accont type", 500);
       })
       .catch((error) => next(error));
   }
