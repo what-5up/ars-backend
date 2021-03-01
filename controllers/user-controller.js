@@ -188,35 +188,38 @@ const addBooking = async (req, res) => {
 
         var results = await baseModel.writeLock('passenger', DBconnection);
 
-        var results = await baseModel.startTransaction(results.connection);
+        results = await baseModel.startTransaction(results.connection);
 
-        var results = await bookingModel.addBooking(bookingDetails, results.connection);
+        results = await bookingModel.addBooking(bookingDetails, results.connection);
 
-        var results = await passengerModel.addPassengers(passengers, req.params.userid, results.connection);
+        if (passengers.length > 0) {
+            results = await passengerModel.addPassengers(passengers, req.params.userid, results.connection);
 
-        var results = await passengerModel.getLastPassengerIDs(req.params.userid, newPassengerCount, results.connection);
 
-        results.results.reverse();
-        results.results.forEach(passenger => {
-            let passengerUpdated = false;
-            reservedSeats.forEach(reservedSeat => {
-                if (reservedSeat.passenger.id == null && passengerUpdated == false) {
-                    reservedSeat.passenger.id = passenger.id;
-                    passengerUpdated = true;
-                }
+            results = await passengerModel.getLastPassengerIDs(req.params.userid, newPassengerCount, results.connection);
+
+            results.results.reverse();
+            results.results.forEach(passenger => {
+                let passengerUpdated = false;
+                reservedSeats.forEach(reservedSeat => {
+                    if (reservedSeat.passenger.id == null && passengerUpdated == false) {
+                        reservedSeat.passenger.id = passenger.id;
+                        passengerUpdated = true;
+                    }
+                });
             });
-        });
-        var results = await bookingModel.getLastBooking(req.params.userid, results.connection);
+        }
+        results = await bookingModel.getLastBooking(req.params.userid, results.connection);
 
         bookingID = results.results[0].id;
         scheduledFlightID = results.results[0].scheduled_flight_id;
-        var results = await reservedSeatModel.addReservedSeats(reservedSeats, bookingID, scheduledFlightID, results.connection);
+        results = await reservedSeatModel.addReservedSeats(reservedSeats, bookingID, scheduledFlightID, results.connection);
 
-        var results = await baseModel.endTransaction(results.connection);
+        results = await baseModel.endTransaction(results.connection);
 
-        var results = await baseModel.unlockTables(results.connection);
+        results = await baseModel.unlockTables(results.connection);
 
-        var results = await baseModel.releaseConnection(results.connection);
+        results = await baseModel.releaseConnection(results.connection);
     }
     catch (err) {
         logger.info(err);
