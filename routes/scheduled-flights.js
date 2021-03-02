@@ -8,6 +8,7 @@ const { AccountTypesEnum } = require('../utils/constants');
 const {
     viewScheduledFlights, 
     viewScheduledFlight, 
+    viewDetailedScheduledFlights,
     deleteScheduledFlight, 
     addScheduledFlight, 
     updateScheduledFlight, 
@@ -20,6 +21,8 @@ const {
  * @todo include middleware
  */
 router.get('/', viewScheduledFlights);
+
+router.get('/detailed', authenticate, authorize([AccountTypesEnum.CREW_SCHEDULE_COORDINATOR]), viewDetailedScheduledFlights);
 
 /**
  * @todo assign controller method

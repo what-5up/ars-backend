@@ -466,7 +466,7 @@ FROM route `r`
 -- detailed view of scheduled flights
 --
 CREATE VIEW `scheduled_flights_list` AS 
-SELECT `sf`.`id`, `r`.`id` AS `route_id`, `sf`.`departure`, `sf`.`arrival`, `r`.`origin_code`, `r`.`origin`, `r`.`destination_code`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model`, `sf`.`is_deleted`, get_available_seats(`sf`.`id`) AS `available_seats`
+SELECT `sf`.`id`, `r`.`id` AS `route_id`, IFNULL(`sf`.`delayed_departure`,`sf`.`departure`) as `departure`, `sf`.`arrival`, `r`.`origin_code`, `r`.`origin`, `r`.`destination_code`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model`, `sf`.`is_deleted`, get_available_seats(`sf`.`id`) AS `available_seats`
 FROM `scheduled_flight` `sf` 
   INNER JOIN `route_with_airports` `r` 
     ON `sf`.`route` = `r`.`id` 

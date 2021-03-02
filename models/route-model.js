@@ -58,7 +58,7 @@ async function getRoutes(origin_code = undefined, destination_code = undefined, 
 
 const getRoutesOfUnallocatedPrice = () => {
     return new Promise((resolve, reject) => {
-        const result = pool.query("SELECT `id` FROM `route` WHERE id NOT IN (SELECT DISTINCT route_id FROM price)", [],
+        const result = pool.query("SELECT`id FROM route WHERE id NOT IN (SELECT DISTINCT route_id FROM price)", [],
             function (error, results) {
                 if (error) {
                     reject(error);
@@ -68,7 +68,6 @@ const getRoutesOfUnallocatedPrice = () => {
         )
     });
 }
-
 
 module.exports = {
     getRoute, 
