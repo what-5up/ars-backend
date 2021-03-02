@@ -6,6 +6,11 @@ const priceModel = require('../models/price-model');
 
 const viewRoutes = async (req, res, next) => {
     try {
+        if (req.query.unallocatedPrice === 'true') {
+            const routes = await routeModel.getRoutesOfUnallocatedPrice();
+            return successMessage(res, routes.map((object) => object['id']));
+        }
+
         const routes = await routeModel.getRoutes(req.query.origin, req.query.destination);
         if (routes.length === 0) {
             return errorMessage(res, "Specified Routes not found", 404)

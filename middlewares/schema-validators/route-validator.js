@@ -3,8 +3,9 @@ const validate = require("./validate")
 
 module.exports.viewRoutes = (req, res, next) => {
     const schema = Joi.object({
-        origin: Joi.string().required().trim().max(4).label('Origin'),
-        destination: Joi.string().required().trim().max(4).label('Destination'),
+        origin: Joi.string().trim().max(4).label('Origin'),
+        destination: Joi.string().trim().max(4).label('Destination'),
+        unallocatedPrice: Joi.boolean().valid(true).label('Unallocated Price')
     });
 
     validate(schema, req, res, next, true);
