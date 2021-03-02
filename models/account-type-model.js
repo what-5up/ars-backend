@@ -5,7 +5,7 @@ const { pool } = require(`../database/connection`);
  */
 async function getAllAccountTypes() {
   return new Promise((resolve, reject) => {
-    const result = pool.query("SELECT * FROM account_type",
+    const result = pool.query("SELECT * FROM account_type WHERE is_deleted = 0",
       function (error, results) {
         if (error) {
           console.log(result.sql);

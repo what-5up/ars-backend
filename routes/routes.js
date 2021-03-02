@@ -58,7 +58,7 @@ router.put('/:id/prices/:classid',
     authenticate,
     authorize([AccountTypesEnum.SALES_REPRESENTATIVE]),
     paramAllIntegerValidator,
-    routeValidator.addRoutePrice,
+    routeValidator.updateRoutePrice,
     routeController.updateRoutePrice
 );
 

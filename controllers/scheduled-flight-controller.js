@@ -4,7 +4,7 @@ const aircraftModelModel = require("../models/aircraft-model-model");
 const priceModel = require('../models/price-model');
 const userModel = require('../models/user-model');
 const { successMessage, errorMessage } = require("../utils/message-template");
-
+const { AccountTypesEnum } = require('../utils/constants')
 /**
  * View all scheduled flights
  * 
@@ -15,19 +15,28 @@ const { successMessage, errorMessage } = require("../utils/message-template");
  */
 const viewScheduledFlights = async (req, res, next) => {
   try {
-    let flights = await model.getScheduledFlights(undefined,
+    const flights = await model.getScheduledFlights(undefined,
       req.query.origin,
       req.query.destination,
       req.query.aircraftID,
       req.query.aircraftModel,
       req.query.passengers,
       req.query.isDeleted)
-    let prices = await priceModel.fetchRoutePricesOfScheduledFlights(flights.map(({route_id}) => route_id));
-    let result = flights.map(({ route_id, ...restFlights }) => {
+    const prices = await priceModel.fetchRoutePricesOfScheduledFlights(flights.map(({ route_id }) => route_id));
+    const result = flights.map(({ route_id, ...restFlights }) => {
       restFlights.prices = prices.filter((price) => price.route_id === route_id).map(({ route_id, ...restPrices }) => restPrices)
       return restFlights;
     })
     return successMessage(res, result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+const viewDetailedScheduledFlights = async (req, res, next) => {
+  try {
+    const flights = await model.getScheduledFlightsForCRC(req.query.isDeleted);
+    return successMessage(res, flights);
   } catch (err) {
     next(err);
   }
@@ -173,6 +182,7 @@ const getPricing = async (req, res, next) => {
 
 module.exports = {
   viewScheduledFlights,
+  viewDetailedScheduledFlights,
   viewScheduledFlight,
   deleteScheduledFlight,
   addScheduledFlight,

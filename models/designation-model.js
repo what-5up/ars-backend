@@ -5,7 +5,7 @@ const { pool } = require(`../database/connection`);
  */
 async function getAllDesignations() {
   return new Promise((resolve, reject) => {
-    const result = pool.query("SELECT * FROM designation",
+    const result = pool.query("SELECT * FROM designation WHERE is_deleted = 0",
       function (error, results) {
         if (error) {
           reject(error);
