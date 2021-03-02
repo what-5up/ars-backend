@@ -482,7 +482,7 @@ ORDER BY `sf`.`id`;
 -- departure date of the booking with the type of the passenger who booked it
 --
 CREATE VIEW `bookings_by_passenger_type` AS
-SELECT DATE(`sf`.`departure`) AS `departure_date` , `ac`.`account_type_name` AS `account_type`
+SELECT DATE(IFNULL(`sf`.`delayed_departure`,`sf`.`departure`)) AS `departure_date` , `ac`.`account_type_name` AS `account_type`
 FROM `booking` `b` 
   INNER JOIN `user` `u` 
     ON `b`.`user_id` = `u`.`id` 
@@ -549,15 +549,12 @@ SELECT `sf`.`id`
 	,`sf`.`route`
 	,`sf`.`departure`
   ,`sf`.`delayed_departure`
-	,`tc`.`class`
-	,count(`tc`.`id`) AS `passengers`
+	,count(`rs`.`passenger_id`) AS `passengers`
 FROM `scheduled_flight` `sf`
 INNER JOIN `reserved_seat` `rs` on`sf`.`id` = `rs`.`scheduled_flight_id`
 INNER JOIN `seat_map` `se` ON `rs`.`seat_id` = `se`.`id`
-INNER JOIN `traveler_class` `tc` ON `tc`.`id` = `se`.`traveler_class`
 WHERE `sf`.`departure` < CURDATE()
-GROUP BY `sf`.`id`
-	,`tc`.`id`;
+GROUP BY `sf`.`id`;
 
 --                                                     
 -- View structure for 'user_auth'
