@@ -129,11 +129,16 @@ const addBooking = async (req, res) => {
         ]
     );
 
-    const seatPrices = await seatMapModel.getSeatMap(bookingDetails.scheduled_flight_id)
-        .catch(err => next(err));
+    let seatPrices;
+    let userDiscount;
+    try {
+        seatPrices = await seatMapModel.getSeatMap(bookingDetails.scheduled_flight_id);
 
-    const userDiscount = await userModel.getUserDiscount(req.params.userid)
-        .catch(err => next(err));
+        userDiscount = await userModel.getUserDiscount(req.params.userid);
+
+    } catch (err) {
+        return errorMessage(res, err.message, 400);
+    }
 
     let reservedSeats = req.body.reservedSeats; //an array of objects with passenger_id and seat_id should be included in this
 

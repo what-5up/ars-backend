@@ -55,13 +55,6 @@ router.get('/:userid/bookings', authenticate, authorize([AccountTypesEnum.REGIST
  */
 router.post('/:userid/bookings', authenticate, authorize([AccountTypesEnum.REGISTERED_USER]), authorizeCreater, addBooking);
 
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.get('/:userid/bookings/:bookingid', );
-
 /**
 * @todo assign controller method
  * @todo include middleware
