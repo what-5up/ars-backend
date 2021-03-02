@@ -11,23 +11,9 @@ const logger = require('../utils/logger');
  */
 async function getBookings(user_id = undefined) {
     return new Promise((resolve, reject) => {
-        //building the where clause
-        let whereClause = '';
-        let variableNames = [];
-        let variableValues = [];
-        if (user_id !== undefined) {
-            whereClause = ' WHERE '
-            if (user_id !== undefined) {
-                variableNames.push('user_id = ?');
-                variableValues.push(user_id);
-            }
-            (variableNames.length == 1) ? whereClause += variableNames[0] :
-                whereClause += variableNames.join(' AND ');
-        }
-
         //fetching data from the database
-        const result = pool.query('SELECT * FROM booking' + whereClause,
-            variableValues,
+        const result = pool.query('CALL get_user_bookings(?);',
+            [user_id],
             function (error, results) {
                 if (error) {
                     reject(new Error(error.message));
@@ -117,23 +103,23 @@ async function updateBooking(conditions, values, connection = pool) {
         let valueNames = [];
         let queryValues = [];
         for (const [key, value] of Object.entries(values)) {
-            valueNames.push(key+" = ?");
+            valueNames.push(key + " = ?");
             queryValues.push(value);
         }
-        query+=valueNames.join(" , ");
+        query += valueNames.join(" , ");
 
         //building WHERE clause
-        query+=" WHERE "
+        query += " WHERE "
         let conditionNames = [];
         for (const [key, value] of Object.entries(conditions)) {
-            conditionNames.push(key+" = ?");
+            conditionNames.push(key + " = ?");
             queryValues.push(value);
         }
-        query+=conditionNames.join(" AND ");
+        query += conditionNames.join(" AND ");
 
         //finish building query
-        query+=";";
-        
+        query += ";";
+
         logger.info(query);
         logger.info(queryValues);
         const result = connection.query(query, //'UPDATE booking SET state = ? WHERE id = ? and user_id = ?;'
