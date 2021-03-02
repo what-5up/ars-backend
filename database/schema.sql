@@ -617,3 +617,33 @@ BEGIN
 END $$
 
 DELIMITER ;
+
+--
+-- Generate booking details of a user along with scheduled flight details and airport details
+-- NOTE: run "SET GLOBAL log_bin_trust_function_creators = 1;" to remove deterministic check
+--
+DELIMITER $$
+
+CREATE PROCEDURE 
+  get_user_bookings( user_id_ INT )
+BEGIN  
+  SELECT `b`.`id`,`b`.`user_id`,`b`.`scheduled_flight_id`,`b`.`date_of_booking`,`b`.`final_amount`,`b`.`state`,
+  `sf`.`departure`,`sf`.`arrival`,
+  `rwa`.`origin_code`,`rwa`.`origin`,`rwa`.`destination_code`,`rwa`.`destination`
+  FROM 
+    (SELECT * 
+    FROM `booking` 
+    WHERE `user_id` = user_id_
+    ) AS `b`
+    LEFT JOIN `scheduled_flight` AS `sf`
+      ON `b`.`scheduled_flight_id` = `sf`.`id`
+    LEFT JOIN `route_with_airports` AS `rwa`
+      ON `sf`.`route` = `rwa`.`id`;
+END $$
+
+DELIMITER ;
+
+
+
+
+

@@ -101,14 +101,14 @@ const updateUser = async (req, res, next) => {
  * @todo move function to an appropriate file
  */
 const viewBookings = async (req, res) => {
-    const records = await bookingModel.getBookings(req.params.userid)
-        .then(result => {
-            return result.map((row, index) => {
-                return { id: index, object: row };
-            })
-        })
-        .catch(err => { return errorMessage(res, err.message); });
-    return successMessage(res, records); //res.status(200).send(records);
+    let records;
+    try {
+        records = await bookingModel.getBookings(req.params.userid);
+    } catch (err) {
+        return errorMessage(res, err.message);
+    }
+
+    return successMessage(res, records[0]); //res.status(200).send(records);
 }
 
 
