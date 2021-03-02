@@ -47,25 +47,25 @@ router.delete('/:userid', authenticate, authorize([AccountTypesEnum.REGISTERED_U
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/:userid/bookings', authenticate, authorize(USERS), authorizeCreater, viewBookings);
+router.get('/:userid/bookings', authenticate, authorize([AccountTypesEnum.REGISTERED_USER]), authorizeCreater, viewBookings);
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.post('/:userid/bookings', authenticate, authorize(USERS), authorizeCreater, addBooking);
+router.post('/:userid/bookings', authenticate, authorize([AccountTypesEnum.REGISTERED_USER,AccountTypesEnum.GUEST]), authorizeCreater, addBooking);
 
 /**
 * @todo assign controller method
  * @todo include middleware
  */
-router.put('/:userid/bookings/:bookingid', authenticate, authorize(USERS), authorizeCreater,  updateBooking);
+router.put('/:userid/bookings/:bookingid', authenticate, authorize([AccountTypesEnum.REGISTERED_USER]), authorizeCreater,  updateBooking);
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.delete('/:userid/bookings/:bookingid', authenticate, authorize(USERS), authorizeCreater,  deleteBooking);
+router.delete('/:userid/bookings/:bookingid', authenticate, authorize([AccountTypesEnum.REGISTERED_USER]), authorizeCreater,  deleteBooking);
 
 router.get('/:userid/passengers', authenticate, authorize([AccountTypesEnum.REGISTERED_USER]), authorizeCreater, getPassengers);
 
