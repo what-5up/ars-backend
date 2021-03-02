@@ -133,11 +133,17 @@ const viewSeatMap = async (req, res, next) => {
  * @throws Error
  */
 const getPricing = async (req, res, next) => {
-  const seatPrices = await seatMapModel.getSeatMap(req.params.id)
-    .catch(err => next(err));
 
-  const userDiscount = await userModel.getUserDiscount(req.body.user_id)
-    .catch(err => next(err));
+  let seatPrices;
+  let userDiscount;
+  try {
+    seatPrices = await seatMapModel.getSeatMap(req.params.id);
+
+    userDiscount = await userModel.getUserDiscount(req.body.user_id);
+
+  } catch (err) {
+    return errorMessage(res, err.message, 400);
+  }
 
   const reservedSeats = req.body.reserved_seats;
 
@@ -149,14 +155,14 @@ const getPricing = async (req, res, next) => {
     let seatID = item.seat_id;
     var i;
     for (i = 0; i < seatPrices[0].length; i++) {
-      if(seatPrices[0][i].id == seatID){
-        totalPrice+=seatPrices[0][i].amount;
+      if (seatPrices[0][i].id == seatID) {
+        totalPrice += seatPrices[0][i].amount;
         break;
       }
     }
   }
 
-  let priceAfterDiscount = totalPrice*(100-userDiscount.discount)/100;
+  let priceAfterDiscount = totalPrice * (100 - userDiscount.discount) / 100;
 
   result = {
     total_price: totalPrice,
