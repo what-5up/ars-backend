@@ -245,6 +245,25 @@ const addBooking = async (req, res) => {
 }
 
 /**
+ * View passenger and seat details of a booking
+ * 
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * @return {object} promise of a record object
+ * 
+ */
+const viewBookingDetails = async (req, res) => {
+    let records;
+    try {
+        records = await bookingModel.getBookingDetails(req.params.bookingid);
+    } catch (err) {
+        return errorMessage(res, err.message);
+    }
+
+    return successMessage(res, records[0]); //res.status(200).send(records);
+}
+
+/**
  * update booking
  * 
  * @param {object} req http request object
@@ -355,6 +374,7 @@ const getPassengers = async (req, res, next) => {
 module.exports = {
     viewBookings,
     addBooking,
+    viewBookingDetails,
     updateBooking,
     deleteBooking,
     deleteUser,
