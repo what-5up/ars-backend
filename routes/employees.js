@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-const authenticate = require('../middlewares/authentication')
-const authorize = require('../middlewares/authorization')
+const authenticate = require('../middlewares/authentication');
+const authorize = require('../middlewares/authorization');
+const authorizeCreater = require('../middlewares/creater-authorization');
 const { AccountTypesEnum } = require('../utils/constants');
 
 const employeeValidator = require('../middlewares/schema-validators/employee-validator');
@@ -20,6 +21,14 @@ router.post('/',
     employeeValidator.addEmployee,
     employeeController.addEmployee
 );
+
+router.get('/:id',
+    authenticate,
+    authorize([AccountTypesEnum.SALES_REPRESENTATIVE, AccountTypesEnum.CREW_SCHEDULE_COORDINATOR, AccountTypesEnum.MANAGEMENT, AccountTypesEnum.ADMIN]),
+    authorizeCreater('id'),
+    employeeController.viewEmployee
+);
+
 
 router.put('/:id',
     authenticate,

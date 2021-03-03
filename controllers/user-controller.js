@@ -61,6 +61,14 @@ const signupUser = async (req, res, next) => {
     }
 };
 
+const getUser = async (req, res, next) => {
+    userModel.fetchUser(req.params.userid)
+        .then(result => successMessage(res, result[0]))
+        .catch(err => next(err));
+}
+
+
+
 const updateUser = async (req, res, next) => {
     const userId = req.params.userid;
     const user = await userModel.findUndeletedById(userId);
@@ -351,6 +359,7 @@ module.exports = {
     deleteBooking,
     deleteUser,
     signupUser,
+    getUser,
     updateUser,
     getPassengers
 };

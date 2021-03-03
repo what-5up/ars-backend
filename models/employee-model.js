@@ -17,6 +17,21 @@ async function getAllEmployees() {
     })
 }
 
+async function getEmployee(empId) {
+    return new Promise((resolve, reject) => {
+        const result = pool.query('SELECT title_name, first_name, last_name, email, d.name as designation FROM employee e INNER JOIN title t ON e.title = t.id INNER JOIN designation d ON e.designation_id = d.id WHERE e.id = ?',
+            [empId],
+            function (error, results) {
+                if (error) {
+                    reject(error);
+                }
+                console.log(result.sql)
+                resolve(results);
+            }
+        )
+    })
+}
+
 /**
  * Add an new employee
  *
@@ -141,6 +156,7 @@ async function isEmailRegistered(email) {
 
 module.exports = {
     getAllEmployees,
+    getEmployee,
     addEmployee,
     updateEmployee,
     deleteAccountType,
