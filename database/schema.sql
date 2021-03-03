@@ -789,14 +789,14 @@ DELIMITER ;
 DELIMITER $$
 
 CREATE TRIGGER `TR_CheckBookingState`
-  BEFORE UPDATE ON `bookings`
+  BEFORE UPDATE ON `booking`
   FOR EACH ROW
   BEGIN
     IF (
-      (NEW.`state` = `booked` AND OLD.`state` = `completed`)
-      OR (NEW.`state` = `booked` AND OLD.`state` = `cancelled`)
-      OR (NEW.`state` = `completed` AND OLD.`state` = `cancelled`)
-      OR (NEW.`state` = `cancelled` AND OLD.`state` = `completed`)
+      (NEW.`state` = 'booked' AND OLD.`state` = 'completed')
+      OR (NEW.`state` = 'booked' AND OLD.`state` = 'cancelled')
+      OR (NEW.`state` = 'completed' AND OLD.`state` = 'cancelled')
+      OR (NEW.`state` = 'cancelled' AND OLD.`state` = 'completed')
     )
     THEN
       SIGNAL SQLSTATE '02000'  
