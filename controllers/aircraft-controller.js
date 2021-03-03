@@ -10,7 +10,7 @@ const { successMessage, errorMessage } = require("../utils/message-template");
  * @throws Error
  */
 const viewAllAircrafts = async (req, res, next) => {
-    const records = await model.getAllAircrafts()
+    const records = await model.getAllAircrafts(req.accType)
         // .then(result => {
         //     return result.map((row, index) => {
         //         return { id: index, object: row };
@@ -33,7 +33,7 @@ const viewDetailsForAircraft = async (req, res, next) => {
         return errorMessage(res, "No aircraft id is given")
     }
     const id = req.params.id;
-    const records = await model.getDetailsForAircraft(id)
+    const records = await model.getDetailsForAircraft(req.accType,id)
         .then(result => {
             return result.reduce((aircraftDetails, row) => {
                 aircraftDetails.id = row.id;
@@ -60,7 +60,7 @@ const viewDetailsForAircraft = async (req, res, next) => {
  */
 const viewAircraftModelList = async (req, res, next) => {
     try {
-        const aircraftModelList = await model.getAircraftModelList();
+        const aircraftModelList = await model.getAircraftModelList(req.accType);
         successMessage(res, aircraftModelList.map((row)=>row.model_name));
     }
     catch (err) {

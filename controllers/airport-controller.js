@@ -6,7 +6,7 @@ const airportModel = require("../models/airport-model");
 
 const getAllAirports = async (req, res, next) => {
     try {
-        const resilt = await airportModel.getAllAirports();
+        const resilt = await airportModel.getAllAirports(req.accType);
         return successMessage(res, {data:resilt}, "", 200)
     }
     catch (err) {
@@ -16,7 +16,7 @@ const getAllAirports = async (req, res, next) => {
 
 const addAirport = async (req, res, next) => {
     try {
-        const result = await airportModel.createAirport(req.body);
+        const result = await airportModel.createAirport(req.accType,req.body);
         return successMessage(res, {data:result}, "", 200)
     }
     catch (err) {
@@ -26,7 +26,7 @@ const addAirport = async (req, res, next) => {
 
 const updateAirport = async (req, res, next) => {
     try {
-        const result = await airportModel.updateAirport(req.params.id,req.body);
+        const result = await airportModel.updateAirport(req.accType,req.params.id,req.body);
         return successMessage(res, {data:result}, "Successfully updated", 200)
     }
     catch (err) {
@@ -36,7 +36,7 @@ const updateAirport = async (req, res, next) => {
 
 const deleteAirport = async (req, res, next) => {
     try {
-        const result = await airportModel.deleteAirport(req.params.id);
+        const result = await airportModel.deleteAirport(req.accType,req.params.id);
         return successMessage(res, {data:result}, "Successfully deleted", 200)
     }
     catch (err) {

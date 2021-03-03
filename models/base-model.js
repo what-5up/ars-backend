@@ -83,7 +83,10 @@ async function rollbackTransaction(connection) {
     })
 }
 
-async function writeLock(table, connection = pool) {
+async function writeLock(accType,table, connection = null) {
+    if (connection===null){
+        connection=pool(accType)
+    }
     return new Promise((resolve, reject) => {
         const result = connection.query("LOCK TABLES ?? WRITE", [table],
             function (error, results) {
@@ -102,7 +105,10 @@ async function writeLock(table, connection = pool) {
     })
 }
 
-async function unlockTables(connection = pool) {
+async function unlockTables(accType,connection = null) {
+    if (connection===null){
+        connection=pool(accType)
+    }
     return new Promise((resolve, reject) => {
         const result = connection.query("UNLOCK TABLES",
             function (error, results) {
