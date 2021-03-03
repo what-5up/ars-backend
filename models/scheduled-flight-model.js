@@ -98,6 +98,7 @@ const deleteScheduledFlight = async (id) => {
       "UPDATE scheduled_flight SET is_deleted = 1 WHERE id = ?",
       [parseInt(id)],
       (error, result) => {
+        console.log(error.sql)
         if (error) reject(error);
         else {
           console.log(result);
