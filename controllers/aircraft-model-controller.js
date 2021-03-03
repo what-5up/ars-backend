@@ -24,7 +24,7 @@ const createAircraftModel = async (req, res) => {
     }
     try {
         const queryResult = await model.createAircraftModel(value.modelName,value.seatingCapacity,value.maxRows,value.maxColumns);
-        return successMessage(res, queryResult.insertId, 'Aircraft Model Created Successfully');
+        return successMessage(res, queryResult.insertId, 'Aircraft Model Created Successfully',201);
     }
     catch (err) {
         next(err);
