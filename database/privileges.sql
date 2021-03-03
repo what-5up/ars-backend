@@ -67,5 +67,7 @@ GRANT EXECUTE ON PROCEDURE get_user_bookings TO 'bairways_user'@'localhost';
 GRANT EXECUTE ON PROCEDURE get_passenger_and_seat_details TO 'bairways_user'@'localhost';
 GRANT EXECUTE ON PROCEDURE generate_seat_map TO 'bairways_user'@'localhost';
 GRANT EXECUTE ON FUNCTION get_available_seats TO 'bairways_user'@'localhost';
+GRANT LOCK TABLES ON *.* TO 'bairways_user'@'localhost';
+
 
 FLUSH PRIVILEGES;
