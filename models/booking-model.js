@@ -11,23 +11,32 @@ const logger = require('../utils/logger');
  */
 async function getBookings(user_id = undefined) {
     return new Promise((resolve, reject) => {
-        //building the where clause
-        let whereClause = '';
-        let variableNames = [];
-        let variableValues = [];
-        if (user_id !== undefined) {
-            whereClause = ' WHERE '
-            if (user_id !== undefined) {
-                variableNames.push('user_id = ?');
-                variableValues.push(user_id);
-            }
-            (variableNames.length == 1) ? whereClause += variableNames[0] :
-                whereClause += variableNames.join(' AND ');
-        }
-
         //fetching data from the database
-        const result = pool.query('SELECT * FROM booking' + whereClause,
-            variableValues,
+        const result = pool.query('CALL get_user_bookings(?);',
+            [user_id],
+            function (error, results) {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+
+            }
+        );
+    })
+}
+
+/**
+ * Fetches all passenger and seat details of a booking
+ * 
+ * @param {string} booking_id default undefined
+ * @returns {object} Promise of a query output
+ * @throws Error
+ */
+async function getBookingDetails(booking_id = undefined) {
+    return new Promise((resolve, reject) => {
+        //fetching data from the database
+        const result = pool.query('CALL get_passenger_and_seat_details(?);',
+            [booking_id],
             function (error, results) {
                 if (error) {
                     reject(new Error(error.message));
@@ -76,11 +85,12 @@ async function addBooking(bookingDetails, connection = pool) {
     return new Promise((resolve, reject) => {
 
         //insert data to the database
-        const result = connection.query("INSERT INTO booking (user_id, scheduled_flight_id, date_of_booking, final_amount) VALUES (?, ?, CURRENT_TIMESTAMP, ?);",
+        const result = connection.query("INSERT INTO booking (user_id, scheduled_flight_id, date_of_booking, final_amount, state) VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?);",
             [
                 bookingDetails.user_id,
                 bookingDetails.scheduled_flight_id,
-                bookingDetails.final_amount
+                bookingDetails.final_amount,
+                bookingDetails.state
             ],
             function (error, results) {
                 if (error) {
@@ -116,23 +126,23 @@ async function updateBooking(conditions, values, connection = pool) {
         let valueNames = [];
         let queryValues = [];
         for (const [key, value] of Object.entries(values)) {
-            valueNames.push(key+" = ?");
+            valueNames.push(key + " = ?");
             queryValues.push(value);
         }
-        query+=valueNames.join(" , ");
+        query += valueNames.join(" , ");
 
         //building WHERE clause
-        query+=" WHERE "
+        query += " WHERE "
         let conditionNames = [];
         for (const [key, value] of Object.entries(conditions)) {
-            conditionNames.push(key+" = ?");
+            conditionNames.push(key + " = ?");
             queryValues.push(value);
         }
-        query+=conditionNames.join(" , ");
+        query += conditionNames.join(" AND ");
 
         //finish building query
-        query+=";";
-        
+        query += ";";
+
         logger.info(query);
         logger.info(queryValues);
         const result = connection.query(query, //'UPDATE booking SET state = ? WHERE id = ? and user_id = ?;'
@@ -180,6 +190,7 @@ async function deleteBooking(user_id, booking_id, connection = pool) {
 
 module.exports = {
     getBookings,
+    getBookingDetails,
     addBooking,
     getLastBooking,
     updateBooking,

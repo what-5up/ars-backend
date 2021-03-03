@@ -2,8 +2,9 @@ const model = require("../models/scheduled-flight-model");
 const seatMapModel = require("../models/seat-map-model");
 const aircraftModelModel = require("../models/aircraft-model-model");
 const priceModel = require('../models/price-model');
+const userModel = require('../models/user-model');
 const { successMessage, errorMessage } = require("../utils/message-template");
-
+const { AccountTypesEnum } = require('../utils/constants')
 /**
  * View all scheduled flights
  * 
@@ -14,19 +15,28 @@ const { successMessage, errorMessage } = require("../utils/message-template");
  */
 const viewScheduledFlights = async (req, res, next) => {
   try {
-    let flights = await model.getScheduledFlights(undefined,
+    const flights = await model.getScheduledFlights(undefined,
       req.query.origin,
       req.query.destination,
       req.query.aircraftID,
       req.query.aircraftModel,
       req.query.passengers,
       req.query.isDeleted)
-    let prices = await priceModel.fetchTicketPricesOfScheduledFlights();
-    let result = flights.map(({ route_id, ...restFlights }) => {
+    const prices = await priceModel.fetchRoutePricesOfScheduledFlights(flights.map(({ route_id }) => route_id));
+    const result = flights.map(({ route_id, ...restFlights }) => {
       restFlights.prices = prices.filter((price) => price.route_id === route_id).map(({ route_id, ...restPrices }) => restPrices)
       return restFlights;
     })
     return successMessage(res, result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+const viewDetailedScheduledFlights = async (req, res, next) => {
+  try {
+    const flights = await model.getScheduledFlightsForCRC(req.query.isDeleted);
+    return successMessage(res, flights);
   } catch (err) {
     next(err);
   }
@@ -88,7 +98,7 @@ const addScheduledFlight = async (req, res, next) => {
  * @return {object} promise of a record object
  * @throws Error
  */
-const updateScheduledFlight = async (req, res) => {
+const updateScheduledFlight = async (req, res, next) => {
   model.updateScheduledFlight(req.params.id, req.body)
     .then((result) => {
       return successMessage(res, null, "Updated successfully");
@@ -123,11 +133,60 @@ const viewSeatMap = async (req, res, next) => {
   return successMessage(res, result);
 }
 
+/**
+ * get price and price after discount
+ * 
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * @return {Response} {id, object} if success
+ * @throws Error
+ */
+const getPricing = async (req, res, next) => {
+
+  let seatPrices;
+  let userDiscount;
+  try {
+    seatPrices = await seatMapModel.getSeatMap(req.params.id);
+
+    userDiscount = await userModel.getUserDiscount(req.body.user_id);
+
+  } catch (err) {
+    return errorMessage(res, err.message, 400);
+  }
+
+  const reservedSeats = req.body.reserved_seats;
+
+  let totalPrice = 0;
+
+  reservedSeats.forEach(addToTotalPrice);
+
+  function addToTotalPrice(item, index) {
+    let seatID = item.seat_id;
+    var i;
+    for (i = 0; i < seatPrices[0].length; i++) {
+      if (seatPrices[0][i].id == seatID) {
+        totalPrice += seatPrices[0][i].amount;
+        break;
+      }
+    }
+  }
+
+  let priceAfterDiscount = totalPrice * (100 - userDiscount.discount) / 100;
+
+  result = {
+    total_price: totalPrice,
+    price_after_discount: priceAfterDiscount
+  };
+  return successMessage(res, result);
+}
+
 module.exports = {
   viewScheduledFlights,
+  viewDetailedScheduledFlights,
   viewScheduledFlight,
   deleteScheduledFlight,
   addScheduledFlight,
   updateScheduledFlight,
-  viewSeatMap
+  viewSeatMap,
+  getPricing
 };

@@ -51,8 +51,30 @@ async function getScheduledFlights(flightID = undefined, origin = undefined, des
     }
 
     //fetching data from the database
-    const result = pool.query('SELECT * FROM scheduled_flights_list' + whereClause,
+    pool.query('SELECT * FROM scheduled_flights_list' + whereClause,
       variableValues,
+      function (error, results) {
+        if (error) {
+          reject(new Error(error.message));
+        }
+        resolve(results);
+      }
+    );
+  })
+}
+
+/**
+ * get schedueld flights for CRC
+ * 
+ * @param {number} isDeleted - to get deleted records
+ * 
+ * @returns {Promise<object>} query output
+ */
+const getScheduledFlightsForCRC = async (isDeleted = undefined) => {
+  isDeleted = isDeleted ? isDeleted : 0;
+  return new Promise((resolve, reject) => {
+    pool.query('SELECT id, route, departure, arrival, assigned_aircraft_id AS assignedAircraftId, delayed_departure AS delayedDeparture FROM `scheduled_flight` WHERE is_deleted = ?',
+      [isDeleted],
       function (error, results) {
         if (error) {
           reject(new Error(error.message));
@@ -175,6 +197,7 @@ const updateScheduledFlight = async (
 
 module.exports = {
   getScheduledFlights,
+  getScheduledFlightsForCRC,
   deleteScheduledFlight,
   addScheduledFlight,
   updateScheduledFlight,

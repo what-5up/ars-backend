@@ -20,7 +20,7 @@ async function addReservedSeats(reservedSeats, bookingID, scheduledFlightID, con
             values.push(seat.seat_id);
             values.push(bookingID);
             values.push(scheduledFlightID);
-            values.push(seat.passenger_id);
+            values.push(seat.passenger.id);
         });
         query+=subQuery.join(" , ");
 

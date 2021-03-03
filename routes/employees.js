@@ -1,56 +1,46 @@
 const express = require('express');
 const router = express.Router();
 
-const {
+const authenticate = require('../middlewares/authentication');
+const authorize = require('../middlewares/authorization');
+const authorizeCreater = require('../middlewares/creater-authorization');
+const { AccountTypesEnum } = require('../utils/constants');
 
-} = require('../controllers/employee-controller');
+const employeeValidator = require('../middlewares/schema-validators/employee-validator');
+const employeeController = require('../controllers/employee-controller');
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.get('/', );
+router.get('/',
+    authenticate,
+    authorize([AccountTypesEnum.ADMIN]),
+    employeeController.viewAllEmployees
+);
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.post('/', );
+router.post('/',
+    authenticate,
+    authorize([AccountTypesEnum.ADMIN]),
+    employeeValidator.addEmployee,
+    employeeController.addEmployee
+);
 
-/**
-* @todo assign controller method
- * @todo include middleware
- */
-router.put('/', );
+router.get('/:id',
+    authenticate,
+    authorize([AccountTypesEnum.SALES_REPRESENTATIVE, AccountTypesEnum.CREW_SCHEDULE_COORDINATOR, AccountTypesEnum.MANAGEMENT, AccountTypesEnum.ADMIN]),
+    authorizeCreater('id'),
+    employeeController.viewEmployee
+);
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.delete('/', );
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.get('/:id', );
+router.put('/:id',
+    authenticate,
+    authorize([AccountTypesEnum.ADMIN]),
+    employeeValidator.updateEmployee,
+    employeeController.updateEmployee
+);
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.post('/:id', );
-
-/**
-* @todo assign controller method
- * @todo include middleware
- */
-router.put('/:id', );
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.delete('/:id', );
+router.delete('/:id',
+    authenticate,
+    authorize([AccountTypesEnum.ADMIN]),
+    employeeController.deleteEmployee
+);
 
 module.exports = router;

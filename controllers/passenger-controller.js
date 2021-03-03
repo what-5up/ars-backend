@@ -30,8 +30,28 @@ const addPassengers = async (req, res, next) => {
     }
 };
 
+/**
+ * View all passengers of a user or view all passengers if user_id is undefined
+ * 
+ * @param {object} req http request object
+ * @param {object} res http response object
+ * @return {object} promise of a record object
+ * @todo move function to an appropriate file
+ */
+const getPassengers = async (req, res) => {
+    const records = await passengerModel.getPassengers(req.body.user_id)
+        .then(result => {
+            return result.map((row, index) => {
+                return { id: index, object: row };
+            })
+        })
+        .catch(err => { return errorMessage(res, err.message); });
+    return successMessage(res, records); 
+}
+
 
 module.exports = {
-    addPassengers
+    addPassengers,
+    getPassengers
 };
 

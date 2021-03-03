@@ -34,7 +34,7 @@ const getAllAircrafts = async () => {
  */
 const getDetailsForAircraft = async (id) => {
     return new Promise((resolve, reject) => {
-        const result = pool.query('SELECT a.id, am.model_name, am.seating_capacity, sf.route, sf.departure FROM aircraft a INNER JOIN aircraft_model am ON a.model_id = am.id INNER JOIN scheduled_flight sf ON a.id = sf.assigned_aircraft_id where a.id = ? ',
+        const result = pool.query('SELECT a.id, am.model_name, am.seating_capacity, sf.route, sf.departure FROM aircraft a INNER JOIN aircraft_model am ON a.model_id = am.id INNER JOIN scheduled_flight sf ON a.id = sf.assigned_aircraft_id where a.id = ? AND a.is_deleted = 0',
             [id],
             (error, results, fields) => {
                 if (error) {

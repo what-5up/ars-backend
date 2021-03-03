@@ -3,7 +3,7 @@ const app = express();
 const http = require('http');
 const bodyParser = require('body-parser');
 const logger = require('./utils/logger');
-const middleware = require('./middlwares/middlewares');
+const middleware = require('./middlewares/middlewares');
 
 const hostname = 'localhost';
 const port = 5000;
@@ -22,8 +22,6 @@ app.use(middleware.requestLogger);
 require('./startup/routes')(app);
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
-
-
 
 const server = http.createServer(app);
 

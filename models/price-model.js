@@ -6,7 +6,7 @@ const { pool } = require(`../database/connection`);
  * @return {Promise<object>} query output
  * @throws {Error} - database connection error
  */
-async function fetchAllTicketPrices() {
+async function fetchAllRoutePrices() {
     return new Promise((resolve, reject) => {
         pool.query("SELECT tc.class AS traveler_class, r.origin_code, r.origin, r.destination_code, r.destination, p.amount AS price FROM price p INNER JOIN traveler_class tc ON p.traveler_class = tc.id INNER JOIN route_with_airports r ON p.route_id = r.id",
             [],
@@ -26,13 +26,13 @@ async function fetchAllTicketPrices() {
  * @return {Promise<object>} query output
  * @throws {Error} - database connection error
  */
-async function fetchTicketPricesOfScheduledFlights() {
+async function fetchRoutePricesOfScheduledFlights(flightIDs) {
     return new Promise((resolve, reject) => {
-        pool.query("SELECT `tc`.`class`, `p`.`amount`, `p`.`route_id` FROM `price` `p` INNER JOIN `traveler_class` `tc` ON `p`.traveler_class = `tc`.`id` WHERE `route_id` IN (SELECT `id` FROM `scheduled_flight` WHERE `departure` > CURRENT_TIMESTAMP)",
-            [],
+        pool.query("SELECT `tc`.`class`, `p`.`amount`, `p`.`route_id` FROM `price` `p` INNER JOIN `traveler_class` `tc` ON `p`.traveler_class = `tc`.`id` WHERE `route_id` IN ( ? )",
+            [flightIDs.join(', ')],
             (error, results) => {
                 if (error) {
-                    reject(new Error(error.message));
+                    reject(error);
                 }
                 resolve(results);
             }
@@ -47,13 +47,13 @@ async function fetchTicketPricesOfScheduledFlights() {
  * @return {Promise<object>} query output
  * @throws {Error} - database connection error
  */
-async function fetchTicketPrice(route) {
+async function fetchRoutePrice(route) {
     return new Promise((resolve, reject) => {
-        pool.query("SELECT tc.class AS traveler_class, p.amount AS price FROM price p INNER JOIN traveler_class tc ON p.traveler_class = tc.id INNER JOIN route_with_airports r ON p.route_id = r.id WHERE r.id = ?",
+        pool.query("SELECT * FROM price WHERE route_id = ?",
             [route],
             (error, results) => {
                 if (error) {
-                    reject(new Error(error.message));
+                    reject(error);
                 }
                 resolve(results);
             }
@@ -62,50 +62,94 @@ async function fetchTicketPrice(route) {
 }
 
 /**
- * Update Price for given route
- * 
- * @returns {object} Promise of a query output
+ * Add a new route price 
+ *
+ * @param {object} payload containing attributes
+ * @returns {Promise<object>} Promise of a query output
  * @throws Error
  */
-const updatePriceForRoute = async (id, travellerClass, price) => {
+const addRoutePrice = async (
+    payload = {
+        travellerClass: undefined,
+        amount: undefined,
+        routeId: undefined,
+    }
+) => {
+    let fields = [];
+    let placeholders = [];
+    let values = [];
+    Object.keys(payload).forEach((key) => {
+        if (payload[key] != null) {
+            let updatedKey = key.split(/(?=[A-Z])/).join("_");
+            fields.push(`${updatedKey}`);
+            values.push(payload[key]);
+            placeholders.push("?")
+        }
+    });
     return new Promise((resolve, reject) => {
-        const result = pool.query('UPDATE price SET price = ? WHERE route_id = ? AND traveller_class = ?',
-            [price, id, travellerClass],
-            (error, results, fields) => {
-                if (error) {
-                    reject(new Error(error.message));
+        pool.query(
+            `INSERT INTO price (${fields.join()}) VALUES (${placeholders.join()})`,
+            values,
+            (error, result) => {
+                if (error) reject(error);
+                else {
+                    resolve(result);
                 }
-                resolve(results);
+            }
+        );
+    });
+};
+
+/**
+* Update a route price for the given credentials
+*
+* @param {int} id 
+* @param {object} payload parameters to change
+* @returns {Promise<object>} Promise of a query output
+* @throws Error
+*/
+const updateRoutePrice = async (id, travellerClass, amount) => {
+    return new Promise((resolve, reject) => {
+        pool.query('UPDATE price SET amount = ? WHERE route_id = ? AND traveler_class = ?',
+            [amount, id, travellerClass],
+            (error, result) => {
+                if (error) return reject(error)
+                if (result.affectedRows < 1) return reject('Cannot find an route price for the given credentials');
+                resolve(result);
             }
         );
     });
 }
 
 /**
- * Update Discount Price for given account type
- * 
- * @returns {object} Promise of a query output
+ * Delete a route price of the given credentials
+ *
+ * @param {string} id
+ * @returns {Promise<boolean>} Promise of a query output
  * @throws Error
  */
-// TODO: this must be put in a different file
-const updateDiscount = async (id, discount) => {
+const deleteRoutePrice = async (routeId, travellerClass) => {
     return new Promise((resolve, reject) => {
-        const result = pool.query('UPDATE account_type SET discount = ? WHERE id = ?',
-            [discount, id],
-            (error, results, fields) => {
-                if (error) {
-                    reject(new Error(error.message));
+        pool.query(
+            "DELETE FROM price WHERE route_id = ? AND traveler_class = ?",
+            [parseInt(routeId), parseInt(travellerClass)],
+            (error, result) => {
+                if (error) reject(error);
+                else {
+                    if (error) reject(error);
+                    if (result.affectedRows < 1) reject('Cannot find an route price for the given credentials');
+                    resolve(true);
                 }
-                resolve(results);
             }
         );
     });
-}
+};
 
 module.exports = {
-    fetchAllTicketPrices,
-    fetchTicketPrice,
-    fetchTicketPricesOfScheduledFlights,
-    updatePriceForRoute,
-    updateDiscount
+    fetchAllRoutePrices,
+    fetchRoutePricesOfScheduledFlights,
+    fetchRoutePrice,
+    addRoutePrice,
+    updateRoutePrice,
+    deleteRoutePrice
 }

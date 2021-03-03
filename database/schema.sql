@@ -10,7 +10,8 @@ CREATE TABLE `account_type` (
   `id` int NOT NULL AUTO_INCREMENT,
   `account_type_name` varchar(15) NOT NULL UNIQUE,
   `discount` numeric(5,2),
-  `criteria` int unsigned, 
+  `criteria` int unsigned,
+  `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT CHK_AccountDiscount CHECK(`discount` BETWEEN 0 AND 100)
 );
@@ -223,8 +224,7 @@ CREATE TABLE `route` (
   REFERENCES `airport`(`id`) ON UPDATE CASCADE,
   CONSTRAINT FK_RouteDestination FOREIGN KEY (`destination`) 
   REFERENCES `airport`(`id`) ON UPDATE CASCADE,
-  CONSTRAINT UC_OriginDestination UNIQUE(`origin`, `destination`),
-  CONSTRAINT UC_Airport CHECK (`origin` != `destination`)
+  CONSTRAINT UC_OriginDestination UNIQUE(`origin`, `destination`)
 );
 
 --
@@ -466,7 +466,7 @@ FROM route `r`
 -- detailed view of scheduled flights
 --
 CREATE VIEW `scheduled_flights_list` AS 
-SELECT `sf`.`id`, `r`.`id` AS `route_id`, `sf`.`departure`, `sf`.`arrival`, `r`.`origin_code`, `r`.`origin`, `r`.`destination_code`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model`, `sf`.`is_deleted`, get_available_seats(`sf`.`id`) AS `available_seats`
+SELECT `sf`.`id`, `r`.`id` AS `route_id`, IFNULL(`sf`.`delayed_departure`,`sf`.`departure`) as `departure`, `sf`.`arrival`, `r`.`origin_code`, `r`.`origin`, `r`.`destination_code`, `r`.`destination`, `a`.`id` AS `aircraft_id` , `am`.`model_name` AS `aircraft_model`, `sf`.`is_deleted`, get_available_seats(`sf`.`id`) AS `available_seats`
 FROM `scheduled_flight` `sf` 
   INNER JOIN `route_with_airports` `r` 
     ON `sf`.`route` = `r`.`id` 
@@ -482,7 +482,7 @@ ORDER BY `sf`.`id`;
 -- departure date of the booking with the type of the passenger who booked it
 --
 CREATE VIEW `bookings_by_passenger_type` AS
-SELECT DATE(`sf`.`departure`) AS `departure_date` , `ac`.`account_type_name` AS `account_type`
+SELECT DATE(IFNULL(`sf`.`delayed_departure`,`sf`.`departure`)) AS `departure_date` , `ac`.`account_type_name` AS `account_type`
 FROM `booking` `b` 
   INNER JOIN `user` `u` 
     ON `b`.`user_id` = `u`.`id` 
@@ -549,15 +549,12 @@ SELECT `sf`.`id`
 	,`sf`.`route`
 	,`sf`.`departure`
   ,`sf`.`delayed_departure`
-	,`tc`.`class`
-	,count(`tc`.`id`) AS `passengers`
+	,count(`rs`.`passenger_id`) AS `passengers`
 FROM `scheduled_flight` `sf`
 INNER JOIN `reserved_seat` `rs` on`sf`.`id` = `rs`.`scheduled_flight_id`
 INNER JOIN `seat_map` `se` ON `rs`.`seat_id` = `se`.`id`
-INNER JOIN `traveler_class` `tc` ON `tc`.`id` = `se`.`traveler_class`
 WHERE `sf`.`departure` < CURDATE()
-GROUP BY `sf`.`id`
-	,`tc`.`id`;
+GROUP BY `sf`.`id`;
 
 --                                                     
 -- View structure for 'user_auth'
@@ -566,15 +563,15 @@ GROUP BY `sf`.`id`
 
 CREATE VIEW `user_auth`
 AS
-(SELECT `registered_user`.`id`,`email`,`password`,`account_type_name` AS `acc_type`,`is_deleted`
-FROM `registered_user`
-INNER JOIN `account_type`
-    ON `registered_user`.`account_type_id` = `account_type`.`id`)
+(SELECT `u`.`id`,`email`,`password`,`account_type_name` AS `acc_type`,`u`.`is_deleted`
+FROM `registered_user` `u`
+INNER JOIN `account_type` `a`
+    ON `u`.`account_type_id` = `a`.`id`)
 UNION
-(SELECT `employee`.`id`,`email`,`password`,`privilege` AS `acc_type`,`is_deleted`
-FROM `employee`
-INNER JOIN `designation`
-    ON `employee`.`designation_id` = `designation`.`id`
+(SELECT `e`.`id`,`email`,`password`,`privilege` AS `acc_type`, `e`.`is_deleted`
+FROM `employee` `e`
+INNER JOIN `designation` `d`
+    ON `e`.`designation_id` = `d`.`id`
 );
 
 
@@ -585,7 +582,7 @@ INNER JOIN `designation`
 DELIMITER $$
 
 CREATE PROCEDURE 
-  generate_seat_map( flightID INT )
+  generate_seat_map( scheduled_flight_id_ INT )
 BEGIN  
   SELECT sm.`id`, sm.`seat_number`, tc.`class`, rs.`scheduled_flight_id` IS NOT NULL as is_reserved, p.`amount` 
   FROM `seat_map` as sm 
@@ -610,10 +607,68 @@ BEGIN
       LEFT JOIN `aircraft_model` as am 
       ON a.`model_id` = am.`id` 
     WHERE a.`id` IN (
-      SELECT `assigned_airplane_id` 
+      SELECT `assigned_aircraft_id` 
       FROM `scheduled_flight` 
       WHERE `id` = scheduled_flight_id_
   )));
 END $$
 
 DELIMITER ;
+
+--
+-- Generate booking details of a user along with scheduled flight details and airport details
+-- NOTE: run "SET GLOBAL log_bin_trust_function_creators = 1;" to remove deterministic check
+--
+DELIMITER $$
+
+CREATE PROCEDURE 
+  get_user_bookings( user_id_ INT )
+BEGIN  
+  SELECT `b`.`id`,`b`.`user_id`,`b`.`scheduled_flight_id`,`b`.`date_of_booking`,`b`.`final_amount`,`b`.`state`,
+  `sf`.`departure`,`sf`.`arrival`,
+  `rwa`.`origin_code`,`rwa`.`origin`,`rwa`.`destination_code`,`rwa`.`destination`
+  FROM 
+    (SELECT * 
+    FROM `booking` 
+    WHERE `user_id` = user_id_
+    ) AS `b`
+    LEFT JOIN `scheduled_flight` AS `sf`
+      ON `b`.`scheduled_flight_id` = `sf`.`id`
+    LEFT JOIN `route_with_airports` AS `rwa`
+      ON `sf`.`route` = `rwa`.`id`;
+END $$
+
+DELIMITER ;
+
+--
+-- Generate passenger and seat details of a booking
+-- NOTE: run "SET GLOBAL log_bin_trust_function_creators = 1;" to remove deterministic check
+--
+DELIMITER $$
+
+CREATE PROCEDURE 
+  get_passenger_and_seat_details( booking_id_ INT )
+BEGIN  
+  SELECT `rs`.`seat_id`,
+    `p`.`id`,`p`.`user_id`,`p`.`title`,`p`.`first_name`,`p`.`last_name`,`p`.`birthday`,`p`.`gender`,`p`.`country`,`p`.`passport_no`,`p`.`passport_expiry`,
+    `sm`.`seat_number`,
+    `tc`.`class`
+  FROM
+      (
+        SELECT * 
+        FROM `reserved_seat`
+        WHERE `booking_id` = booking_id_
+      ) AS `rs`
+    LEFT JOIN `passenger` AS `p`
+      ON `rs`.`passenger_id` = `p`.`id`
+    LEFT JOIN `seat_map` AS `sm`
+      ON `rs`.`seat_id` = `sm`.`id`
+    LEFT JOIN `traveler_class` AS `tc`
+      ON `sm`.`traveler_class` = `tc`.`id`;
+END $$
+
+DELIMITER ;
+
+
+
+

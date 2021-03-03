@@ -1,16 +1,20 @@
 const express = require('express');
 const router = express.Router();
 
-const {
-    viewRoutes,
-    viewRoute,
-    updateRoutePrice
-} = require('../controllers/route-controller');
+const authenticate = require('../middlewares/authentication')
+const authorize = require('../middlewares/authorization')
+const { AccountTypesEnum } = require('../utils/constants');
+const { paramAllIntegerValidator } = require('../middlewares/schema-validators/param-validator');
 
-/**
- * @todo include middleware
- */
-router.get('/', viewRoutes);
+const routeController = require('../controllers/route-controller');
+const routeValidator = require('../middlewares/schema-validators/route-validator');
+
+
+router.get('/',
+    paramAllIntegerValidator,
+    routeValidator.viewRoutes,
+    routeController.viewRoutes
+);
 
 /**
  * @todo assign controller method
@@ -18,29 +22,10 @@ router.get('/', viewRoutes);
  */
 router.post('/');
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.put('/');
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.delete('/');
-
-
-/**
- * @todo include middleware
- */
-router.get('/:id', viewRoute);
-
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.post('/:id');
+router.get('/:id',
+    paramAllIntegerValidator,
+    routeController.viewRoute
+);
 
 /**
  * @todo assign controller method
@@ -54,27 +39,35 @@ router.put('/:id');
  */
 router.delete('/:id');
 
-/**
- * @todo include middleware
- */
-router.get('/:id/price');
+router.get('/:id/prices',
+    authenticate,
+    authorize([AccountTypesEnum.SALES_REPRESENTATIVE]),
+    paramAllIntegerValidator,
+    routeController.viewRoutePrice
+);
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.post('/:id/price');
+router.post('/:id/prices',
+    authenticate,
+    authorize([AccountTypesEnum.SALES_REPRESENTATIVE]),
+    paramAllIntegerValidator,
+    routeValidator.addRoutePrice,
+    routeController.addRoutePrice
+);
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.put('/:id/price', updateRoutePrice);
+router.put('/:id/prices/:classid',
+    authenticate,
+    authorize([AccountTypesEnum.SALES_REPRESENTATIVE]),
+    paramAllIntegerValidator,
+    routeValidator.updateRoutePrice,
+    routeController.updateRoutePrice
+);
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.delete('/:id/price');
+router.delete('/:id/prices/:classid',
+    authenticate,
+    authorize([AccountTypesEnum.SALES_REPRESENTATIVE]),
+    paramAllIntegerValidator,
+    routeController.deleteRoutePrice
+);
+
 
 module.exports = router;
