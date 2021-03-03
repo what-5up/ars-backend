@@ -13,7 +13,7 @@ const {
     viewPastFlightDetails
 } = require('../controllers/report-controller');
 
-router.get('/1', authenticate, authorize([AccountTypesEnum.MANAGEMENT]), viewPassengersByFlightNo);
+router.get('/1', viewPassengersByFlightNo);
 
 router.get('/2', authenticate, authorize([AccountTypesEnum.MANAGEMENT]), viewBookingsByPassengerType);
 

@@ -5,9 +5,9 @@ const logger = require('../utils/logger');
  * @description get connection from pool
  * @returns {Promise<object>} Promise of a query output
  */
-async function getConnection() {
+async function getConnection(accType) {
     return new Promise((resolve, reject) => {
-        pool.getConnection(function (err, connection) {
+        pool(accType).getConnection(function (err, connection) {
             if (err) reject(err); // not connected!
 
             // return the connection
@@ -83,7 +83,12 @@ async function rollbackTransaction(connection) {
     })
 }
 
-async function writeLock(table, connection = pool) {
+async function writeLock(accType,table, connection = null) {
+    let usingConnection = true;
+    if (connection===null){
+        connection=pool(accType);
+        usingConnection=false;
+    }
     return new Promise((resolve, reject) => {
         const result = connection.query("LOCK TABLES ?? WRITE", [table],
             function (error, results) {
@@ -91,7 +96,7 @@ async function writeLock(table, connection = pool) {
                     console.log(result.sql);
                     reject(new Error(error.message));
                 }
-                if (connection == pool) {
+                if (usingConnection===false) {
                     resolve(results);
                 }
                 else {
@@ -102,7 +107,12 @@ async function writeLock(table, connection = pool) {
     })
 }
 
-async function unlockTables(connection = pool) {
+async function unlockTables(accType,connection = null) {
+    let usingConnection = true;
+    if (connection===null){
+        connection=pool(accType);
+        usingConnection=false;
+    }
     return new Promise((resolve, reject) => {
         const result = connection.query("UNLOCK TABLES",
             function (error, results) {
@@ -110,7 +120,7 @@ async function unlockTables(connection = pool) {
                     console.log(result.sql);
                     reject(new Error(error.message));
                 }
-                if (connection == pool) {
+                if (usingConnection===false) {
                     resolve(results);
                 }
                 else {

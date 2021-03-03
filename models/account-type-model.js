@@ -3,9 +3,9 @@ const { pool } = require(`../database/connection`);
 /**
  * get all the account types from the database
  */
-async function getAllAccountTypes() {
+async function getAllAccountTypes(accType) {
   return new Promise((resolve, reject) => {
-    const result = pool.query("SELECT * FROM account_type WHERE is_deleted = 0",
+    const result = pool(accType).query("SELECT * FROM account_type WHERE is_deleted = 0",
       function (error, results) {
         if (error) {
           console.log(result.sql);
@@ -24,7 +24,7 @@ async function getAllAccountTypes() {
  * @returns {Promise<object>} Promise of a query output
  * @throws Error
  */
-const addAccountType = async (
+const addAccountType = async (accType,
   payload = {
     accountTypeName: undefined,
     discount: undefined,
@@ -43,7 +43,7 @@ const addAccountType = async (
     }
   });
   return new Promise((resolve, reject) => {
-    pool.query(
+    pool(accType).query(
       `INSERT INTO account_type (${fields.join()}) VALUES (${placeholders.join()})`,
       values,
       (error, result) => {
@@ -64,7 +64,7 @@ const addAccountType = async (
 * @returns {Promise<object>} Promise of a query output
 * @throws Error
 */
-const updateAccountType = async (
+const updateAccountType = async (accType,
   id,
   payload = {
     accountTypeName: undefined,
@@ -82,7 +82,7 @@ const updateAccountType = async (
     }
   });
   return new Promise((resolve, reject) => {
-    pool.query(
+    pool(accType).query(
       `UPDATE account_type
         SET ${fields.join()}
         WHERE id = ?`,
@@ -105,9 +105,9 @@ const updateAccountType = async (
  * @returns {Promise<boolean>} Promise of a query output
  * @throws Error
  */
-const deleteAccountType = async (id) => {
+const deleteAccountType = async (accType,id) => {
   return new Promise((resolve, reject) => {
-    pool.query(
+    pool(accType).query(
       "UPDATE account_type SET is_deleted = 1 WHERE id = ?",
       [parseInt(id)],
       (error, result) => {

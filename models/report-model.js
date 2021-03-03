@@ -7,7 +7,7 @@ const { pool } = require(`../database/connection`);
  * @return {Promise<object>} query output
  * @throws {Error} - database connection error
  */
-async function getPassengersByFlightNo(route = undefined) {
+async function getPassengersByFlightNo(route = undefined, accType) {
 
     //building the query
     let whereClause = '';
@@ -22,9 +22,10 @@ async function getPassengersByFlightNo(route = undefined) {
 
     //fetching the results of passengers older than 18
     const p1 = new Promise((resolve, reject) => {
-        pool.query(sqlQuery + " AND passenger_age >= 18",
+        const result = pool(accType).query(sqlQuery + " AND passenger_age >= 18",
             variableValues,
             function (error, results) {
+                console.log(result.sql);
                 if (error) {
                     reject(new Error(error.message));
                 }
@@ -34,7 +35,7 @@ async function getPassengersByFlightNo(route = undefined) {
 
     //fetching the results of passengers younger than 18
     const p2 = new Promise((resolve, reject) => {
-        pool.query(sqlQuery + " AND passenger_age < 18",
+        pool(accType).query(sqlQuery + " AND passenger_age < 18",
             variableValues,
             function (error, results) {
                 if (error) {
@@ -58,7 +59,7 @@ async function getPassengersByFlightNo(route = undefined) {
  * @throws {Error} database connection error
  */
 
-async function getBookingsByPassengerType(startDate = undefined, endDate = undefined) {
+async function getBookingsByPassengerType(accType, startDate = undefined, endDate = undefined) {
     //building the query
     let whereClause = '';
     let variableValues = [];
@@ -75,7 +76,7 @@ async function getBookingsByPassengerType(startDate = undefined, endDate = undef
 
     //fetching the results
     return new Promise((resolve, reject) => {
-        pool.query("SELECT account_type, COUNT(*) AS number_of_bookings FROM bookings_by_passenger_type " + whereClause + " GROUP BY account_type",
+        pool(accType).query("SELECT account_type, COUNT(*) AS number_of_bookings FROM bookings_by_passenger_type " + whereClause + " GROUP BY account_type",
             variableValues,
             function (error, results) {
                 if (error) {

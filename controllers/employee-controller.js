@@ -13,7 +13,7 @@ const { successMessage, errorMessage } = require("../utils/message-template");
  * @return {Response} [{ id, account_type_name, discount, criteria }]
  */
 const viewAllEmployees = async (req, res, next) => {
-    model.getAllEmployees()
+    model.getAllEmployees(req.accType)
         .then(result => {
             successMessage(res, result);
         })
@@ -28,7 +28,7 @@ const viewAllEmployees = async (req, res, next) => {
  * @return {Response} [{ id, title, first_name, last_name, email, designation }]
  */
 const viewEmployee = async (req, res, next) => {
-    model.getEmployee(req.params.id)
+    model.getEmployee(req.accType,req.params.id)
         .then(result => successMessage(res, result[0]))
         .catch(err => next(err));
 }
@@ -42,14 +42,14 @@ const viewEmployee = async (req, res, next) => {
  */
 const addEmployee = async (req, res, next) => {
     try {
-        if (await model.isEmailRegistered(req.body.email)) {
+        if (await model.isEmailRegistered(req.accType,req.body.email)) {
             return errorMessage(res, "Email already registered", 422)
         }
 
         const hashedPw = await bcrypt.hash(req.body.password, 12);
         req.body.password = hashedPw;
 
-        model.addEmployee(req.body)
+        model.addEmployee(req.accType,req.body)
             .then((result) => {
                 return successMessage(res, { id: result.insertId }, "Employee added successfully");
             })
@@ -75,7 +75,7 @@ const updateEmployee = async (req, res, next) => {
             })
     }
 
-    model.updateEmployee(req.params.id, req.body)
+    model.updateEmployee(req.accType,req.params.id, req.body)
         .then(() => {
             return successMessage(res, true, "Updated successfully");
         })
@@ -95,7 +95,7 @@ const updateEmployee = async (req, res, next) => {
  */
 const deleteEmployee = async (req, res, next) => {
     model
-        .deleteAccountType(req.params.id)
+        .deleteAccountType(req.accType,req.params.id)
         .then((result) => {
             if (result == true) return successMessage(res, null, "Employee deleted successfully")
             else return errorMessage(res, "Unable to delete the employee", 500);

@@ -10,7 +10,7 @@ const { successMessage, errorMessage } = require("../utils/message-template");
  */
 const viewAllAccountTypes = async (req, res, next) => {
   try {
-    const accountTypes = await model.getAllAccountTypes();
+    const accountTypes = await model.getAllAccountTypes(req.accType);
     successMessage(res, accountTypes);
   }
   catch (err) {
@@ -26,7 +26,7 @@ const viewAllAccountTypes = async (req, res, next) => {
  * @return {Response} { id }
  */
 const addAccountType = async (req, res, next) => {
-  model.addAccountType(req.body)
+  model.addAccountType(req.accType,req.body)
     .then((result) => {
       return successMessage(res, { id: result.insertId }, "Account type added successfully");
     })
@@ -42,7 +42,7 @@ const addAccountType = async (req, res, next) => {
  * @throws Error
  */
 const updateAccountType = async (req, res, next) => {
-  model.updateAccountType(req.params.id, req.body)
+  model.updateAccountType(req.accType,req.params.id, req.body)
     .then(() => {
       return successMessage(res, true, "Updated successfully");
     })
@@ -62,7 +62,7 @@ const updateAccountType = async (req, res, next) => {
  */
 const deleteAccountType = async (req, res, next) => {
   model
-    .deleteAccountType(req.params.id)
+    .deleteAccountType(req.accType,req.params.id)
     .then((result) => {
       if (result == true) return successMessage(res, null, "Account type deleted successfully")
       else return errorMessage(res, "Unable to delete the accont type", 500);

@@ -87,7 +87,7 @@ async function getLastBooking(accType,user_id, connection = null) {
  * @param {object} bookingDetails 
  * @param {object} seats 
  */
-async function addBooking(accType,bookingDetails, connection = undefined) {
+async function addBooking(accType,bookingDetails, connection = null) {
     return new Promise((resolve, reject) => {
 
         let usingConnection = true;

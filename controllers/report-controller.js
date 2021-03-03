@@ -13,7 +13,7 @@ const { successMessage, errorMessage } = require("../utils/message-template");
  * @throws Error - database connection error
  */
 const viewPassengersByFlightNo = async (req, res, next) => {
-    model.getPassengersByFlightNo(req.query.route)
+    model.getPassengersByFlightNo(req.accType, req.query.route)
         .then(result => successMessage(res, { above18: result[0], below18: result[1] }))
         .catch(err => next(err));
 }
@@ -30,7 +30,7 @@ const viewBookingsByPassengerType = async (req, res, next) => {
     if ((req.query.startDate && req.query.endDate) && (req.query.startDate > req.query.endDate)) {
         return errorMessage(res, "The start date must be before the end date", 422);
     }
-    model.getBookingsByPassengerType(req.query.startDate, req.query.endDate)
+    model.getBookingsByPassengerType(req.accType, req.query.startDate, req.query.endDate)
         .then(result => successMessage(res, result))
         .catch(err => next(err));
 };

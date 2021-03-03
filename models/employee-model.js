@@ -3,9 +3,9 @@ const { pool } = require(`../database/connection`);
 /**
  * get all the employees from the database
  */
-async function getAllEmployees() {
+async function getAllEmployees(accType) {
     return new Promise((resolve, reject) => {
-        const result = pool.query("SELECT id, title, first_name, last_name, email, designation_id FROM `employee` WHERE is_deleted = 0",
+        const result = pool(accType).query("SELECT id, title, first_name, last_name, email, designation_id FROM `employee` WHERE is_deleted = 0",
             function (error, results) {
                 if (error) {
                     console.log(result.sql);
@@ -17,9 +17,9 @@ async function getAllEmployees() {
     })
 }
 
-async function getEmployee(empId) {
+async function getEmployee(accType,empId) {
     return new Promise((resolve, reject) => {
-        const result = pool.query('SELECT title_name, first_name, last_name, email, d.name as designation FROM employee e INNER JOIN title t ON e.title = t.id INNER JOIN designation d ON e.designation_id = d.id WHERE e.id = ?',
+        const result = pool(accType).query('SELECT title_name, first_name, last_name, email, d.name as designation FROM employee e INNER JOIN title t ON e.title = t.id INNER JOIN designation d ON e.designation_id = d.id WHERE e.id = ?',
             [empId],
             function (error, results) {
                 if (error) {
@@ -39,7 +39,7 @@ async function getEmployee(empId) {
  * @returns {Promise<object>} Promise of a query output
  * @throws Error
  */
-const addEmployee = async (
+const addEmployee = async (accType,
     payload = {
         title: undefined,
         firstName: undefined,
@@ -61,7 +61,7 @@ const addEmployee = async (
         }
     });
     return new Promise((resolve, reject) => {
-        pool.query(
+        pool(accType).query(
             `INSERT INTO employee (${fields.join()}) VALUES (${placeholders.join()})`,
             values,
             (error, result) => {
@@ -82,7 +82,7 @@ const addEmployee = async (
 * @returns {Promise<object>} Promise of a query output
 * @throws Error
 */
-const updateEmployee = async (
+const updateEmployee = async (accType,
     id,
     payload = {
         title: undefined,
@@ -103,7 +103,7 @@ const updateEmployee = async (
         }
     });
     return new Promise((resolve, reject) => {
-        pool.query(
+        pool(accType).query(
             `UPDATE employee
         SET ${fields.join()}
         WHERE id = ?`,
@@ -124,9 +124,9 @@ const updateEmployee = async (
  * @returns {Promise<boolean>} Promise of a query output
  * @throws Error
  */
-const deleteAccountType = async (id) => {
+const deleteAccountType = async (accType,id) => {
     return new Promise((resolve, reject) => {
-        pool.query(
+        pool(accType).query(
             "UPDATE employee SET is_deleted = 1 WHERE id = ?",
             [parseInt(id)],
             (error, result) => {
@@ -139,9 +139,9 @@ const deleteAccountType = async (id) => {
     });
 };
 
-async function isEmailRegistered(email) {
+async function isEmailRegistered(accType,email) {
     return new Promise((resolve, reject) => {
-        const result = pool.query('SELECT id FROM employee WHERE email = ?',
+        const result = pool(accType).query('SELECT id FROM employee WHERE email = ?',
             [email],
             function (error, results) {
                 if (error) {

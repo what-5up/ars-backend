@@ -26,9 +26,9 @@ const getSeatMapDetails = async (accType,scheduled_flight_id) => {
     });
 }
 
-async function getAircraftModelById(id){
+async function getAircraftModelById(accType,id){
     return new Promise((resolve,reject)=>{
-        const result = pool.query('SELECT * FROM aircraft_model WHERE id = ?',
+        const result = pool(accType).query('SELECT * FROM aircraft_model WHERE id = ?',
             [id],
             function (error, results) {
                 if (error) {
@@ -40,10 +40,10 @@ async function getAircraftModelById(id){
     });
 }
 
-async function createAircraftModel(modelName,seatingCapacity,maxRows,maxColumns){
+async function createAircraftModel(accType,modelName,seatingCapacity,maxRows,maxColumns){
     const variableValues=[modelName,seatingCapacity,maxRows,maxColumns];
     return new Promise((resolve,reject)=>{
-        const result = pool.query("INSERT INTO aircraft_model(model_name,seating_capacity,max_rows,max_columns) VALUES (?,?,?,?)",
+        const result = pool(accType).query("INSERT INTO aircraft_model(model_name,seating_capacity,max_rows,max_columns) VALUES (?,?,?,?)",
             variableValues,
             function (error, results) {
                 if (error) {
@@ -56,7 +56,7 @@ async function createAircraftModel(modelName,seatingCapacity,maxRows,maxColumns)
     });
 }
 
-async function updateAircraftModelById(params,id){
+async function updateAircraftModelById(accType,params,id){
     let variableValues = [];
     let sql = "UPDATE aircraft_model SET ";
     for (const [key, value] of Object.entries(params)) {
@@ -71,7 +71,7 @@ async function updateAircraftModelById(params,id){
     console.log(sql);
     console.log(variableValues);
     return new Promise((resolve, reject) => {
-        const result = pool.query(sql,
+        const result = pool(accType).query(sql,
             variableValues,
             function (error, results) {
                 if (error) {
