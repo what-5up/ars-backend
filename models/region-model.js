@@ -6,9 +6,9 @@ const { pool } = require(`../database/connection`);
  * @returns {object} Promise of a query output
  * @throws Error
  */
-const getAllRegions = async () => {
+const getAllRegions = async (accType) => {
 	return new Promise((resolve, reject) => {
-		pool.getConnection((error, connection) => {
+		pool(accType).getConnection((error, connection) => {
 			if (error) {
 				reject(new Error(error.message));
 			}
@@ -33,9 +33,9 @@ const getAllRegions = async () => {
  * @returns {object} Promise of a query output
  * @throws Error
  */
-const createRegion = async (payload = { name: null, code: null, parent_region_id: null }) => {
+const createRegion = async (accType,payload = { name: null, code: null, parent_region_id: null }) => {
 	return new Promise((resolve, reject) => {
-		pool.getConnection((error, connection) => {
+		pool(accType).getConnection((error, connection) => {
 			if (error) {
 				reject(new Error(error.message));
 			}
@@ -71,7 +71,7 @@ const createRegion = async (payload = { name: null, code: null, parent_region_id
  * @returns {object} Promise of a query output
  * @throws Error
  */
-const updateRegion = async (id, payload = { name: null, code: null }) => {
+const updateRegion = async (accType,id, payload = { name: null, code: null }) => {
 	let allowedFields = ['name', 'region_type','parent_id'];
 	let fields = [];
 	let values = [];
@@ -82,7 +82,7 @@ const updateRegion = async (id, payload = { name: null, code: null }) => {
 		}
 	});
 	return new Promise((resolve, reject) => {
-		pool.getConnection((error, connection) => {
+		pool(accType).getConnection((error, connection) => {
 			if (error) {
 				reject(new Error(error.message));
 			}
@@ -110,9 +110,9 @@ const updateRegion = async (id, payload = { name: null, code: null }) => {
  * @returns {Promise<object>} Promise of a query output
  * @throws Error
  */
-const deleteRegion = async (id) => {
+const deleteRegion = async (accType,id) => {
 	return new Promise((resolve, reject) => {
-		pool.query('UPDATE region SET is_deleted = 1 WHERE id = ?', [parseInt(id)], (error, result) => {
+		pool(accType).query('UPDATE region SET is_deleted = 1 WHERE id = ?', [parseInt(id)], (error, result) => {
 			if (error) reject(error);
 			else {
 				if (result.affectedRows == 1) {

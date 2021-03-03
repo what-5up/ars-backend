@@ -5,7 +5,7 @@ const regionModel = require("../models/region-model");
 
 const getAllRegions = async (req, res, next) => {
     try {
-        const result = await regionModel.getAllRegions();
+        const result = await regionModel.getAllRegions(req.accType);
         return successMessage(res, {data:result}, "", 200)
     }
     catch (err) {
@@ -15,7 +15,7 @@ const getAllRegions = async (req, res, next) => {
 
 const addRegion = async (req, res, next) => {
     try {
-        const result = await regionModel.createRegion(req.body);
+        const result = await regionModel.createRegion(req.accType,req.body);
         return successMessage(res, {}, "region added", 200)
     }
     catch (err) {
@@ -25,7 +25,7 @@ const addRegion = async (req, res, next) => {
 
 const updateRegion = async (req, res, next) => {
     try {
-        const result = await regionModel.updateRegion(req.params.id,req.body);
+        const result = await regionModel.updateRegion(req.accType,req.params.id,req.body);
         return successMessage(res, {}, "region updated", 200)
     }
     catch (err) {
@@ -35,7 +35,7 @@ const updateRegion = async (req, res, next) => {
 
 const deleteRegion = async (req, res, next) => {
     try {
-        const result = await regionModel.deleteRegion(req.params.id);
+        const result = await regionModel.deleteRegion(req.accType,req.params.id);
         return successMessage(res, {}, "region deleted", 200)
     }
     catch (err) {

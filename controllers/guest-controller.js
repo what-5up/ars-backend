@@ -25,7 +25,7 @@ const createGuest = async (req, res, next) => {
 
     if (error) return errorMessage(res, error.details[0].message, 422);
     try {
-        const queryResult = await guestModel.createGuest(value.title, value.first_name, value.last_name, value.gender, value.email);
+        const queryResult = await guestModel.createGuest(req.accType,value.title, value.first_name, value.last_name, value.gender, value.email);
         const token = jwt.sign({
                 userID: queryResult.insertId.toString(),
                 accType: 'guest',

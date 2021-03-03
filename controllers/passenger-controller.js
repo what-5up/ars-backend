@@ -17,9 +17,9 @@ const addPassengers = async (req, res, next) => {
         return errorMessage(res, "Body cannot be empty", 422)
     }
     try{
-        const lock = await baseModel.writeLock('passenger');
-        const queryResult = await passengerModel.addPassengers(passengers,userID);
-        const unlock = await baseModel.unlockTables();
+        const lock = await baseModel.writeLock(req.accType,'passenger');
+        const queryResult = await passengerModel.addPassengers(req.accType,passengers,userID);
+        const unlock = await baseModel.unlockTables(req.accType);
         for (let i=0; i < passengers.length; i++){
             idArray.push(queryResult.insertId+i);
         }
@@ -39,7 +39,7 @@ const addPassengers = async (req, res, next) => {
  * @todo move function to an appropriate file
  */
 const getPassengers = async (req, res) => {
-    const records = await passengerModel.getPassengers(req.body.user_id)
+    const records = await passengerModel.getPassengers(req.accType,req.body.user_id)
         .then(result => {
             return result.map((row, index) => {
                 return { id: index, object: row };
