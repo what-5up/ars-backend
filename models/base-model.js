@@ -5,9 +5,9 @@ const logger = require('../utils/logger');
  * @description get connection from pool
  * @returns {Promise<object>} Promise of a query output
  */
-async function getConnection() {
+async function getConnection(accType) {
     return new Promise((resolve, reject) => {
-        pool.getConnection(function (err, connection) {
+        pool(accType).getConnection(function (err, connection) {
             if (err) reject(err); // not connected!
 
             // return the connection
