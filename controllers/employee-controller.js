@@ -21,6 +21,19 @@ const viewAllEmployees = async (req, res, next) => {
 }
 
 /**
+ * get employee from data base
+ * 
+ * @param {object} req - http request
+ * @param {object} res - http response
+ * @return {Response} [{ id, title, first_name, last_name, email, designation }]
+ */
+const viewEmployee = async (req, res, next) => {
+    model.getEmployee(req.params.id)
+        .then(result => successMessage(res, result[0]))
+        .catch(err => next(err));
+}
+
+/**
  * Add an employee
  * 
  * @param {object} req http request object
@@ -93,6 +106,7 @@ const deleteEmployee = async (req, res, next) => {
 
 module.exports = {
     viewAllEmployees,
+    viewEmployee,
     addEmployee,
     updateEmployee,
     deleteEmployee
