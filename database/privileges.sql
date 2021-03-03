@@ -13,6 +13,7 @@ CREATE USER 'bairways_user'@'localhost' IDENTIFIED BY 'bairwaysu';
 
 GRANT SELECT ON `route_with_airports` TO 'bairways_management'@'localhost', 'bairways_sr'@'localhost', 'bairways_user'@'localhost';
 GRANT SELECT ON `user_auth` TO 'bairways_management'@'localhost', 'bairways_sr'@'localhost', 'bairways_crc'@'localhost','bairways_admin'@'localhost', 'bairways_user'@'localhost';
+GRANT SELECT ON `aircraft_details` TO 'bairways_crc'@'localhost', 'bairways_user'@'localhost';
 
 GRANT SELECT ON `bookings_by_passenger_type` TO 'bairways_management'@'localhost';
 GRANT SELECT ON `revenue_by_aircraft_model_and_month` TO 'bairways_management'@'localhost'; 
@@ -21,7 +22,10 @@ GRANT SELECT ON `scheduled_flight_details` TO 'bairways_management'@'localhost';
 GRANT SELECT ON `passengers_with_routes` TO 'bairways_management'@'localhost'; 
 
 GRANT SELECT, INSERT, UPDATE ON `scheduled_flight` TO 'bairways_crc'@'localhost';
-GRANT SELECT ON `aircraft_details` TO 'bairways_crc'@'localhost';
+GRANT SELECT ON `aircraft_details` TO 'bairways_crc'@'localhost', 'bairways_user'@'localhost';
+GRANT SELECT ON `employee` TO 'bairways_crc'@'localhost', 'bairways_sr'@'localhost', 'bairways_management'@'localhost';
+GRANT SELECT ON `designation` TO 'bairways_crc'@'localhost', 'bairways_sr'@'localhost', 'bairways_management'@'localhost';
+GRANT SELECT ON `title` TO 'bairways_crc'@'localhost', 'bairways_sr'@'localhost', 'bairways_management'@'localhost';
 
 GRANT SELECT, INSERT, UPDATE ON `price` TO 'bairways_sr'@'localhost';
 GRANT SELECT, INSERT, UPDATE ON `account_type` TO 'bairways_sr'@'localhost';
