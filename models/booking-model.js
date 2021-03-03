@@ -56,12 +56,13 @@ async function getBookingDetails(accType,booking_id = undefined) {
  * @throws Error
  */
 async function getLastBooking(accType,user_id, connection = null) {
-    let usingConnection = true;
-    if (connection===null){
-        connection=pool(accType);
-        usingConnection=false;
-    }
     return new Promise((resolve, reject) => {
+        
+        let usingConnection = true;
+        if(connection == null){
+            connection = pool(accType)
+            usingConnection = false;
+        }
         //fetching data from the database
         const result = connection.query('SELECT * FROM booking WHERE user_id = ? ORDER BY date_of_booking DESC LIMIT 1;',
             [user_id],
@@ -69,7 +70,7 @@ async function getLastBooking(accType,user_id, connection = null) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if (usingConnection===false) {
+                if (!usingConnection) {
                     resolve(results);
                 }
                 else {
@@ -87,13 +88,13 @@ async function getLastBooking(accType,user_id, connection = null) {
  * @param {object} seats 
  */
 async function addBooking(accType,bookingDetails, connection = null) {
-    let usingConnection = true;
-    if (connection===null){
-        connection=pool(accType);
-        usingConnection=false;
-    }
     return new Promise((resolve, reject) => {
 
+        let usingConnection = true;
+        if(connection == null){
+            connection = pool(accType)
+            usingConnection = false;
+        }
         //insert data to the database
         const result = connection.query("INSERT INTO booking (user_id, scheduled_flight_id, date_of_booking, final_amount, state) VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?);",
             [
@@ -106,7 +107,7 @@ async function addBooking(accType,bookingDetails, connection = null) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if (usingConnection===false) {
+                if (!usingConnection) {
                     resolve(results);
                 }
                 else {
@@ -126,13 +127,13 @@ async function addBooking(accType,bookingDetails, connection = null) {
  * @throws Error
  */
 async function updateBooking(accType,conditions, values, connection = null) {
-    let usingConnection = true;
-    if (connection===null){
-        connection=pool(accType);
-        usingConnection=false;
-    }
     return new Promise((resolve, reject) => {
         //building query
+        let usingConnection = true;
+        if(connection == null){
+            connection = pool(accType)
+            usingConnection = false;
+        }
         let query = "UPDATE booking";
 
         //building SET clause
@@ -166,7 +167,7 @@ async function updateBooking(accType,conditions, values, connection = null) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if (usingConnection===false) {
+                if (!usingConnection) {
                     resolve(results);
                 }
                 else {
@@ -185,19 +186,19 @@ async function updateBooking(accType,conditions, values, connection = null) {
  * @throws Error
  */
 async function deleteBooking(accType,user_id, booking_id, connection = null) {
-    let usingConnection = true;
-    if (connection===null){
-        connection=pool(accType);
-        usingConnection=false;
-    }
     return new Promise((resolve, reject) => {
+        let usingConnection = true;
+        if(connection == null){
+            connection = pool(accType)
+            usingConnection = false;
+        }
         const result = connection.query('UPDATE booking SET state = ? WHERE id = ? and user_id = ?;',
             ["cancelled", booking_id, user_id],
             function (error, results) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if (usingConnection === false) {
+                if (!usingConnection) {
                     resolve(results);
                 }
                 else {

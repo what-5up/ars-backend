@@ -15,14 +15,14 @@ const { AccountTypesEnum } = require('../utils/constants')
  */
 const viewScheduledFlights = async (req, res, next) => {
   try {
-    const flights = await model.getScheduledFlights(undefined,
+    const flights = await model.getScheduledFlights(req.accType,undefined,
       req.query.origin,
       req.query.destination,
       req.query.aircraftID,
       req.query.aircraftModel,
       req.query.passengers,
       req.query.isDeleted)
-    const prices = await priceModel.fetchRoutePricesOfScheduledFlights(flights.map(({ route_id }) => route_id));
+    const prices = await priceModel.fetchRoutePricesOfScheduledFlights(req.accType,flights.map(({ route_id }) => route_id));
     const result = flights.map(({ route_id, ...restFlights }) => {
       restFlights.prices = prices.filter((price) => price.route_id === route_id).map(({ route_id, ...restPrices }) => restPrices)
       return restFlights;
@@ -35,7 +35,7 @@ const viewScheduledFlights = async (req, res, next) => {
 
 const viewDetailedScheduledFlights = async (req, res, next) => {
   try {
-    const flights = await model.getScheduledFlightsForCRC(req.query.isDeleted);
+    const flights = await model.getScheduledFlightsForCRC(req.accType,req.query.isDeleted);
     return successMessage(res, flights);
   } catch (err) {
     next(err);
@@ -51,7 +51,7 @@ const viewDetailedScheduledFlights = async (req, res, next) => {
  * @return {Response} { departure, origin_code, origin, destination_code, destination, aircraft_id, aircraft_model } if success
  */
 const viewScheduledFlight = async (req, res, next) => {
-  model.getScheduledFlights(req.params.id)
+  model.getScheduledFlights(req.accType,req.params.id)
     .then(result => successMessage(res, result[0]))
     .catch(err => next(err));
 }
@@ -66,7 +66,7 @@ const viewScheduledFlight = async (req, res, next) => {
  */
 const deleteScheduledFlight = async (req, res, next) => {
   model
-    .deleteScheduledFlight(req.params.id)
+    .deleteScheduledFlight(req.accType,req.params.id)
     .then((result) => {
       if (result == true) return successMessage(res, null, "Scheduled flight deleted successfully")
       else return errorMessage(res, "Unable to delete the scheduled flight");
@@ -83,7 +83,7 @@ const deleteScheduledFlight = async (req, res, next) => {
  * @throws Error
  */
 const addScheduledFlight = async (req, res, next) => {
-  model.addScheduledFlight(req.body)
+  model.addScheduledFlight(req.accType,req.body)
     .then((result) => {
       return successMessage(res, { id: result.insertId }, "Added successfully");
     })
@@ -99,7 +99,7 @@ const addScheduledFlight = async (req, res, next) => {
  * @throws Error
  */
 const updateScheduledFlight = async (req, res, next) => {
-  model.updateScheduledFlight(req.params.id, req.body)
+  model.updateScheduledFlight(req.accType,req.params.id, req.body)
     .then((result) => {
       return successMessage(res, null, "Updated successfully");
     })
@@ -117,10 +117,10 @@ const updateScheduledFlight = async (req, res, next) => {
  * @throws Error
  */
 const viewSeatMap = async (req, res, next) => {
-  const records = await seatMapModel.getSeatMap(req.params.id)
+  const records = await seatMapModel.getSeatMap(req.accType,req.params.id)
     .catch(err => next(err));
 
-  const seatMapDetails = await aircraftModelModel.getSeatMapDetails(req.params.id)
+  const seatMapDetails = await aircraftModelModel.getSeatMapDetails(req.accType,req.params.id)
     .catch(err => next(err));
 
   console.log(seatMapDetails[0].seating_capacity);
@@ -146,9 +146,9 @@ const getPricing = async (req, res, next) => {
   let seatPrices;
   let userDiscount;
   try {
-    seatPrices = await seatMapModel.getSeatMap(req.params.id);
+    seatPrices = await seatMapModel.getSeatMap(req.accType,req.params.id);
 
-    userDiscount = await userModel.getUserDiscount(req.userID);
+    userDiscount = await userModel.getUserDiscount(req.accType,req.userID);
 
   } catch (err) {
     return errorMessage(res, err.message, 400);

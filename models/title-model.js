@@ -1,8 +1,8 @@
 const { pool } = require(`../database/connection`);
 
-async function getAllTitles(){
+async function getAllTitles(accType){
     return new Promise((resolve, reject) => {
-        const result = pool.query("SELECT * FROM title",
+        const result = pool(accType).query("SELECT * FROM title",
             function (error, results) {
                 if (error) {
                     console.log(result.sql);
@@ -14,9 +14,9 @@ async function getAllTitles(){
     })
 }
 
-async function getTitleById(titleId){
+async function getTitleById(accType,titleId){
     return new Promise((resolve,reject)=>{
-        const result = pool.query('SELECT * FROM title WHERE id = ?',
+        const result = pool(accType).query('SELECT * FROM title WHERE id = ?',
             [titleId],
             function (error, results) {
                 if (error) {
@@ -28,7 +28,7 @@ async function getTitleById(titleId){
     });
 }
 
-async function updateTitleById(titleName,titleId){
+async function updateTitleById(accType,titleName,titleId){
     let sql = "";
     let variableValues=[];
     if (titleName!==null){
@@ -36,7 +36,7 @@ async function updateTitleById(titleName,titleId){
         variableValues.push(titleName,titleId);
     }
     return new Promise((resolve,reject)=>{
-        const result = pool.query(sql,
+        const result = pool(accType).query(sql,
             variableValues,
             function (error, results) {
                 if (error) {

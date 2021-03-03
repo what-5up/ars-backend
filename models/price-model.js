@@ -6,9 +6,9 @@ const { pool } = require(`../database/connection`);
  * @return {Promise<object>} query output
  * @throws {Error} - database connection error
  */
-async function fetchAllRoutePrices() {
+async function fetchAllRoutePrices(accType) {
     return new Promise((resolve, reject) => {
-        pool.query("SELECT tc.class AS traveler_class, r.origin_code, r.origin, r.destination_code, r.destination, p.amount AS price FROM price p INNER JOIN traveler_class tc ON p.traveler_class = tc.id INNER JOIN route_with_airports r ON p.route_id = r.id",
+        pool(accType).query("SELECT tc.class AS traveler_class, r.origin_code, r.origin, r.destination_code, r.destination, p.amount AS price FROM price p INNER JOIN traveler_class tc ON p.traveler_class = tc.id INNER JOIN route_with_airports r ON p.route_id = r.id",
             [],
             (error, results) => {
                 if (error) {
@@ -26,9 +26,9 @@ async function fetchAllRoutePrices() {
  * @return {Promise<object>} query output
  * @throws {Error} - database connection error
  */
-async function fetchRoutePricesOfScheduledFlights(flightIDs) {
+async function fetchRoutePricesOfScheduledFlights(accType,flightIDs) {
     return new Promise((resolve, reject) => {
-        pool.query("SELECT `tc`.`class`, `p`.`amount`, `p`.`route_id` FROM `price` `p` INNER JOIN `traveler_class` `tc` ON `p`.traveler_class = `tc`.`id` WHERE `route_id` IN ( ? )",
+        pool(accType).query("SELECT `tc`.`class`, `p`.`amount`, `p`.`route_id` FROM `price` `p` INNER JOIN `traveler_class` `tc` ON `p`.traveler_class = `tc`.`id` WHERE `route_id` IN ( ? )",
             [flightIDs.join(', ')],
             (error, results) => {
                 if (error) {
@@ -47,9 +47,9 @@ async function fetchRoutePricesOfScheduledFlights(flightIDs) {
  * @return {Promise<object>} query output
  * @throws {Error} - database connection error
  */
-async function fetchRoutePrice(route) {
+async function fetchRoutePrice(accType,route) {
     return new Promise((resolve, reject) => {
-        pool.query("SELECT * FROM price WHERE route_id = ?",
+        pool(accType).query("SELECT * FROM price WHERE route_id = ?",
             [route],
             (error, results) => {
                 if (error) {
@@ -69,6 +69,7 @@ async function fetchRoutePrice(route) {
  * @throws Error
  */
 const addRoutePrice = async (
+    accType,
     payload = {
         travellerClass: undefined,
         amount: undefined,
@@ -87,7 +88,7 @@ const addRoutePrice = async (
         }
     });
     return new Promise((resolve, reject) => {
-        pool.query(
+        pool(accType).query(
             `INSERT INTO price (${fields.join()}) VALUES (${placeholders.join()})`,
             values,
             (error, result) => {
@@ -108,9 +109,9 @@ const addRoutePrice = async (
 * @returns {Promise<object>} Promise of a query output
 * @throws Error
 */
-const updateRoutePrice = async (id, travellerClass, amount) => {
+const updateRoutePrice = async (accType,id, travellerClass, amount) => {
     return new Promise((resolve, reject) => {
-        pool.query('UPDATE price SET amount = ? WHERE route_id = ? AND traveler_class = ?',
+        pool(accType).query('UPDATE price SET amount = ? WHERE route_id = ? AND traveler_class = ?',
             [amount, id, travellerClass],
             (error, result) => {
                 if (error) return reject(error)
@@ -128,9 +129,9 @@ const updateRoutePrice = async (id, travellerClass, amount) => {
  * @returns {Promise<boolean>} Promise of a query output
  * @throws Error
  */
-const deleteRoutePrice = async (routeId, travellerClass) => {
+const deleteRoutePrice = async (accType,routeId, travellerClass) => {
     return new Promise((resolve, reject) => {
-        pool.query(
+        pool(accType).query(
             "DELETE FROM price WHERE route_id = ? AND traveler_class = ?",
             [parseInt(routeId), parseInt(travellerClass)],
             (error, result) => {

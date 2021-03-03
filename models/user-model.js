@@ -7,9 +7,9 @@ const { pool } = require(`../database/connection`);
  * @returns {object} promise object
  * @throws Error
  */
-exports.deleteUser = async (id) => {
+exports.deleteUser = async (accType,id) => {
     return new Promise((resolve, reject) => {
-        pool.query(
+        pool(accType).query(
             "UPDATE registered_user SET is_deleted=1 WHERE id = ?",
             [parseInt(id)],
             (error, result) => {
@@ -27,9 +27,9 @@ exports.deleteUser = async (id) => {
     });
 };
 
-async function findUndeletedById(userId) {
+async function findUndeletedById(accType,userId) {
     return new Promise((resolve, reject) => {
-        const result = pool.query('SELECT id,title,first_name,last_name,email,gender,account_type_id FROM registered_user WHERE id = ? AND is_deleted = ?',
+        const result = pool(accType).query('SELECT id,title,first_name,last_name,email,gender,account_type_id FROM registered_user WHERE id = ? AND is_deleted = ?',
             [userId, 0],
             function (error, results) {
                 if (error) {
@@ -41,9 +41,9 @@ async function findUndeletedById(userId) {
     });
 }
 
-async function fetchUser(userId) {
+async function fetchUser(accType,userId) {
     return new Promise((resolve, reject) => {
-        const result = pool.query('SELECT title_name, first_name, last_name, email, account_type_name FROM registered_user u INNER JOIN account_type a ON u.account_type_id = a.id INNER JOIN title t ON u.title = t.id WHERE u.id = ?',
+        const result = pool(accType).query('SELECT title_name, first_name, last_name, email, account_type_name FROM registered_user u INNER JOIN account_type a ON u.account_type_id = a.id INNER JOIN title t ON u.title = t.id WHERE u.id = ?',
             [userId],
             function (error, results) {
                 if (error) {
@@ -55,9 +55,9 @@ async function fetchUser(userId) {
     })
 }
 
-async function isEmailRegistered(email) {
+async function isEmailRegistered(accType,email) {
     return new Promise((resolve, reject) => {
-        const result = pool.query('SELECT id FROM registered_user WHERE email = ?',
+        const result = pool(accType).query('SELECT id FROM registered_user WHERE email = ?',
             [email],
             function (error, results) {
                 if (error) {
@@ -69,9 +69,9 @@ async function isEmailRegistered(email) {
     });
 }
 
-async function createUser(title, firstName, lastName, email, gender, password) {
+async function createUser(accType,title, firstName, lastName, email, gender, password) {
     return new Promise((resolve, reject) => {
-        const result = pool.query("INSERT INTO registered_user(title,first_name,last_name,email,gender,password) VALUES " +
+        const result = pool(accType).query("INSERT INTO registered_user(title,first_name,last_name,email,gender,password) VALUES " +
             "(?,?,?,?,?,?)",
             [
                 title,
@@ -92,7 +92,7 @@ async function createUser(title, firstName, lastName, email, gender, password) {
     })
 }
 
-async function updateById(params, userId) {
+async function updateById(accType,params, userId) {
     let variableValues = [];
     let sql = "UPDATE registered_user SET ";
     for (const [key, value] of Object.entries(params)) {
@@ -107,7 +107,7 @@ async function updateById(params, userId) {
     console.log(sql);
     console.log(variableValues);
     return new Promise((resolve, reject) => {
-        const result = pool.query(sql,
+        const result = pool(accType).query(sql,
             variableValues,
             function (error, results) {
                 if (error) {
@@ -127,16 +127,21 @@ async function updateById(params, userId) {
  * @returns {object} Promise of a query output
  * @throws Error
  */
-async function getUserDiscount(user_id, connection = pool) {
+async function getUserDiscount(accType,user_id, connection = null) {
     return new Promise((resolve, reject) => {
         //fetching data from the database
+        let usingConnection = true;
+        if(connection == null){
+            connection = pool(accType)
+            usingConnection = false;
+        }
         const result = connection.query('SELECT u.id, at.discount FROM user AS u LEFT JOIN registered_user AS ru ON u.id = ru.id LEFT JOIN account_type AS at ON ru.account_type_id = at.id  WHERE u.id = ?;',
             [user_id],
             function (error, results) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if (connection == pool) {
+                if (!usingConnection) {
                     resolve(results[0]);
                 }
                 else {

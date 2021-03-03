@@ -8,9 +8,13 @@ const { pool } = require(`../database/connection`);
  * @returns {Promise<object>} query output
  * @throws Error -database connection error
  */
-async function getSeatMap(scheduled_flight_id, connection = pool) {
+async function getSeatMap(accType,scheduled_flight_id, connection = null) {
     return new Promise((resolve, reject) => {
-
+        let usingConnection = true;
+        if(connection == null){
+            connection = pool(accType)
+            usingConnection = false;
+        }
         //fetching data from the database
         const result = connection.query('CALL generate_seat_map(?);',
             [scheduled_flight_id],
@@ -18,7 +22,7 @@ async function getSeatMap(scheduled_flight_id, connection = pool) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if(connection == pool){
+                if(!usingConnection){
                     resolve(results);
                 }
                 else{

@@ -48,12 +48,12 @@ const signupUser = async (req, res, next) => {
     if (error) {
         return errorMessage(res, error.details[0].message, 422)
     }
-    if (await userModel.isEmailRegistered(value.email)) {
+    if (await userModel.isEmailRegistered(req.accType,value.email)) {
         return errorMessage(res, "Email already registered", 422)
     }
     try {
         const hashedPw = await bcrypt.hash(value.password, 12);
-        const queryResult = await userModel.createUser(value.title, value.first_name, value.last_name, value.email, value.gender, hashedPw);
+        const queryResult = await userModel.createUser(req.accType,value.title, value.first_name, value.last_name, value.email, value.gender, hashedPw);
         return successMessage(res, { userID: queryResult.insertId.toString() }, 'User created successfully', 201);
     }
     catch (err) {
@@ -62,7 +62,7 @@ const signupUser = async (req, res, next) => {
 };
 
 const getUser = async (req, res, next) => {
-    userModel.fetchUser(req.params.userid)
+    userModel.fetchUser(req.accType,req.params.userid)
         .then(result => successMessage(res, result[0]))
         .catch(err => next(err));
 }
@@ -71,7 +71,7 @@ const getUser = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
     const userId = req.params.userid;
-    const user = await userModel.findUndeletedById(userId);
+    const user = await userModel.findUndeletedById(req.accType,userId);
     if (user.length === 0) {
         return errorMessage(res, "User not found", 422)
     }
@@ -85,12 +85,12 @@ const updateUser = async (req, res, next) => {
     if (error) {
         return errorMessage(res, error.details[0].message, 422)
     }
-    if (value.email !== user[0].email && await userModel.isEmailRegistered(value.email)) {
+    if (value.email !== user[0].email && await userModel.isEmailRegistered(req.accType,value.email)) {
         return errorMessage(res, "Email already registered", 422)
     }
     try {
         const hashedPw = (value.password === null) ? null : await bcrypt.hash(value.password, 12);
-        const queryResult = await userModel.updateById({ 'title': value.title, 'email': value.email, 'first_name': value.first_name, 'last_name': value.last_name, 'gender': value.gender, 'password': hashedPw }, userId);
+        const queryResult = await userModel.updateById(req.accType,{ 'title': value.title, 'email': value.email, 'first_name': value.first_name, 'last_name': value.last_name, 'gender': value.gender, 'password': hashedPw }, userId);
         return successMessage(res, null, 'User updated successfully');
     }
     catch (err) {
@@ -111,7 +111,7 @@ const updateUser = async (req, res, next) => {
 const viewBookings = async (req, res) => {
     let records;
     try {
-        records = await bookingModel.getBookings(req.params.userid);
+        records = await bookingModel.getBookings(req.accType,req.params.userid);
     } catch (err) {
         return errorMessage(res, err.message);
     }
@@ -141,9 +141,9 @@ const addBooking = async (req, res) => {
     let seatPrices;
     let userDiscount;
     try {
-        seatPrices = await seatMapModel.getSeatMap(bookingDetails.scheduled_flight_id);
+        seatPrices = await seatMapModel.getSeatMap(accType,bookingDetails.scheduled_flight_id);
 
-        userDiscount = await userModel.getUserDiscount(req.params.userid);
+        userDiscount = await userModel.getUserDiscount(accType,req.params.userid);
 
     } catch (err) {
         return errorMessage(res, err.message, 400);
@@ -204,13 +204,13 @@ const addBooking = async (req, res) => {
 
         results = await baseModel.startTransaction(results.connection);
 
-        results = await bookingModel.addBooking(bookingDetails, results.connection);
+        results = await bookingModel.addBooking(req.accType,bookingDetails, results.connection);
 
         if (passengers.length > 0) {
-            results = await passengerModel.addPassengers(passengers, req.params.userid, results.connection);
+            results = await passengerModel.addPassengers(req.accType,passengers, req.params.userid, results.connection);
 
 
-            results = await passengerModel.getLastPassengerIDs(req.params.userid, newPassengerCount, results.connection);
+            results = await passengerModel.getLastPassengerIDs(req.accType,req.params.userid, newPassengerCount, results.connection);
 
             results.results.reverse();
             results.results.forEach(passenger => {
@@ -223,7 +223,7 @@ const addBooking = async (req, res) => {
                 });
             });
         }
-        results = await bookingModel.getLastBooking(req.params.userid, results.connection);
+        results = await bookingModel.getLastBooking(req.accType,req.params.userid, results.connection);
 
         bookingID = results.results[0].id;
         scheduledFlightID = results.results[0].scheduled_flight_id;
@@ -256,7 +256,7 @@ const addBooking = async (req, res) => {
 const viewBookingDetails = async (req, res) => {
     let records;
     try {
-        records = await bookingModel.getBookingDetails(req.params.bookingid);
+        records = await bookingModel.getBookingDetails(req.accType, req.params.bookingid);
     } catch (err) {
         return errorMessage(res, err.message);
     }
@@ -284,7 +284,7 @@ const updateBooking = async (req, res) => {
                 "state": "completed"
             }
             try {
-                const records = await bookingModel.updateBooking(conditions, values);
+                const records = await bookingModel.updateBooking(req.accType,conditions, values);
             }
             catch (err) {
                 //console.log(err);
@@ -317,10 +317,10 @@ const deleteBooking = async (req, res) => {
 
         var results = await baseModel.startTransaction(DBconnection);
 
-        var results = await bookingModel.deleteBooking(req.params.userid, req.params.bookingid, results.connection);
+        var results = await bookingModel.deleteBooking(req.accType,req.params.userid, req.params.bookingid, results.connection);
 
         if (results.results.changedRows > 0) {
-            var results = await reservedSeatModel.deleteReservedSeats(req.params.bookingid, results.connection);
+            var results = await reservedSeatModel.deleteReservedSeats(req.accType,req.params.bookingid, results.connection);
 
             var results = await baseModel.endTransaction(results.connection);
 
@@ -353,7 +353,7 @@ const deleteBooking = async (req, res) => {
 */
 const deleteUser = async (req, res) => {
     userModel
-        .deleteUser(req.params.userid)
+        .deleteUser(req.accType,req.params.userid)
         .then((result) => {
             let message = result == true ? "Deleted successfully" : "Couldnt delete";
             return res.status(200).send(message);
@@ -365,7 +365,7 @@ const deleteUser = async (req, res) => {
 
 
 const getPassengers = async (req, res, next) => {
-    passengerModel.getPassengersOfUser(req.params.userid)
+    passengerModel.getPassengersOfUser(req.accType,req.params.userid)
         .then(result => {
             successMessage(res, result);
         })

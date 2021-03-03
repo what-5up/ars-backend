@@ -1,6 +1,6 @@
 const { pool } = require(`../database/connection`);
 
-async function addPassengers(passengers, userID, connection = pool) {
+async function addPassengers(accType,passengers, userID, connection = null) {
     let sql = "INSERT INTO passenger(user_id,title,first_name,last_name,birthday,gender,country,passport_no,passport_expiry) VALUES ";
     let valuesStatement = "(?,?,?,?,?,?,?,?,?),";
     let variableValues = [];
@@ -20,6 +20,11 @@ async function addPassengers(passengers, userID, connection = pool) {
     // console.log(sql);
     // console.log(variableValues);
     return new Promise((resolve, reject) => {
+        let usingConnection = true;
+        if(connection == null){
+            connection = pool(accType)
+            usingConnection = false;
+        }
         const result = connection.query(sql,
             variableValues,
             function (error, results) {
@@ -28,7 +33,7 @@ async function addPassengers(passengers, userID, connection = pool) {
                     reject(new Error(error.message));
                 }
                 // console.log(result.sql);
-                if (connection == pool) {
+                if (!usingConnection) {
                     resolve(results);
                 }
                 else {
@@ -83,9 +88,14 @@ async function getPassengers(user_id = undefined) {
  * @returns {object} Promise of a query output
  * @throws Error
  */
-async function getLastPassengerIDs(user_id, newPassengerCount, connection = pool) {
+async function getLastPassengerIDs(accType,user_id, newPassengerCount, connection = null) {
     return new Promise((resolve, reject) => {
         //fetching data from the database
+        let usingConnection = true;
+        if(connection == null){
+            connection = pool(accType)
+            usingConnection = false;
+        }
         const result = connection.query('SELECT * FROM passenger WHERE user_id = ? ORDER BY id DESC LIMIT ?;',
             [
                 user_id,
@@ -95,7 +105,7 @@ async function getLastPassengerIDs(user_id, newPassengerCount, connection = pool
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if (connection == pool) {
+                if (!usingConnection) {
                     resolve(results);
                 }
                 else {
@@ -114,9 +124,9 @@ async function getLastPassengerIDs(user_id, newPassengerCount, connection = pool
  * 
  * @returns {Promise<object>} [{}]
  */
-async function getPassengersOfUser(userId){
+async function getPassengersOfUser(accType,userId){
     return new Promise((resolve, reject) => {
-        const result = pool.query("SELECT id, title , first_name, last_name, birthday, gender, country, passport_no, passport_expiry FROM passenger WHERE user_id = ?", 
+        const result = pool(accType).query("SELECT id, title , first_name, last_name, birthday, gender, country, passport_no, passport_expiry FROM passenger WHERE user_id = ?", 
         [userId] ,
             function (error, results) {
                 if (error) {

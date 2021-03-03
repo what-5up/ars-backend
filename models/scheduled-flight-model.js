@@ -11,6 +11,7 @@ const { pool } = require(`../database/connection`);
  * @throws Error -database connection error
  */
 async function getScheduledFlights(
+	accType,
 	flightID = undefined,
 	origin = undefined,
 	destination = undefined,
@@ -68,7 +69,7 @@ async function getScheduledFlights(
 		}
 
 		//fetching data from the database
-		pool.query('SELECT * FROM scheduled_flights_list' + whereClause, variableValues, function (error, results) {
+		pool(accType).query('SELECT * FROM scheduled_flights_list' + whereClause, variableValues, function (error, results) {
 			if (error) {
 				reject(new Error(error.message));
 			}
@@ -84,10 +85,10 @@ async function getScheduledFlights(
  *
  * @returns {Promise<object>} query output
  */
-const getScheduledFlightsForCRC = async (isDeleted = undefined) => {
+const getScheduledFlightsForCRC = async (accType,isDeleted = undefined) => {
 	isDeleted = isDeleted ? isDeleted : 0;
 	return new Promise((resolve, reject) => {
-		pool.query(
+		pool(accType).query(
 			'SELECT id, route, departure, arrival, assigned_aircraft_id AS assignedAircraftId, delayed_departure AS delayedDeparture FROM `scheduled_flight` WHERE is_deleted = ?',
 			[isDeleted],
 			function (error, results) {
@@ -107,9 +108,9 @@ const getScheduledFlightsForCRC = async (isDeleted = undefined) => {
  * @returns {Promise<object>} Promise of a query output
  * @throws Error
  */
-const deleteScheduledFlight = async (id) => {
+const deleteScheduledFlight = async (accType,id) => {
   return new Promise((resolve, reject) => {
-    pool.query(
+    pool(accType).query(
       "UPDATE scheduled_flight SET is_deleted = 1 WHERE id = ?",
       [parseInt(id)],
       (error, result) => {
@@ -134,6 +135,7 @@ const deleteScheduledFlight = async (id) => {
  * @throws Error
  */
 const addScheduledFlight = async (
+	accType,
 	payload = {
 		route: undefined,
 		departure: undefined,
@@ -157,7 +159,7 @@ const addScheduledFlight = async (
 	});
 
 	return new Promise((resolve, reject) => {
-		pool.query(
+		pool(accType).query(
 			`INSERT INTO scheduled_flight (${fields.join()}) VALUES (${placeholders.join()})`,
 			values,
 			(error, result) => {
@@ -179,6 +181,7 @@ const addScheduledFlight = async (
  * @throws Error
  */
 const updateScheduledFlight = async (
+	accType,
 	id,
 	payload = {
 		route: null,
@@ -203,7 +206,7 @@ const updateScheduledFlight = async (
   SET ${fields.join()}
   WHERE id = ?`);
 	return new Promise((resolve, reject) => {
-		pool.query(
+		pool(accType).query(
 			`UPDATE scheduled_flight
       SET ${fields.join()}
       WHERE id = ?`,
