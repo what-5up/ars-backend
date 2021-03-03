@@ -804,3 +804,20 @@ CREATE TRIGGER `TR_CheckBookingState`
     END IF;
   END$$
 DELIMITER ;
+
+--
+-- Generate passenger and seat details of a booking
+-- NOTE: run "SET GLOBAL log_bin_trust_function_creators = 1;" to remove deterministic check
+--
+DELIMITER $$
+
+CREATE PROCEDURE 
+  check_arrival_and_destination( arrival TIMESTAMP, departure TIMESTAMP )
+  BEGIN
+    IF TIMEDIFF(arrival, departure) < 0
+    THEN
+      SIGNAL SQLSTATE '02000'  
+      SET MESSAGE_TEXT = 'Warning: departure should be before arrival!';
+    END IF;
+  END$$
+DELIMITER ;
