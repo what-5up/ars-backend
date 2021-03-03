@@ -132,10 +132,11 @@ const addBooking = async (req, res) => {
 
     bookingDetails = _.pick(req.body,
         [
-            "user_id",
             "scheduled_flight_id"
         ]
     );
+
+    bookingDetails.user_id = req.params.userid;
 
     let seatPrices;
     let userDiscount;
@@ -286,7 +287,7 @@ const updateBooking = async (req, res) => {
                 const records = await bookingModel.updateBooking(conditions, values);
             }
             catch (err) {
-                console.log(err);
+                //console.log(err);
                 return errorMessage(res, err.message);
             }
         } else {

@@ -3,15 +3,16 @@ const router = express.Router();
 
 const authenticate = require('../middlewares/authentication')
 const authorize = require('../middlewares/authorization')
+const scheduledFlightsValidator = require('../middlewares/schema-validators/scheduled-flights-validator');
 const { AccountTypesEnum } = require('../utils/constants');
 
 const {
-    viewScheduledFlights, 
-    viewScheduledFlight, 
+    viewScheduledFlights,
+    viewScheduledFlight,
     viewDetailedScheduledFlights,
-    deleteScheduledFlight, 
-    addScheduledFlight, 
-    updateScheduledFlight, 
+    deleteScheduledFlight,
+    addScheduledFlight,
+    updateScheduledFlight,
     viewSeatMap,
     getPricing
 } = require('../controllers/scheduled-flight-controller');
@@ -58,6 +59,11 @@ router.get('/:id/seat-map', authenticate, authorize([AccountTypesEnum.CREW_SCHED
  * @todo assign controller method
  * @todo include middleware
  */
-router.post('/:id/pricing', authenticate, authorize([AccountTypesEnum.REGISTERED_USER, AccountTypesEnum.GUEST]), getPricing);
+router.post(
+    '/:id/pricing',
+    authenticate,
+    authorize(AccountTypesEnum.USERS),
+    scheduledFlightsValidator.getPricing,
+    getPricing);
 
 module.exports = router;
