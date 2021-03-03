@@ -56,8 +56,10 @@ async function getBookingDetails(accType,booking_id = undefined) {
  * @throws Error
  */
 async function getLastBooking(accType,user_id, connection = null) {
+    let usingConnection = true;
     if (connection===null){
-        connection=pool(accType)
+        connection=pool(accType);
+        usingConnection=false;
     }
     return new Promise((resolve, reject) => {
         //fetching data from the database
@@ -67,7 +69,7 @@ async function getLastBooking(accType,user_id, connection = null) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if (connection == pool) {
+                if (usingConnection===false) {
                     resolve(results);
                 }
                 else {
@@ -85,8 +87,10 @@ async function getLastBooking(accType,user_id, connection = null) {
  * @param {object} seats 
  */
 async function addBooking(accType,bookingDetails, connection = null) {
+    let usingConnection = true;
     if (connection===null){
-        connection=pool(accType)
+        connection=pool(accType);
+        usingConnection=false;
     }
     return new Promise((resolve, reject) => {
 
@@ -102,7 +106,7 @@ async function addBooking(accType,bookingDetails, connection = null) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if (connection == pool) {
+                if (usingConnection===false) {
                     resolve(results);
                 }
                 else {
@@ -122,8 +126,10 @@ async function addBooking(accType,bookingDetails, connection = null) {
  * @throws Error
  */
 async function updateBooking(accType,conditions, values, connection = null) {
+    let usingConnection = true;
     if (connection===null){
-        connection=pool(accType)
+        connection=pool(accType);
+        usingConnection=false;
     }
     return new Promise((resolve, reject) => {
         //building query
@@ -160,7 +166,7 @@ async function updateBooking(accType,conditions, values, connection = null) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if (connection == pool) {
+                if (usingConnection===false) {
                     resolve(results);
                 }
                 else {
@@ -179,8 +185,10 @@ async function updateBooking(accType,conditions, values, connection = null) {
  * @throws Error
  */
 async function deleteBooking(accType,user_id, booking_id, connection = null) {
+    let usingConnection = true;
     if (connection===null){
-        connection=pool(accType)
+        connection=pool(accType);
+        usingConnection=false;
     }
     return new Promise((resolve, reject) => {
         const result = connection.query('UPDATE booking SET state = ? WHERE id = ? and user_id = ?;',
@@ -189,7 +197,7 @@ async function deleteBooking(accType,user_id, booking_id, connection = null) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if (connection == pool) {
+                if (usingConnection === false) {
                     resolve(results);
                 }
                 else {
