@@ -108,19 +108,22 @@ const getScheduledFlightsForCRC = async (isDeleted = undefined) => {
  * @throws Error
  */
 const deleteScheduledFlight = async (id) => {
-	return new Promise((resolve, reject) => {
-		pool.query('UPDATE scheduled_flight SET is_deleted = 1 WHERE id = ?', [parseInt(id)], (error, result) => {
-			if (error) reject(error);
-			else {
-				console.log(result);
-				if (result.affectedRows == 1) {
-					resolve(true);
-				} else {
-					resolve(false);
-				}
-			}
-		});
-	});
+  return new Promise((resolve, reject) => {
+    pool.query(
+      "UPDATE scheduled_flight SET is_deleted = 1 WHERE id = ?",
+      [parseInt(id)],
+      (error, result) => {
+        if (error) reject(error);
+        else {
+          if (result.affectedRows == 1) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        }
+      }
+    );
+  });
 };
 
 /**
