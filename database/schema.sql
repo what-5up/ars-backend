@@ -781,3 +781,26 @@ BEGIN
 END $$
 
 DELIMITER ;
+
+--
+-- Trigger structure for 'TR_CheckBookingState'
+-- Check state transition is valid before insert on bookings
+--
+DELIMITER $$
+
+CREATE TRIGGER `TR_CheckBookingState`
+  BEFORE UPDATE ON `bookings`
+  FOR EACH ROW
+  BEGIN
+    IF (
+      (NEW.`state` = `booked` AND OLD.`state` = `completed`)
+      OR (NEW.`state` = `booked` AND OLD.`state` = `cancelled`)
+      OR (NEW.`state` = `completed` AND OLD.`state` = `cancelled`)
+      OR (NEW.`state` = `cancelled` AND OLD.`state` = `completed`)
+    )
+    THEN
+      SIGNAL SQLSTATE '02000'  
+      SET MESSAGE_TEXT = 'Warning: state transition is not valid!';
+    END IF;
+  END$$
+DELIMITER ;
