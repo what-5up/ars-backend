@@ -12,7 +12,7 @@ const getAllAircrafts = async () => {
             if (error) {
                 reject(new Error(error.message));
             }
-            connection.query('SELECT a.id, am.model_name, am.seating_capacity FROM aircraft a INNER JOIN aircraft_model am ON a.model_id=am.id',
+            connection.query('SELECT * FROM aircraft_details',
                 [],
                 (error, results, fields) => {
                     connection.release();

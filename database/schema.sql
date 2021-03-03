@@ -262,8 +262,7 @@ CREATE TABLE `scheduled_flight` (
   REFERENCES `route`(`id`) ON UPDATE CASCADE,
   CONSTRAINT FK_ScheduledFlightAircraft FOREIGN KEY (`assigned_aircraft_id`)
   REFERENCES `aircraft`(`id`) ON UPDATE CASCADE,
-  CONSTRAINT UC_FlightSchedule UNIQUE (`route`, `departure`),
-  CONSTRAINT CHK_DepartureBeforeArrival CHECK (`arrival` IS NOT NULL AND `departure` < `arrival`)
+  CONSTRAINT UC_FlightSchedule UNIQUE (`route`, `departure`)
 );
 
 --
@@ -593,6 +592,20 @@ INNER JOIN `designation` `d`
     ON `e`.`designation_id` = `d`.`id`
 );
 
+--
+-- View structure for 'aircraft_details'
+-- descriptions of the airplane in the system
+--
+CREATE VIEW `aircraft_details`
+AS 
+(
+  SELECT `a`.`id`, `am`.`model_name`, `am`.`seating_capacity` 
+    FROM `aircraft` `a` 
+    INNER JOIN `aircraft_model` `am` 
+      ON `a`.`model_id`=`am`.`id`
+  WHERE `a`.`is_deleted` = 0
+);
+
 
 --
 -- Generate a seat map for of a aircraft with the attribute is_reserved
@@ -688,6 +701,21 @@ END $$
 
 DELIMITER ;
 
+--
+-- Return routes with no prices
+--
+DELIMITER $$
 
+CREATE PROCEDURE 
+  routes_with_no_prices()
+READS SQL DATA
+BEGIN  
+  SELECT `id` 
+	FROM `route` 
+    WHERE `id` NOT IN (
+        SELECT DISTINCT `route_id` 
+        FROM `price` 
+    );
+END $$
 
-
+DELIMITER ;
