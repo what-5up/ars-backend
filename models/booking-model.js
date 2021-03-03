@@ -26,6 +26,29 @@ async function getBookings(user_id = undefined) {
 }
 
 /**
+ * Fetches all passenger and seat details of a booking
+ * 
+ * @param {string} booking_id default undefined
+ * @returns {object} Promise of a query output
+ * @throws Error
+ */
+async function getBookingDetails(booking_id = undefined) {
+    return new Promise((resolve, reject) => {
+        //fetching data from the database
+        const result = pool.query('CALL get_passenger_and_seat_details(?);',
+            [booking_id],
+            function (error, results) {
+                if (error) {
+                    reject(new Error(error.message));
+                }
+                resolve(results);
+
+            }
+        );
+    })
+}
+
+/**
  * Fetches last booking done by a user from the database
  * 
  * @param {string} user_id default undefined
@@ -167,6 +190,7 @@ async function deleteBooking(user_id, booking_id, connection = pool) {
 
 module.exports = {
     getBookings,
+    getBookingDetails,
     addBooking,
     getLastBooking,
     updateBooking,

@@ -640,6 +640,34 @@ END $$
 
 DELIMITER ;
 
+--
+-- Generate passenger and seat details of a booking
+-- NOTE: run "SET GLOBAL log_bin_trust_function_creators = 1;" to remove deterministic check
+--
+DELIMITER $$
+
+CREATE PROCEDURE 
+  get_passenger_and_seat_details( booking_id_ INT )
+BEGIN  
+  SELECT `rs`.`seat_id`,
+    `p`.`id`,`p`.`user_id`,`p`.`title`,`p`.`first_name`,`p`.`last_name`,`p`.`birthday`,`p`.`gender`,`p`.`country`,`p`.`passport_no`,`p`.`passport_expiry`,
+    `sm`.`seat_number`,
+    `tc`.`class`
+  FROM
+      (
+        SELECT * 
+        FROM `reserved_seat`
+        WHERE `booking_id` = booking_id_
+      ) AS `rs`
+    LEFT JOIN `passenger` AS `p`
+      ON `rs`.`passenger_id` = `p`.`id`
+    LEFT JOIN `seat_map` AS `sm`
+      ON `rs`.`seat_id` = `sm`.`id`
+    LEFT JOIN `traveler_class` AS `tc`
+      ON `sm`.`traveler_class` = `tc`.`id`;
+END $$
+
+DELIMITER ;
 
 
 

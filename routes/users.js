@@ -10,6 +10,7 @@ const { AccountTypesEnum } = require('../utils/constants');
 const {
     viewBookings,
     addBooking,
+    viewBookingDetails,
     deleteBooking,
     updateBooking,
     signupUser,
@@ -48,25 +49,31 @@ router.delete('/:userid', authenticate, authorize([AccountTypesEnum.REGISTERED_U
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/:userid/bookings', authenticate, authorize([AccountTypesEnum.REGISTERED_USER]), authorizeCreater('userid'), viewBookings);
+router.get('/:userid/bookings', authenticate, authorize(AccountTypesEnum.USERS), authorizeCreater('userid'), viewBookings);
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.post('/:userid/bookings', authenticate, authorize([AccountTypesEnum.REGISTERED_USER,AccountTypesEnum.GUEST]), authorizeCreater('userid'), addBooking);
+router.post('/:userid/bookings', authenticate, authorize(AccountTypesEnum.USERS), authorizeCreater('userid'), addBooking);
 
 /**
 * @todo assign controller method
  * @todo include middleware
  */
-router.put('/:userid/bookings/:bookingid', authenticate, authorize([AccountTypesEnum.REGISTERED_USER]), authorizeCreater('userid'),  updateBooking);
+router.get('/:userid/bookings/:bookingid', authenticate, authorize(AccountTypesEnum.USERS), authorizeCreater('userid'),  viewBookingDetails);
+
+/**
+* @todo assign controller method
+ * @todo include middleware
+ */
+router.put('/:userid/bookings/:bookingid', authenticate, authorize(AccountTypesEnum.USERS), authorizeCreater('userid'),  updateBooking);
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.delete('/:userid/bookings/:bookingid', authenticate, authorize([AccountTypesEnum.REGISTERED_USER]), authorizeCreater('userid'),  deleteBooking);
+router.delete('/:userid/bookings/:bookingid', authenticate, authorize(AccountTypesEnum.USERS), authorizeCreater('userid'),  deleteBooking);
 
 router.get('/:userid/passengers', authenticate, authorize([AccountTypesEnum.REGISTERED_USER]), authorizeCreater('userid'), getPassengers);
 
