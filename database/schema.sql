@@ -229,6 +229,24 @@ CREATE TABLE `route` (
 );
 
 --
+-- Trigger structure for 'TR_CheckORiginAndDestination'
+-- Check origin and destination are different before insert on route
+--
+DELIMITER $$
+
+CREATE TRIGGER `TR_CheckORiginAndDestination`
+  BEFORE INSERT ON `route`
+  FOR EACH ROW
+  BEGIN
+    IF NEW.`origin` = NEW.`destination`
+    THEN
+      SIGNAL SQLSTATE '02000'  
+      SET MESSAGE_TEXT = 'Warning: origin and destination must be different!';
+    END IF;
+  END$$
+DELIMITER ;
+
+--
 -- Table structure for 'scheduled_flight'
 --
 CREATE TABLE `scheduled_flight` (
