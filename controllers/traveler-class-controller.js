@@ -3,7 +3,7 @@ const { successMessage, errorMessage } = require("../utils/message-template");
 
 const getAllTravelerClass = async (req, res) => {
     try {
-        const travelerClasses = await travelerClassModel.getAllTravelerClass();
+        const travelerClasses = await travelerClassModel.getAllTravelerClass(req.accType);
         successMessage(res,travelerClasses);
     }
     catch (err) {

@@ -22,7 +22,7 @@ const login = async (req, res, next) => {
     }
     let loadedUser;
     try {
-        const result = await sessionModel.findUserByEmail(value.email);
+        const result = await sessionModel.findUserByEmail(req.accType,value.email);
         if (result.length === 0) {
             return errorMessage(res, 'Incorrect email or password', 401);
         }

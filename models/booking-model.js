@@ -9,10 +9,10 @@ const logger = require('../utils/logger');
  * @returns {object} Promise of a query output
  * @throws Error
  */
-async function getBookings(user_id = undefined) {
+async function getBookings(accType,user_id = undefined) {
     return new Promise((resolve, reject) => {
         //fetching data from the database
-        const result = pool.query('CALL get_user_bookings(?);',
+        const result = pool(accType).query('CALL get_user_bookings(?);',
             [user_id],
             function (error, results) {
                 if (error) {
@@ -32,10 +32,10 @@ async function getBookings(user_id = undefined) {
  * @returns {object} Promise of a query output
  * @throws Error
  */
-async function getBookingDetails(booking_id = undefined) {
+async function getBookingDetails(accType,booking_id = undefined) {
     return new Promise((resolve, reject) => {
         //fetching data from the database
-        const result = pool.query('CALL get_passenger_and_seat_details(?);',
+        const result = pool(accType).query('CALL get_passenger_and_seat_details(?);',
             [booking_id],
             function (error, results) {
                 if (error) {
@@ -55,8 +55,14 @@ async function getBookingDetails(booking_id = undefined) {
  * @returns {object} Promise of a query output
  * @throws Error
  */
-async function getLastBooking(user_id, connection = pool) {
+async function getLastBooking(accType,user_id, connection = null) {
     return new Promise((resolve, reject) => {
+        
+        let usingConnection = true;
+        if(connection == null){
+            connection = pool(accType)
+            usingConnection = false;
+        }
         //fetching data from the database
         const result = connection.query('SELECT * FROM booking WHERE user_id = ? ORDER BY date_of_booking DESC LIMIT 1;',
             [user_id],
@@ -64,7 +70,7 @@ async function getLastBooking(user_id, connection = pool) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if (connection == pool) {
+                if (!usingConnection) {
                     resolve(results);
                 }
                 else {
@@ -81,9 +87,14 @@ async function getLastBooking(user_id, connection = pool) {
  * @param {object} bookingDetails 
  * @param {object} seats 
  */
-async function addBooking(bookingDetails, connection = pool) {
+async function addBooking(accType,bookingDetails, connection = undefined) {
     return new Promise((resolve, reject) => {
 
+        let usingConnection = true;
+        if(connection == null){
+            connection = pool(accType)
+            usingConnection = false;
+        }
         //insert data to the database
         const result = connection.query("INSERT INTO booking (user_id, scheduled_flight_id, date_of_booking, final_amount, state) VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?);",
             [
@@ -96,7 +107,7 @@ async function addBooking(bookingDetails, connection = pool) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if (connection == pool) {
+                if (!usingConnection) {
                     resolve(results);
                 }
                 else {
@@ -115,9 +126,14 @@ async function addBooking(bookingDetails, connection = pool) {
  * @returns {object} Promise of a query output
  * @throws Error
  */
-async function updateBooking(conditions, values, connection = pool) {
+async function updateBooking(accType,conditions, values, connection = null) {
     return new Promise((resolve, reject) => {
         //building query
+        let usingConnection = true;
+        if(connection == null){
+            connection = pool(accType)
+            usingConnection = false;
+        }
         let query = "UPDATE booking";
 
         //building SET clause
@@ -151,7 +167,7 @@ async function updateBooking(conditions, values, connection = pool) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if (connection == pool) {
+                if (!usingConnection) {
                     resolve(results);
                 }
                 else {
@@ -169,15 +185,20 @@ async function updateBooking(conditions, values, connection = pool) {
  * @returns {object} Promise of a query output
  * @throws Error
  */
-async function deleteBooking(user_id, booking_id, connection = pool) {
+async function deleteBooking(accType,user_id, booking_id, connection = null) {
     return new Promise((resolve, reject) => {
+        let usingConnection = true;
+        if(connection == null){
+            connection = pool(accType)
+            usingConnection = false;
+        }
         const result = connection.query('UPDATE booking SET state = ? WHERE id = ? and user_id = ?;',
             ["cancelled", booking_id, user_id],
             function (error, results) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                if (connection == pool) {
+                if (!usingConnection) {
                     resolve(results);
                 }
                 else {

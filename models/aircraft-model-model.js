@@ -6,9 +6,9 @@ const { pool } = require(`../database/connection`);
  * @returns {object} Promise of a query output
  * @throws Error
  */
-const getSeatMapDetails = async (scheduled_flight_id) => {
+const getSeatMapDetails = async (accType,scheduled_flight_id) => {
     return new Promise((resolve, reject) => {
-        const result = pool.getConnection((error, connection) => {
+        const result = pool(accType).getConnection((error, connection) => {
             if (error) {
                 reject(new Error(error.message));
             }

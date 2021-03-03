@@ -6,7 +6,7 @@ const titleModel = require("../models/title-model");
 
 const getAllTitles = async (req, res) => {
     try {
-        const titles = await titleModel.getAllTitles();
+        const titles = await titleModel.getAllTitles(req.accType);
         successMessage(res, titles);
     }
     catch (err) {
@@ -24,7 +24,7 @@ function validateUpdateTitle(titleName) {
 
 const updateTitle = async (req, res) => {
     const titleId = req.params.id;
-    const title = await titleModel.getTitleById(titleId);
+    const title = await titleModel.getTitleById(req.accType,titleId);
     if (title.length === 0) {
         return errorMessage(res, "Title not found", 422)
     }
@@ -34,7 +34,7 @@ const updateTitle = async (req, res) => {
         return errorMessage(res, error.details[0].message, 422)
     }
     try {
-        const queryResult = await titleModel.updateTitleById(value.titleName,titleId)
+        const queryResult = await titleModel.updateTitleById(req.accType,value.titleName,titleId)
         return successMessage(res, null, 'Title updated successfully');
     }
     catch (err) {

@@ -7,11 +7,11 @@ const priceModel = require('../models/price-model');
 const viewRoutes = async (req, res, next) => {
     try {
         if (req.query.unallocatedPrice === 'true') {
-            const routes = await routeModel.getRoutesOfUnallocatedPrice();
+            const routes = await routeModel.getRoutesOfUnallocatedPrice(req.accType);
             return successMessage(res, routes.map((object) => object['id']));
         }
 
-        const routes = await routeModel.getRoutes(req.query.origin, req.query.destination);
+        const routes = await routeModel.getRoutes(req.accType,req.query.origin, req.query.destination);
         if (routes.length === 0) {
             return errorMessage(res, "Specified Routes not found", 404)
         }
@@ -25,7 +25,7 @@ const viewRoutes = async (req, res, next) => {
 
 const viewRoute = async (req, res, next) => {
     try {
-        const route = await routeModel.getRoute(req.params.id);
+        const route = await routeModel.getRoute(req.accType,req.params.id);
         if (route.length === 0) {
             return errorMessage(res, "Route not found", 404);
         }
@@ -37,7 +37,7 @@ const viewRoute = async (req, res, next) => {
 };
 
 const viewAllRoutePrices = async (req, res, next) => {
-    priceModel.fetchAllRoutePrices()
+    priceModel.fetchAllRoutePrices(req.accType)
         .then(records => successMessage(res, records))
         .catch(err => next(err));
 }
@@ -51,7 +51,7 @@ const viewAllRoutePrices = async (req, res, next) => {
  * @return {Response} {class, price} if success
  */
 const viewRoutePrice = async (req, res, next) => {
-    priceModel.fetchRoutePrice(req.params.id)
+    priceModel.fetchRoutePrice(req.accType,req.params.id)
         .then(records => successMessage(res, records))
         .catch((err) => next(err));
 }
@@ -66,7 +66,7 @@ const viewRoutePrice = async (req, res, next) => {
 const addRoutePrice = async (req, res, next) => {
     const {travelerClass, amount} = req.body;
     const routeId = req.params.id
-    priceModel.addRoutePrice({travelerClass, amount, routeId})
+    priceModel.addRoutePrice(req.accType,{travelerClass, amount, routeId})
         .then(() => {
             return successMessage(res, true, "Route price added successfully");
         })
@@ -82,7 +82,7 @@ const addRoutePrice = async (req, res, next) => {
  * @throws Error
  */
 const updateRoutePrice = async (req, res, next) => {
-    priceModel.updateRoutePrice(req.params.id, req.params.classid, req.body.amount)
+    priceModel.updateRoutePrice(req.accType,req.params.id, req.params.classid, req.body.amount)
         .then(() => {
             return successMessage(res, null, "Updated successfully");
         })
@@ -101,7 +101,7 @@ const updateRoutePrice = async (req, res, next) => {
  */
 const deleteRoutePrice = async (req, res, next) => {
     priceModel
-        .deleteRoutePrice(req.params.id, req.params.classid)
+        .deleteRoutePrice(req.accType,req.params.id, req.params.classid)
         .then((result) => {
             if (result) return successMessage(res, null, "Route price deleted successfully")
         })

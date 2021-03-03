@@ -2,9 +2,9 @@ const { pool } = require('../database/connection');
 
 
 
-async function getRoute(routeId) {
+async function getRoute(accType,routeId) {
     return new Promise((resolve, reject) => {
-        const result = pool.query('SELECT * FROM route_with_airports WHERE id = ?',
+        const result = pool(accType).query('SELECT * FROM route_with_airports WHERE id = ?',
             [routeId],
             function (error, results) {
                 if (error) {
@@ -16,7 +16,7 @@ async function getRoute(routeId) {
     });
 }
 
-async function getRoutes(origin_code = undefined, destination_code = undefined, order = undefined, limit = undefined) {
+async function getRoutes(accType,origin_code = undefined, destination_code = undefined, order = undefined, limit = undefined) {
     let whereClause = '';
     let variableNames = [];
     let variableValues = [];
@@ -45,7 +45,7 @@ async function getRoutes(origin_code = undefined, destination_code = undefined, 
     }
     console.log(sql, variableValues);
     return new Promise((resolve, reject) => {
-        const result = pool.query(sql, variableValues,
+        const result = pool(accType).query(sql, variableValues,
             function (error, results) {
                 if (error) {
                     reject(new Error(error.message));
@@ -56,9 +56,9 @@ async function getRoutes(origin_code = undefined, destination_code = undefined, 
     });
 }
 
-const getRoutesOfUnallocatedPrice = () => {
+const getRoutesOfUnallocatedPrice = (accType) => {
     return new Promise((resolve, reject) => {
-        const result = pool.query("SELECT id FROM route WHERE id NOT IN (SELECT DISTINCT route_id FROM price)", [],
+        const result = pool(accType).query("SELECT id FROM route WHERE id NOT IN (SELECT DISTINCT route_id FROM price)", [],
             function (error, results) {
                 if (error) {
                     reject(error);
