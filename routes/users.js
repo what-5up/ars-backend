@@ -5,6 +5,7 @@ const UserController = require('../controllers/user-controller')
 const authenticate = require('../middlewares/authentication')
 const authorize = require('../middlewares/authorization')
 const authorizeCreater = require('../middlewares/creater-authorization');
+const usersValidator = require('../middlewares/schema-validators/users-validator');
 const { AccountTypesEnum } = require('../utils/constants');
 
 const {
@@ -25,56 +26,82 @@ const {
  * @todo assign controller method
  * @todo include middleware
  */
-router.post('/', signupUser);
+router.post(
+    '/', 
+    signupUser);
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.get('/:userid', getUser);
+router.get(
+    '/:userid', 
+    getUser);
 
 /**
 * @todo assign controller method
  * @todo include middleware
  */
-router.put('/:userid', authenticate, authorize([AccountTypesEnum.REGISTERED_USER]), authorizeCreater('userid'),  updateUser);
+router.put(
+    '/:userid', 
+    authenticate, 
+    authorize([AccountTypesEnum.REGISTERED_USER]), 
+    authorizeCreater('userid'), 
+    updateUser);
 
 /**
  * @todo assign controller method
  * @todo include middleware
  */
-router.delete('/:userid', authenticate, authorize([AccountTypesEnum.REGISTERED_USER]), authorizeCreater('userid'), deleteUser);
+router.delete(
+    '/:userid', 
+    authenticate, 
+    authorize([AccountTypesEnum.REGISTERED_USER]), 
+    authorizeCreater('userid'), 
+    deleteUser);
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.get('/:userid/bookings', authenticate, authorize(AccountTypesEnum.USERS), authorizeCreater('userid'), viewBookings);
+router.get(
+    '/:userid/bookings', 
+    authenticate, 
+    authorize(AccountTypesEnum.USERS), 
+    authorizeCreater('userid'), 
+    viewBookings);
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.post('/:userid/bookings', authenticate, authorize(AccountTypesEnum.USERS), authorizeCreater('userid'), addBooking);
+router.post(
+    '/:userid/bookings',
+    authenticate,
+    authorize(AccountTypesEnum.USERS),
+    authorizeCreater('userid'),
+    usersValidator.addBooking,
+    addBooking);
 
-/**
-* @todo assign controller method
- * @todo include middleware
- */
-router.get('/:userid/bookings/:bookingid', authenticate, authorize(AccountTypesEnum.USERS), authorizeCreater('userid'),  viewBookingDetails);
+router.get(
+    '/:userid/bookings/:bookingid', 
+    authenticate, 
+    authorize(AccountTypesEnum.USERS), 
+    authorizeCreater('userid'),
+    viewBookingDetails);
 
-/**
-* @todo assign controller method
- * @todo include middleware
- */
-router.put('/:userid/bookings/:bookingid', authenticate, authorize(AccountTypesEnum.USERS), authorizeCreater('userid'),  updateBooking);
+router.put(
+    '/:userid/bookings/:bookingid', 
+    authenticate, 
+    authorize(AccountTypesEnum.USERS), 
+    authorizeCreater('userid'), 
+    usersValidator.updateBooking,
+    updateBooking);
 
-/**
- * @todo assign controller method
- * @todo include middleware
- */
-router.delete('/:userid/bookings/:bookingid', authenticate, authorize(AccountTypesEnum.USERS), authorizeCreater('userid'),  deleteBooking);
+router.delete(
+    '/:userid/bookings/:bookingid', 
+    authenticate, 
+    authorize(AccountTypesEnum.USERS), 
+    authorizeCreater('userid'), 
+    deleteBooking);
 
-router.get('/:userid/passengers', authenticate, authorize([AccountTypesEnum.REGISTERED_USER]), authorizeCreater('userid'), getPassengers);
+router.get(
+    '/:userid/passengers', 
+    authenticate, 
+    authorize([AccountTypesEnum.REGISTERED_USER]), 
+    authorizeCreater('userid'), 
+    getPassengers);
 
 module.exports = router;
