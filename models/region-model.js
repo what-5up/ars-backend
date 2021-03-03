@@ -48,8 +48,8 @@ const createRegion = async (payload = { name: null, code: null, parent_region_id
 					values.push(payload[key]);
 				}
 			});
-            console.log(fields.join());
-            console.log(`INSERT INTO region ( ${fields.join()} ) VALUES ( ${fields.map(() => '?').join()} )`);
+            //console.log(fields.join());
+            //console.log(`INSERT INTO region ( ${fields.join()} ) VALUES ( ${fields.map(() => '?').join()} )`);
 			connection.query(
 				`INSERT INTO region ( ${fields.join()} ) VALUES ( ${fields.map(() => '?').join()} )`, 
 				values,

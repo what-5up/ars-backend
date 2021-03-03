@@ -148,7 +148,7 @@ const getPricing = async (req, res, next) => {
   try {
     seatPrices = await seatMapModel.getSeatMap(req.params.id);
 
-    userDiscount = await userModel.getUserDiscount(req.body.user_id);
+    userDiscount = await userModel.getUserDiscount(req.userID);
 
   } catch (err) {
     return errorMessage(res, err.message, 400);
