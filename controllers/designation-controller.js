@@ -9,7 +9,7 @@ const { successMessage, errorMessage } = require("../utils/message-template");
  * @return {Response} [{ id, account_type_name, discount, criteria }]
  */
 const viewAllDesignations = async (req, res, next) => {
-  model.getAllDesignations()
+  model.getAllDesignations(req.accType)
     .then(result => {
       successMessage(res, result);
     })
@@ -24,7 +24,7 @@ const viewAllDesignations = async (req, res, next) => {
  * @return {Response} { id }
  */
 const addDesignation = async (req, res, next) => {
-  model.addDesignation(req.body)
+  model.addDesignation(req.accType,req.body)
     .then((result) => {
       return successMessage(res, { id: result.insertId }, "designation added successfully");
     })
@@ -40,7 +40,7 @@ const addDesignation = async (req, res, next) => {
  * @throws Error
  */
 const updateDesignation = async (req, res, next) => {
-  model.updateDesignation(req.params.id, req.body)
+  model.updateDesignation(req.accType,req.params.id, req.body)
     .then(() => {
       return successMessage(res, true, "Updated successfully");
     })
@@ -60,7 +60,7 @@ const updateDesignation = async (req, res, next) => {
  */
 const deleteDesignation = async (req, res, next) => {
   model
-    .deleteAccountType(req.params.id)
+    .deleteAccountType(req.accType,req.params.id)
     .then((result) => {
       if (result == true) return successMessage(res, null, "designation deleted successfully")
       else return errorMessage(res, "Unable to delete the accont type", 500);

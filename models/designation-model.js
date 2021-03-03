@@ -3,9 +3,9 @@ const { pool } = require(`../database/connection`);
 /**
  * get all the designations from the database
  */
-async function getAllDesignations() {
+async function getAllDesignations(accType) {
   return new Promise((resolve, reject) => {
-    const result = pool.query("SELECT * FROM designation WHERE is_deleted = 0",
+    const result = pool(accType).query("SELECT * FROM designation WHERE is_deleted = 0",
       function (error, results) {
         if (error) {
           reject(error);
@@ -23,7 +23,7 @@ async function getAllDesignations() {
  * @returns {Promise<object>} Promise of a query output
  * @throws Error
  */
-const addDesignation = async (
+const addDesignation = async (accType,
   payload = {
     name: undefined,
     privilege: undefined
@@ -41,7 +41,7 @@ const addDesignation = async (
     }
   });
   return new Promise((resolve, reject) => {
-    pool.query(
+    pool(accType).query(
       `INSERT INTO designation (${fields.join()}) VALUES (${placeholders.join()})`,
       values,
       (error, result) => {
@@ -62,7 +62,7 @@ const addDesignation = async (
 * @returns {Promise<object>} Promise of a query output
 * @throws Error
 */
-const updateDesignation = async (
+const updateDesignation = async (accType,
   id,
   payload = {
     name: undefined,
@@ -79,7 +79,7 @@ const updateDesignation = async (
     }
   });
   return new Promise((resolve, reject) => {
-    pool.query(
+    pool(accType).query(
       `UPDATE designation
         SET ${fields.join()}
         WHERE id = ?`,
@@ -100,9 +100,9 @@ const updateDesignation = async (
  * @returns {Promise<boolean>} Promise of a query output
  * @throws Error
  */
-const deleteDesignation = async (id) => {
+const deleteDesignation = async (accType,id) => {
   return new Promise((resolve, reject) => {
-    pool.query(
+    pool(accType).query(
       "UPDATE designation SET is_deleted = 1 WHERE id = ?",
       [parseInt(id)],
       (error, result) => {

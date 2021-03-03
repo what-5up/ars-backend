@@ -6,9 +6,9 @@ const { pool } = require(`../database/connection`);
  * @returns {object} Promise of a query output
  * @throws Error
  */
-const getAllAirports = async () => {
+const getAllAirports = async (accType) => {
 	return new Promise((resolve, reject) => {
-		pool.getConnection((error, connection) => {
+		pool(accType).getConnection((error, connection) => {
 			if (error) {
 				reject(new Error(error.message));
 			}
@@ -33,9 +33,9 @@ const getAllAirports = async () => {
  * @returns {object} Promise of a query output
  * @throws Error
  */
-const createAirport = async (payload = { name: null, code: null, parent_region_id: null }) => {
+const createAirport = async (accType,payload = { name: null, code: null, parent_region_id: null }) => {
 	return new Promise((resolve, reject) => {
-		pool.getConnection((error, connection) => {
+		pool(accType).getConnection((error, connection) => {
 			if (error) {
 				reject(new Error(error.message));
 			}
@@ -71,7 +71,7 @@ const createAirport = async (payload = { name: null, code: null, parent_region_i
  * @returns {object} Promise of a query output
  * @throws Error
  */
-const updateAirport = async (id, payload = { name: null, code: null }) => {
+const updateAirport = async (accType,id, payload = { name: null, code: null }) => {
 	let allowedFields = ['name', 'code'];
 	let fields = [];
 	let values = [];
@@ -82,7 +82,7 @@ const updateAirport = async (id, payload = { name: null, code: null }) => {
 		}
 	});
 	return new Promise((resolve, reject) => {
-		pool.getConnection((error, connection) => {
+		pool(accType).getConnection((error, connection) => {
 			if (error) {
 				reject(new Error(error.message));
 			}
@@ -110,9 +110,9 @@ const updateAirport = async (id, payload = { name: null, code: null }) => {
  * @returns {Promise<object>} Promise of a query output
  * @throws Error
  */
-const deleteAirport = async (id) => {
+const deleteAirport = async (accType,id) => {
 	return new Promise((resolve, reject) => {
-		pool.query('UPDATE airport SET is_deleted = 1 WHERE id = ?', [parseInt(id)], (error, result) => {
+		pool(accType).query('UPDATE airport SET is_deleted = 1 WHERE id = ?', [parseInt(id)], (error, result) => {
 			if (error) reject(error);
 			else {
 				if (result.affectedRows == 1) {

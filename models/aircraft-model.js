@@ -6,9 +6,9 @@ const { pool } = require(`../database/connection`);
  * @returns {object} Promise of a query output
  * @throws Error
  */
-const getAllAircrafts = async () => {
+const getAllAircrafts = async (accType) => {
     return new Promise((resolve, reject) => {
-        const result = pool.getConnection((error, connection) => {
+        const result = pool(accType).getConnection((error, connection) => {
             if (error) {
                 reject(new Error(error.message));
             }
@@ -32,9 +32,9 @@ const getAllAircrafts = async () => {
  * @returns {object} Promise of a query output
  * @throws Error
  */
-const getDetailsForAircraft = async (id) => {
+const getDetailsForAircraft = async (accType,id) => {
     return new Promise((resolve, reject) => {
-        const result = pool.query('SELECT a.id, am.model_name, am.seating_capacity, sf.route, sf.departure FROM aircraft a INNER JOIN aircraft_model am ON a.model_id = am.id INNER JOIN scheduled_flight sf ON a.id = sf.assigned_aircraft_id where a.id = ? AND a.is_deleted = 0',
+        const result = pool(accType).query('SELECT a.id, am.model_name, am.seating_capacity, sf.route, sf.departure FROM aircraft a INNER JOIN aircraft_model am ON a.model_id = am.id INNER JOIN scheduled_flight sf ON a.id = sf.assigned_aircraft_id where a.id = ? AND a.is_deleted = 0',
             [id],
             (error, results, fields) => {
                 if (error) {
@@ -52,9 +52,9 @@ const getDetailsForAircraft = async (id) => {
  * @returns {object} Promise of a query output
  * @throws Error
  */
-const getAvailableAircrafts = async (startTime, endTime, seatingCapacity) => {
+const getAvailableAircrafts = async (accType,startTime, endTime, seatingCapacity) => {
     return new Promise((resolve, reject) => {
-        const result = pool.query('SELECT a.id, am.model_name, am.seat_capacity FROM aircraft a INNER JOIN aircraft_model am ON a.model_id = am.id INNER JOIN scheduled_flight sf ON a.id = sf.assigned_aircraft_id where am.seating_capacity>? sf.departure NOT BETWEEN IN ? AND ?',
+        const result = pool(accType).query('SELECT a.id, am.model_name, am.seat_capacity FROM aircraft a INNER JOIN aircraft_model am ON a.model_id = am.id INNER JOIN scheduled_flight sf ON a.id = sf.assigned_aircraft_id where am.seating_capacity>? sf.departure NOT BETWEEN IN ? AND ?',
             [seatingCapacity, startTime, endTime],
             (error, results, fields) => {
                 if (error) {
@@ -72,9 +72,9 @@ const getAvailableAircrafts = async (startTime, endTime, seatingCapacity) => {
  * @returns {object} Promise of a query output
  * @throws Error
  */
-const getAircraftModelList = async (id) => {
+const getAircraftModelList = async (accType,id) => {
     return new Promise((resolve, reject) => {
-        const result = pool.query('SELECT model_name FROM aircraft_model',
+        const result = pool(accType).query('SELECT model_name FROM aircraft_model',
             [],
             (error, results, fields) => {
                 if (error) {
