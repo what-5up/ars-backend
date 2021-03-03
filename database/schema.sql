@@ -13,7 +13,8 @@ CREATE TABLE `account_type` (
   `criteria` int unsigned,
   `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
-  CONSTRAINT CHK_AccountDiscount CHECK(`discount` BETWEEN 0 AND 100)
+  CONSTRAINT CHK_AccountDiscount CHECK(`discount` BETWEEN 0 AND 100),
+  INDEX `is_deleted` (`is_deleted`)
 );
 
 --
@@ -86,7 +87,8 @@ CREATE TABLE `registered_user` (
   CONSTRAINT FK_RegisteredUserTitle FOREIGN KEY (`title`) 
   REFERENCES `title`(`id`) ON UPDATE CASCADE,
   CONSTRAINT FK_RegisteredUserParent FOREIGN KEY (`id`) 
-  REFERENCES `user`(`id`) ON UPDATE CASCADE
+  REFERENCES `user`(`id`) ON UPDATE CASCADE,
+  INDEX `is_deleted` (`is_deleted`)
 );
 
 --
@@ -147,7 +149,8 @@ CREATE TABLE `employee` (
   CONSTRAINT FK_EmployeeDesignation FOREIGN KEY (`designation_id`) 
   REFERENCES `designation`(`id`) ON UPDATE CASCADE, 
   CONSTRAINT FK_EmployeeTitle FOREIGN KEY (`title`) 
-  REFERENCES `title`(`id`) ON UPDATE CASCADE  
+  REFERENCES `title`(`id`) ON UPDATE CASCADE,
+  INDEX `is_deleted` (`is_deleted`)
 );
 
 --
@@ -171,7 +174,8 @@ CREATE TABLE `aircraft` (
   `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_AircraftModel FOREIGN KEY (`model_id`) 
-  REFERENCES `aircraft_model`(`id`) ON UPDATE CASCADE  
+  REFERENCES `aircraft_model`(`id`) ON UPDATE CASCADE,
+  INDEX `is_deleted` (`is_deleted`)
 );
 
 --
@@ -195,7 +199,8 @@ CREATE TABLE `region` (
   PRIMARY KEY (`id`),
   CONSTRAINT FK_RegionParent FOREIGN KEY (`parent_id`) 
   REFERENCES `region`(`id`) ON UPDATE CASCADE,
-  CONSTRAINT UC_RegionName UNIQUE (`name`, `region_type`,`parent_id`)
+  CONSTRAINT UC_RegionName UNIQUE (`name`, `region_type`,`parent_id`),
+  INDEX `is_deleted` (`is_deleted`)
 );
 
 --
@@ -209,7 +214,8 @@ CREATE TABLE `airport` (
   `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_ParentRegion FOREIGN KEY (`parent_region_id`) 
-  REFERENCES `region`(`id`) ON UPDATE CASCADE
+  REFERENCES `region`(`id`) ON UPDATE CASCADE,
+  INDEX `is_deleted` (`is_deleted`)
 );
 
 --
@@ -225,7 +231,8 @@ CREATE TABLE `route` (
   REFERENCES `airport`(`id`) ON UPDATE CASCADE,
   CONSTRAINT FK_RouteDestination FOREIGN KEY (`destination`) 
   REFERENCES `airport`(`id`) ON UPDATE CASCADE,
-  CONSTRAINT UC_OriginDestination UNIQUE(`origin`, `destination`)
+  CONSTRAINT UC_OriginDestination UNIQUE(`origin`, `destination`),
+  INDEX `is_deleted` (`is_deleted`)
 );
 
 --
@@ -262,7 +269,8 @@ CREATE TABLE `scheduled_flight` (
   REFERENCES `route`(`id`) ON UPDATE CASCADE,
   CONSTRAINT FK_ScheduledFlightAircraft FOREIGN KEY (`assigned_aircraft_id`)
   REFERENCES `aircraft`(`id`) ON UPDATE CASCADE,
-  CONSTRAINT UC_FlightSchedule UNIQUE (`route`, `departure`)
+  CONSTRAINT UC_FlightSchedule UNIQUE (`route`, `departure`),
+  INDEX `is_deleted` (`is_deleted`)
 );
 
 --
