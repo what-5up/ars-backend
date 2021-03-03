@@ -141,9 +141,9 @@ const addBooking = async (req, res) => {
     let seatPrices;
     let userDiscount;
     try {
-        seatPrices = await seatMapModel.getSeatMap(accType,bookingDetails.scheduled_flight_id);
+        seatPrices = await seatMapModel.getSeatMap(req.accType,bookingDetails.scheduled_flight_id);
 
-        userDiscount = await userModel.getUserDiscount(accType,req.params.userid);
+        userDiscount = await userModel.getUserDiscount(req.accType,req.params.userid);
 
     } catch (err) {
         return errorMessage(res, err.message, 400);
