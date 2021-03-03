@@ -321,6 +321,69 @@ END $$
 DELIMITER ;
 
 --
+-- Trigger structure for 'TR_UpgradeUserOnCriteriaChange'
+-- Upgrades the user if he has passed the criteria.
+--
+
+DROP TRIGGER IF EXISTS `TR_UpgradeUserOnCriteriaChange`;
+
+DELIMITER $$
+
+CREATE TRIGGER `TR_UpgradeUserOnCriteriaChange` 
+AFTER UPDATE ON `account_type` 
+FOR EACH ROW 
+  BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE ids INT;
+    DECLARE current_criteria, number_of_bookings, next_criteria_id, next_criteria INT;
+    /* finding registered users */
+    DECLARE cur CURSOR FOR
+    SELECT id FROM `registered_user`;
+    -- SELECT `u`.`id`, `u`.`account_type_id`, COUNT(`u`.`id`)
+    -- FROM `registered_user` `u` 
+    --     INNER JOIN `booking` `b`
+    --         ON `b`.`user_id` = `u`.`id`
+    -- GROUP BY `u`.`id`;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
+    /* for each user update account type if needed */
+    OPEN cur;
+        ins_loop: LOOP
+            FETCH cur INTO ids;
+            IF done THEN
+                LEAVE ins_loop;
+            END IF;
+            SELECT `ac`.`criteria`, COUNT(*)
+            INTO current_criteria, number_of_bookings
+            FROM `registered_user` `u` 
+                INNER JOIN `account_type` `ac` 
+                    ON `u`.`account_type_id` = `ac`.`id`
+                INNER JOIN `booking` `b`
+                    ON `b`.`user_id` = `u`.`id`
+            WHERE `u`.`id` = ids;
+
+            /* finding the immediate upgrade to the current criteria */
+            SELECT `id`, `criteria` 
+            INTO next_criteria_id, next_criteria 
+            FROM `account_type`
+            WHERE `criteria` > current_criteria
+            ORDER BY `criteria`
+            LIMIT 1;
+
+            IF (number_of_bookings >= next_criteria)
+            THEN
+                UPDATE `registered_user` 
+                SET `account_type_id` = next_criteria_id
+                WHERE  `id` =  ids;
+            END IF;
+        END LOOP;
+    CLOSE cur;
+    
+END $$
+
+DELIMITER ;
+
+--
 -- Table structure for 'passenger'
 --
 CREATE TABLE `passenger` (
@@ -605,7 +668,6 @@ AS
       ON `a`.`model_id`=`am`.`id`
   WHERE `a`.`is_deleted` = 0
 );
-
 
 --
 -- Generate a seat map for of a aircraft with the attribute is_reserved
