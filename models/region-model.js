@@ -1,198 +1,134 @@
-const { query } = require('express');
 const { pool } = require(`../database/connection`);
-const logger = require('../utils/logger');
 
 /**
- * Fetches all the bookings from the database
- * 
- * @param {string} user_id default undefined
+ * Fetches all the regions
+ *
  * @returns {object} Promise of a query output
  * @throws Error
  */
-async function getAllRegions(payload = {id:undefined,name:undefined}) {
-    return new Promise((resolve, reject) => {
-        
-        let whereClause = '';
-        let variableNames = [];
-        let variableValues = [];
-        
-        let properties = payload.getOwnPropertyNames();
-        
-        for(let i =0;i<properties.length;i++){
-            if(payload[properties[i]] != undefined){
-                whereClause = 'where'
-                variableNames.push(`${properties[i]} = ? `)
-                variableValues.push(payload[properties[i]])
-            }
-        }
-
-        if (user_id !== undefined) {
-            whereClause = ' WHERE '
-            if (user_id !== undefined) {
-                variableNames.push('user_id = ?');
-                variableValues.push(user_id);
-            }
-            (variableNames.length == 1) ? whereClause += variableNames[0] :
-                whereClause += variableNames.join(' AND ');
-        }
-
-        //fetching data from the database
-        const result = pool.query('SELECT * FROM region' + whereClause,
-            variableValues,
-            function (error, results) {
-                if (error) {
-                    reject(new Error(error.message));
-                }
-                resolve(results);
-
-            }
-        );
-    })
-}
+const getAllRegions = async () => {
+	return new Promise((resolve, reject) => {
+		pool.getConnection((error, connection) => {
+			if (error) {
+				reject(new Error(error.message));
+			}
+			connection.query(
+				'SELECT `id`, `name`, `region_type`, `parent_id` FROM `region` WHERE `is_deleted`=0',
+				[],
+				(error, results) => {
+					connection.release();
+					if (error) {
+						reject(new Error(error.message));
+					}
+					resolve(results);
+				}
+			);
+		});
+	});
+};
 
 /**
- * Fetches last booking done by a user from the database
- * 
- * @param {string} user_id default undefined
+ * Create new region 
+ *
  * @returns {object} Promise of a query output
  * @throws Error
  */
-async function getLastBooking(user_id, connection = pool) {
-    return new Promise((resolve, reject) => {
-        //fetching data from the database
-        const result = connection.query('SELECT * FROM booking WHERE user_id = ? ORDER BY date_of_booking DESC LIMIT 1;',
-            [user_id],
-            function (error, results) {
-                if (error) {
-                    reject(new Error(error.message));
-                }
-                if (connection == pool) {
-                    resolve(results);
-                }
-                else {
-                    resolve({ results: results, connection: connection });
-                }
-
-            }
-        );
-    })
-}
-
-/**
- * @description Add a booking and reserved seats to the database
- * @param {object} bookingDetails 
- * @param {object} seats 
- */
-async function addBooking(bookingDetails, connection = pool) {
-    return new Promise((resolve, reject) => {
-
-        //insert data to the database
-        const result = connection.query("INSERT INTO booking (user_id, scheduled_flight_id, date_of_booking, final_amount) VALUES (?, ?, CURRENT_TIMESTAMP, ?);",
-            [
-                bookingDetails.user_id,
-                bookingDetails.scheduled_flight_id,
-                bookingDetails.final_amount
-            ],
-            function (error, results) {
-                if (error) {
-                    reject(new Error(error.message));
-                }
-                if (connection == pool) {
-                    resolve(results);
-                }
-                else {
-                    resolve({ results: results, connection: connection });
-                }
-
-            }
-        );
-    })
-}
+const createRegion = async (payload = { name: null, code: null, parent_region_id: null }) => {
+	return new Promise((resolve, reject) => {
+		pool.getConnection((error, connection) => {
+			if (error) {
+				reject(new Error(error.message));
+			}
+			let allowedFields = ['name', 'region_type','parent_id'];
+			let fields = [];
+			let values = [];
+			allowedFields.forEach((key) => {
+				if (payload[key] != null) {
+					fields.push(`${key}`);
+					values.push(payload[key]);
+				}
+			});
+            console.log(fields.join());
+            console.log(`INSERT INTO region ( ${fields.join()} ) VALUES ( ${fields.map(() => '?').join()} )`);
+			connection.query(
+				`INSERT INTO region ( ${fields.join()} ) VALUES ( ${fields.map(() => '?').join()} )`, 
+				values,
+				(error, results) => {
+					connection.release();
+					if (error) {
+						reject(new Error(error.message));
+					}
+					resolve(results);
+				}
+			);
+		});
+	});
+};
 
 /**
- * set booking state to completed in database
- * 
- * @param {string} user_id default undefined
+ * Update the region given by the id
+ *
  * @returns {object} Promise of a query output
  * @throws Error
  */
-async function updateBooking(conditions, values, connection = pool) {
-    return new Promise((resolve, reject) => {
-        //building query
-        let query = "UPDATE booking";
-
-        //building SET clause
-        query += " SET ";
-
-        let valueNames = [];
-        let queryValues = [];
-        for (const [key, value] of Object.entries(values)) {
-            valueNames.push(key+" = ?");
-            queryValues.push(value);
-        }
-        query+=valueNames.join(" , ");
-
-        //building WHERE clause
-        query+=" WHERE "
-        let conditionNames = [];
-        for (const [key, value] of Object.entries(conditions)) {
-            conditionNames.push(key+" = ?");
-            queryValues.push(value);
-        }
-        query+=conditionNames.join(" , ");
-
-        //finish building query
-        query+=";";
-        
-        logger.info(query);
-        logger.info(queryValues);
-        const result = connection.query(query, //'UPDATE booking SET state = ? WHERE id = ? and user_id = ?;'
-            queryValues,
-            function (error, results) {
-                if (error) {
-                    reject(new Error(error.message));
-                }
-                if (connection == pool) {
-                    resolve(results);
-                }
-                else {
-                    resolve({ results: results, connection: connection });
-                }
-            }
-        );
-    })
-}
+const updateRegion = async (id, payload = { name: null, code: null }) => {
+	let allowedFields = ['name', 'region_type','parent_id'];
+	let fields = [];
+	let values = [];
+	allowedFields.forEach((key) => {
+		if (payload[key] != null) {
+			fields.push(`${key} = ?`);
+			values.push(payload[key]);
+		}
+	});
+	return new Promise((resolve, reject) => {
+		pool.getConnection((error, connection) => {
+			if (error) {
+				reject(new Error(error.message));
+			}
+			connection.query(
+				`UPDATE region
+            SET ${fields.join()}
+            WHERE id = ?`,
+				[...values, id],
+				(error, results) => {
+					connection.release();
+					if (error) {
+						reject(new Error(error.message));
+					}
+					resolve(results);
+				}
+			);
+		});
+	});
+};
 
 /**
- * set booking state to cancelled in database
- * 
- * @param {string} user_id default undefined
- * @returns {object} Promise of a query output
+ * Delete an region given by ID
+ *
+ * @param {string} id
+ * @returns {Promise<object>} Promise of a query output
  * @throws Error
  */
-async function deleteBooking(user_id, booking_id, connection = pool) {
-    return new Promise((resolve, reject) => {
-        const result = connection.query('UPDATE booking SET state = ? WHERE id = ? and user_id = ?;',
-            ["cancelled", booking_id, user_id],
-            function (error, results) {
-                if (error) {
-                    reject(new Error(error.message));
-                }
-                if (connection == pool) {
-                    resolve(results);
-                }
-                else {
-                    resolve({ results: results, connection: connection });
-                }
-            }
-        );
-    })
-}
+const deleteRegion = async (id) => {
+	return new Promise((resolve, reject) => {
+		pool.query('UPDATE region SET is_deleted = 1 WHERE id = ?', [parseInt(id)], (error, result) => {
+			if (error) reject(error);
+			else {
+				if (result.affectedRows == 1) {
+					resolve(true);
+				} else {
+					resolve(false);
+				}
+			}
+		});
+	});
+};
 
 module.exports = {
-    getBookings,
-    addBooking,
-    getLastBooking,
-    updateBooking,
-    deleteBooking
-}
+	createRegion,
+    getAllRegions,
+	updateRegion,
+	deleteRegion,
+};
+

@@ -15,7 +15,7 @@ routes.use('/aircraft-models', require('./aircraft-model'));
 routes.use('/account-types', require('./account-types'));
 
 routes.use('/airports', require('./airports'));
-// routes.use('/regions', require('./regions'));
+routes.use('/regions', require('./regions'));
 
 routes.use('/designations', require('./designations'));
 

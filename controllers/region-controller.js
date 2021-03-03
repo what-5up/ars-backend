@@ -1,48 +1,52 @@
 const Joi = require('joi');
 const { successMessage, errorMessage } = require("../utils/message-template");
 
-const titleModel = require("../models/title-model");
+const regionModel = require("../models/region-model");
 
-
-const getAllRegions = async (req, res) => {
+const getAllRegions = async (req, res, next) => {
     try {
-        const titles = await titleModel.getAllTitles();
-        successMessage(res, titles);
+        const result = await regionModel.getAllRegions();
+        return successMessage(res, {data:result}, "", 200)
     }
     catch (err) {
-        errorMessage(res, "Internal server error", 500);
+        return errorMessage(res, err.message);
     }
 };
 
-function validateUpdateTitle(titleName) {
-    const schema = Joi.object({
-        titleName: Joi.string().trim().min(2).default(null).label('Title')
-    });
-    return schema.validate({titleName: titleName})
-}
-
-
-const updateTitle = async (req, res) => {
-    const titleId = req.params.titleId;
-    const title = await titleModel.getTitleById(titleId);
-    if (title.length === 0) {
-        return errorMessage(res, "Title not found", 422)
-    }
-    const titleName = req.body.titleName;
-    const { error, value } = validateUpdateTitle(titleName);
-    if (error) {
-        return errorMessage(res, error.details[0].message, 422)
-    }
+const addRegion = async (req, res, next) => {
     try {
-        const queryResult = await titleModel.updateTitleById(value.titleName,titleId)
-        return successMessage(res, null, 'Title updated successfully');
+        const result = await regionModel.createRegion(req.body);
+        return successMessage(res, {}, "region added", 200)
     }
     catch (err) {
-        errorMessage(res, "Internal server error", 500);
+        return errorMessage(res, err.message);
     }
 };
+
+const updateRegion = async (req, res, next) => {
+    try {
+        const result = await regionModel.updateRegion(req.params.id,req.body);
+        return successMessage(res, {}, "region updated", 200)
+    }
+    catch (err) {
+        return errorMessage(res, err.message);
+    }
+};
+
+const deleteRegion = async (req, res, next) => {
+    try {
+        const result = await regionModel.deleteRegion(req.params.id);
+        return successMessage(res, {}, "region deleted", 200)
+    }
+    catch (err) {
+        return errorMessage(res, err.message);
+    }
+};
+
 
 module.exports = {
-    getAllTitles,
-    updateTitle
+    getAllRegions,
+    addRegion,
+    updateRegion,
+    deleteRegion
 };

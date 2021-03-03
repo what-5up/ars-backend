@@ -194,7 +194,8 @@ CREATE TABLE `region` (
   `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT FK_RegionParent FOREIGN KEY (`parent_id`) 
-  REFERENCES `region`(`id`) ON UPDATE CASCADE
+  REFERENCES `region`(`id`) ON UPDATE CASCADE,
+  CONSTRAINT UC_RegionName UNIQUE (`name`, `region_type`,`parent_id`)
 );
 
 --
