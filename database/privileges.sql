@@ -56,6 +56,7 @@ GRANT SELECT ON `airport` TO 'bairways_user'@'localhost';
 GRANT SELECT ON `route` TO 'bairways_user'@'localhost';
 GRANT SELECT ON `price` TO 'bairways_user'@'localhost';
 GRANT SELECT ON `seat_map` TO 'bairways_user'@'localhost';
+GRANT SELECT ON `user` TO 'bairways_user'@'localhost';
 GRANT INSERT ON `guest` TO 'bairways_user'@'localhost';
 GRANT SELECT, INSERT ON `passenger` TO 'bairways_user'@'localhost';
 GRANT SELECT, INSERT, UPDATE ON `booking` TO 'bairways_user'@'localhost';

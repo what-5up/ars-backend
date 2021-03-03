@@ -1,6 +1,6 @@
 const logger = require('../utils/logger');
 
-const { errorMesage, errorMessage } = require('../utils/message-template')
+const { errorMessage } = require('../utils/message-template')
 
 const requestLogger = (request, response, next) => {
     logger.info('Method:', request.method);
@@ -23,8 +23,7 @@ const errorHandler = (error, request, response, next) => {
     } else if (error.name === 'ValidationError') {
         return response.status(400).json({ error: error.message });
     }
-
-    next(error);
+    return errorMesage(response, "Something went wrong", 500);
 }
 
 module.exports = {
