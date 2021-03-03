@@ -14,7 +14,7 @@ CREATE TABLE `account_type` (
   `is_deleted` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT CHK_AccountDiscount CHECK(`discount` BETWEEN 0 AND 100),
-  INDEX `is_deleted` (`is_deleted`)
+  INDEX (`is_deleted`)
 );
 
 --
@@ -50,7 +50,8 @@ CREATE TABLE `guest` (
   CONSTRAINT FK_GuestTitle FOREIGN KEY (`title`) 
   REFERENCES `title`(`id`) ON UPDATE CASCADE,
   CONSTRAINT FK_GuestParent FOREIGN KEY (`id`) 
-  REFERENCES `user`(`id`) ON UPDATE CASCADE
+  REFERENCES `user`(`id`) ON UPDATE CASCADE,
+  INDEX(`email`)
 );
 
 --
@@ -59,7 +60,7 @@ CREATE TABLE `guest` (
 --
 DELIMITER $$
 
-CREATE TRIGGER `TR_AddParentOfGuest` BEFORE INSERT ON `guest` FOR EACH ROW BEGIN
+CREATE TRIGGER `TR_AddParentIDToGuest` BEFORE INSERT ON `guest` FOR EACH ROW BEGIN
   DECLARE new_id INT;
   SELECT COUNT(*) + 1 INTO new_id FROM `user`;
   INSERT INTO `user` VALUES (new_id, 'g');
@@ -88,7 +89,7 @@ CREATE TABLE `registered_user` (
   REFERENCES `title`(`id`) ON UPDATE CASCADE,
   CONSTRAINT FK_RegisteredUserParent FOREIGN KEY (`id`) 
   REFERENCES `user`(`id`) ON UPDATE CASCADE,
-  INDEX `is_deleted` (`is_deleted`)
+  INDEX (`is_deleted`, `email`)
 );
 
 --
@@ -97,7 +98,7 @@ CREATE TABLE `registered_user` (
 --
 DELIMITER $$
 
-CREATE TRIGGER `TR_AddParentOfRegisteredUser` BEFORE INSERT ON `registered_user` FOR EACH ROW BEGIN
+CREATE TRIGGER `TR_AddParentIDToRegisteredUser` BEFORE INSERT ON `registered_user` FOR EACH ROW BEGIN
   DECLARE new_id INT;
   SELECT COUNT(*) + 1 INTO new_id FROM `user`;
   INSERT INTO `user` VALUES (new_id, 'r');
@@ -150,7 +151,7 @@ CREATE TABLE `employee` (
   REFERENCES `designation`(`id`) ON UPDATE CASCADE, 
   CONSTRAINT FK_EmployeeTitle FOREIGN KEY (`title`) 
   REFERENCES `title`(`id`) ON UPDATE CASCADE,
-  INDEX `is_deleted` (`is_deleted`)
+  INDEX (`is_deleted`, `email`)
 );
 
 --
@@ -162,6 +163,7 @@ CREATE TABLE `aircraft_model` (
   `seating_capacity` smallint unsigned,
   `max_rows` smallint unsigned,
   `max_columns` smallint unsigned,
+  CONSTRAINT UC_ModelName UNIQUE (`model_name`),
   PRIMARY KEY (`id`)
 );
 
@@ -200,7 +202,7 @@ CREATE TABLE `region` (
   CONSTRAINT FK_RegionParent FOREIGN KEY (`parent_id`) 
   REFERENCES `region`(`id`) ON UPDATE CASCADE,
   CONSTRAINT UC_RegionName UNIQUE (`name`, `region_type`,`parent_id`),
-  INDEX `is_deleted` (`is_deleted`)
+  INDEX (`is_deleted`)
 );
 
 --
@@ -215,7 +217,7 @@ CREATE TABLE `airport` (
   PRIMARY KEY (`id`),
   CONSTRAINT FK_ParentRegion FOREIGN KEY (`parent_region_id`) 
   REFERENCES `region`(`id`) ON UPDATE CASCADE,
-  INDEX `is_deleted` (`is_deleted`)
+  INDEX (`is_deleted`)
 );
 
 --
@@ -232,7 +234,7 @@ CREATE TABLE `route` (
   CONSTRAINT FK_RouteDestination FOREIGN KEY (`destination`) 
   REFERENCES `airport`(`id`) ON UPDATE CASCADE,
   CONSTRAINT UC_OriginDestination UNIQUE(`origin`, `destination`),
-  INDEX `is_deleted` (`is_deleted`)
+  INDEX (`is_deleted`, `origin`, `destination`)
 );
 
 --
@@ -270,7 +272,8 @@ CREATE TABLE `scheduled_flight` (
   CONSTRAINT FK_ScheduledFlightAircraft FOREIGN KEY (`assigned_aircraft_id`)
   REFERENCES `aircraft`(`id`) ON UPDATE CASCADE,
   CONSTRAINT UC_FlightSchedule UNIQUE (`route`, `departure`),
-  INDEX `is_deleted` (`is_deleted`)
+  CONSTRAINT UC_AircraftForDeparture UNIQUE (`assigned_aircraft_id`, `departure`),
+  INDEX (`is_deleted`, `departure`)
 );
 
 --
@@ -286,8 +289,9 @@ CREATE TABLE `booking` (
   PRIMARY KEY (`id`),
   CONSTRAINT FK_BookingUser FOREIGN KEY (`user_id`) 
   REFERENCES `user`(`id`) ON UPDATE CASCADE,
-  CONSTRAINT FL_BookingFlight FOREIGN KEY (`scheduled_flight_id`) 
-  REFERENCES `scheduled_flight`(`id`) ON UPDATE CASCADE
+  CONSTRAINT FK_BookingFlight FOREIGN KEY (`scheduled_flight_id`) 
+  REFERENCES `scheduled_flight`(`id`) ON UPDATE CASCADE,
+  INDEX(`user_id`, `state`)
 );
 
 --
@@ -409,7 +413,8 @@ CREATE TABLE `passenger` (
   CONSTRAINT FK_PassengerUser FOREIGN KEY (`user_id`) 
   REFERENCES `user`(`id`) ON UPDATE CASCADE,
   CONSTRAINT FK_PassengerTitle FOREIGN KEY (`title`) 
-  REFERENCES `title`(`id`) ON UPDATE CASCADE  
+  REFERENCES `title`(`id`) ON UPDATE CASCADE,
+  INDEX(`user_id`)
 );
 
 --
