@@ -1,4 +1,5 @@
 const { pool } = require(`../database/connection`);
+const encryptor = require('../utils/crypto');
 
 async function addPassengers(passengers, userID, connection = pool) {
     let sql = "INSERT INTO passenger(user_id,title,first_name,last_name,birthday,gender,country,passport_no,passport_expiry) VALUES ";
@@ -8,12 +9,12 @@ async function addPassengers(passengers, userID, connection = pool) {
         sql += valuesStatement;
         variableValues.push(userID);
         variableValues.push(passenger.title);
-        variableValues.push(passenger.first_name);
-        variableValues.push(passenger.last_name);
+        variableValues.push(encryptor.encrypt(passenger.first_name));
+        variableValues.push(encryptor.encrypt(passenger.last_name));
         variableValues.push(passenger.birthday);
         variableValues.push(passenger.gender);
-        variableValues.push(passenger.country);
-        variableValues.push(passenger.passport_no);
+        variableValues.push(encryptor.encrypt(passenger.country));
+        variableValues.push(encryptor.encrypt(passenger.passport_no));
         variableValues.push(passenger.passport_expiry);
     }
     sql = sql.slice(0, -1);
@@ -69,7 +70,20 @@ async function getPassengers(user_id = undefined) {
                 if (error) {
                     reject(new Error(error.message));
                 }
-                resolve(results);
+                resolve(results.map((row => {
+                    return {
+                        id: row.id,
+                        user_id: row.user_id,
+                        title: row.title,
+                        first_name: encryptor.decrypt(row.first_name),
+                        last_name: encryptor.decrypt(row.last_name),
+                        birthday: row.birthday,
+                        gender: row.gender,
+                        country: encryptor.decrypt(row.country),
+                        passport_no: encryptor.decrypt(row.passport_no),
+                        passport_expiry: row.passport_expiry
+                    }
+                })));
 
             }
         );
@@ -95,6 +109,20 @@ async function getLastPassengerIDs(user_id, newPassengerCount, connection = pool
                 if (error) {
                     reject(new Error(error.message));
                 }
+                results = results.map((row => {
+                    return {
+                        id: row.id,
+                        user_id: row.user_id,
+                        title: row.title,
+                        first_name: encryptor.decrypt(row.first_name),
+                        last_name: encryptor.decrypt(row.last_name),
+                        birthday: row.birthday,
+                        gender: row.gender,
+                        country: encryptor.decrypt(row.country),
+                        passport_no: encryptor.decrypt(row.passport_no),
+                        passport_expiry: row.passport_expiry
+                    }
+                }))
                 if (connection == pool) {
                     resolve(results);
                 }
@@ -114,16 +142,28 @@ async function getLastPassengerIDs(user_id, newPassengerCount, connection = pool
  * 
  * @returns {Promise<object>} [{}]
  */
-async function getPassengersOfUser(userId){
+async function getPassengersOfUser(userId) {
     return new Promise((resolve, reject) => {
-        const result = pool.query("SELECT id, title , first_name, last_name, birthday, gender, country, passport_no, passport_expiry FROM passenger WHERE user_id = ?", 
-        [userId] ,
+        const result = pool.query("SELECT id, title , first_name, last_name, birthday, gender, country, passport_no, passport_expiry FROM passenger WHERE user_id = ?",
+            [userId],
             function (error, results) {
                 if (error) {
                     console.log(result.sql);
                     reject(new Error(error.message));
                 }
-                resolve(results);
+                resolve(results.map((row => {
+                    return {
+                        id: row.id,
+                        title: row.title,
+                        first_name: encryptor.decrypt(row.first_name),
+                        last_name: encryptor.decrypt(row.last_name),
+                        birthday: row.birthday,
+                        gender: row.gender,
+                        country: encryptor.decrypt(row.country),
+                        passport_no: encryptor.decrypt(row.passport_no),
+                        passport_expiry: row.passport_expiry
+                    }
+                })));
             }
         )
     })

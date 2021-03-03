@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const { successMessage, errorMessage } = require("../utils/message-template");
-
+const encryptor = require('../utils/crypto');
 const sessionModel = require("../models/session-model");
 
 function validateLogin(email,password) {
@@ -32,7 +32,7 @@ const login = async (req, res, next) => {
             return errorMessage(res, 'Incorrect email or password', 401);
         }
         const token = jwt.sign({
-                email: loadedUser.email,
+                email: encryptor.decrypt(loadedUser.email),
                 userID: loadedUser.id.toString(),
                 accType: loadedUser.acc_type,
                 expiresIn: 3600

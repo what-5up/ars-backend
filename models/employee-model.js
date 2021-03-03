@@ -1,4 +1,5 @@
 const { pool } = require(`../database/connection`);
+const encryptor = require('../utils/crypto');
 
 /**
  * get all the employees from the database
@@ -37,6 +38,9 @@ const addEmployee = async (
     let fields = [];
     let placeholders = [];
     let values = [];
+    if (payload.firstName) payload.firstName = encryptor.encrypt(payload.firstName);
+    if (payload.lastName) payload.lastName = encryptor.encrypt(payload.lastName);
+    if (payload.email) payload.email = encryptor.encrypt(payload.email);
     Object.keys(payload).forEach((key) => {
         if (payload[key] != null) {
             let updatedKey = key.split(/(?=[A-Z])/).join("_");
@@ -80,6 +84,9 @@ const updateEmployee = async (
 ) => {
     let fields = [];
     let values = [];
+    if (payload.firstName) payload.firstName = encryptor.encrypt(payload.firstName);
+    if (payload.lastName) payload.lastName = encryptor.encrypt(payload.lastName);
+    if (payload.email) payload.email = encryptor.encrypt(payload.email);
     Object.keys(payload).forEach((key) => {
         if (payload[key] != null) {
             let updatedKey = key.split(/(?=[A-Z])/).join("_");
@@ -127,7 +134,7 @@ const deleteAccountType = async (id) => {
 async function isEmailRegistered(email) {
     return new Promise((resolve, reject) => {
         const result = pool.query('SELECT id FROM employee WHERE email = ?',
-            [email],
+            [encryptor.encrypt(email)],
             function (error, results) {
                 if (error) {
                     reject(error);

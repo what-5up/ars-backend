@@ -1,9 +1,10 @@
 const { pool } = require(`../database/connection`);
+const encryptor = require('../utils/crypto');
 
 async function findUserByEmail(email){
     return new Promise((resolve, reject) => {
         pool.query('SELECT * FROM user_auth WHERE email = ? AND is_deleted = ?',
-            [email,0],
+            [encryptor.encrypt(email),0],
             function (error, results) {
                 if (error) {
                     reject(new Error(error.message));
@@ -14,6 +15,7 @@ async function findUserByEmail(email){
     });
 }
 
+console.log(findUserByEmail('roots@gmail.com'))
 
 module.exports = {
     findUserByEmail

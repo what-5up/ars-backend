@@ -1,4 +1,5 @@
 const { pool } = require(`../database/connection`);
+const encryptor = require('../utils/crypto');
 
 async function createGuest(title,firstName,lastName,gender,email){
     return new Promise((resolve, reject) => {
@@ -6,10 +7,10 @@ async function createGuest(title,firstName,lastName,gender,email){
             "(?,?,?,?,?)" ,
             [
                 title,
-                firstName,
-                lastName,
+                encryptor.encrypt(firstName),
+                encryptor.encrypt(lastName),
                 gender,
-                email
+                encryptor.encrypt(email)
             ],
             function (error, results) {
                 if (error) {
